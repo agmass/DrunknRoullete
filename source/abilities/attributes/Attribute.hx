@@ -12,6 +12,9 @@ class Attribute {
     public static var DASH_SPEED:String = "player.dash_speed";
     public static var JUMP_COUNT:String = "player.jump_count";
 
+	public static var SIZE_X:String = "player.size_x";
+	public static var SIZE_Y:String = "player.size_y";
+
     public var defaultValue = 0.0;
     private var value = 0.0;
     public var modifiers:Array<AttributeContainer> = new Array();
@@ -24,6 +27,11 @@ class Attribute {
     public function refreshAndGetValue():Float {
         var finalValue = defaultValue;
         for (i in modifiers) {
+			if (i.operation == AttributeOperation.FIRST_ADD)
+				finalValue += i.amount;
+		}
+		for (i in modifiers)
+		{
             if (i.operation == AttributeOperation.ADD) finalValue += i.amount;
             else if (i.operation == AttributeOperation.MULTIPLY) finalValue *= i.amount;
         }
@@ -35,10 +43,17 @@ class Attribute {
         modifiers.remove(container);
         refreshAndGetValue();
     }
+	public function containsOperation(container:AttributeContainer):Bool
+	{
+		return modifiers.contains(container);
+	}
 
     public function addOperation(container:AttributeContainer) {
-        modifiers.push(container);
-        refreshAndGetValue();
+		if (!modifiers.contains(container))
+		{
+			modifiers.push(container);
+			refreshAndGetValue();
+		}
     }
 
     public function getValue():Float {

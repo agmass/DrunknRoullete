@@ -1,6 +1,7 @@
 package entity;
 
 import abilities.attributes.Attribute;
+import abilities.attributes.AttributeContainer;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.effects.particles.FlxEmitter;
@@ -13,12 +14,17 @@ class PlayerEntity extends Entity {
 
     public var input:InputSource = new KeyboardSource();
     public var jumps = 0;
+	public var canDash = false;
     public var dashMovement = new FlxPoint();
     public var lastNonZeroInput = new FlxPoint();
     public var showPlayerMarker = false;
     public var playerMarkerColor:FlxColor = null;
 
     public var poofParticles = new FlxEmitter();
+
+	public var crouchAttribute_x:AttributeContainer = new AttributeContainer(FIRST_ADD, 0.1);
+	public var crouchAttribute_speed:AttributeContainer = new AttributeContainer(MULTIPLY, 0.5);
+	public var crouchAttribute_y:AttributeContainer = new AttributeContainer(FIRST_ADD, -0.25);
 
     override public function new(x,y) {
         super(x,y);
@@ -27,6 +33,7 @@ class PlayerEntity extends Entity {
         maxVelocity.y = 900;
         drag.x = 1200;
         debugTracker.set("Jumps", "jumps");
+		debugTracker.set("Can Dash", "canDash");
 
         poofParticles.makeParticles(13,13);
         poofParticles.angle.set(-360,360);
@@ -36,6 +43,8 @@ class PlayerEntity extends Entity {
 
     override function createAttributes() {
         super.createAttributes();
+		attributes.set(Attribute.SIZE_X, new Attribute(1));
+		attributes.set(Attribute.SIZE_Y, new Attribute(1));
         attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(450));
         attributes.set(Attribute.JUMP_HEIGHT, new Attribute(500));
         attributes.set(Attribute.JUMP_COUNT, new Attribute(1));
@@ -50,13 +59,19 @@ class PlayerEntity extends Entity {
 
         //
 
+		var newWidth = (32 * attributes.get(Attribute.SIZE_X).getValue());
+		var newHeight = (32 * attributes.get(Attribute.SIZE_Y).getValue());
+		y += height - newHeight;
+		x += (width - newWidth) / 2;
+		setSize(newWidth, newHeight);
+		offset.set(-0.5 * (width - frameWidth), -0.5 * (height - frameHeight));
+		squash(isTouching(FLOOR), elapsed);
+
         if (FlxG.keys.justPressed.O) {
-            attributes.set(Attribute.DASH_SPEED, new Attribute(250));
-            attributes.set(Attribute.JUMP_COUNT, new Attribute(10));
+			attributes.set(Attribute.DASH_SPEED, new Attribute(250));
         }
         var SPEED = attributes.get(Attribute.MOVEMENT_SPEED).getValue();
-        var JUMP_HEIGHT = attributes.get(Attribute.JUMP_HEIGHT).getValue();
-        squash(isTouching(FLOOR), elapsed);
+		var JUMP_HEIGHT = attributes.get(Attribute.JUMP_HEIGHT).getValue();
         var inputVelocity = input.getMovementVector();
         acceleration.x = inputVelocity.x*(SPEED*6);
         maxVelocity.x = SPEED*Math.abs(inputVelocity.x);
@@ -67,7 +82,26 @@ class PlayerEntity extends Entity {
 
 
         var JUMP_COUNT = attributes.get(Attribute.JUMP_COUNT).getValue();
-        if (isTouching(FLOOR)) jumps = Math.floor(JUMP_COUNT);
+		if (isTouching(FLOOR))
+		{
+			jumps = Math.floor(JUMP_COUNT);
+			canDash = true;
+		}
+
+		// cro uch :3
+
+		if (isTouching(FLOOR) && inputVelocity.y > 0.1)
+		{
+			attributes.get(Attribute.SIZE_X).addOperation(crouchAttribute_x);
+			attributes.get(Attribute.SIZE_Y).addOperation(crouchAttribute_y);
+			attributes.get(Attribute.MOVEMENT_SPEED).addOperation(crouchAttribute_speed);
+		}
+		else if (attributes.get(Attribute.SIZE_X).containsOperation(crouchAttribute_x))
+		{
+			attributes.get(Attribute.SIZE_X).removeOperation(crouchAttribute_x);
+			attributes.get(Attribute.SIZE_Y).removeOperation(crouchAttribute_y);
+			attributes.get(Attribute.MOVEMENT_SPEED).removeOperation(crouchAttribute_speed);
+		}
 
         if (jumps >= 1 && (input.jumpJustPressed || (isTouching(FLOOR) && input.jumpPressed))) {
             jumps--;
@@ -113,11 +147,15 @@ class PlayerEntity extends Entity {
             }
             if (isTouching(WALL)) {
                 dashMovement.x *= -1;
+				jumps = Math.floor(JUMP_COUNT);
+				canDash = true;
             }
         }
-        if (attributes.exists(Attribute.DASH_SPEED)) {
+		if (attributes.exists(Attribute.DASH_SPEED) && canDash)
+		{
             var DASH_SPEED = attributes.get(Attribute.DASH_SPEED).getValue();
             if (input.dashJustPressed) {
+				canDash = false;
                 velocity.x = lastNonZeroInput.x;
                 velocity.y  = lastNonZeroInput.y;
                 dashMovement.x = lastNonZeroInput.x;
@@ -143,12 +181,26 @@ class PlayerEntity extends Entity {
     }
 
 
-	public function squash(grounded,elapsed:Float) {
+	public function squash(grounded, elapsed:Float)
+	{
+		var SCALE_X = attributes.get(Attribute.SIZE_X).getValue();
+		var SCALE_Y = attributes.get(Attribute.SIZE_Y).getValue();
 		if (grounded) {
 			if (elapsed == -9) {
-				scale.set(1,1);
+				scale.set(SCALE_X, SCALE_Y);
+				// reused taglayer code so this is left here until i implement online
 			} else {
-				scale.set(Math.min(scale.x+(elapsed*7),1),1);
+				var newX = Math.min(scale.x + (elapsed * 7), SCALE_X);
+				if (scale.x > SCALE_X)
+				{
+					newX = Math.max(scale.x - (elapsed * 7), SCALE_X);
+				}
+				var newY = Math.min(scale.y + (elapsed * 7), SCALE_Y);
+				if (scale.y > SCALE_Y)
+				{
+					newY = Math.max(scale.y - (elapsed * 7), SCALE_Y);
+				}
+				scale.set(newX, newY);
 			}
 		} else {
 			if (dashMovement.x > 70 || dashMovement.y > 70) {
@@ -156,10 +208,11 @@ class PlayerEntity extends Entity {
 
 			} else {
 				scale.set(
-					Math.min(Math.max(scale.x-(velocity.y/2000),0.5),1)
-					,Math.min(Math.max(scale.y+(velocity.y/2000),1),1.5));
+				Math.min(Math.max(scale.x - (velocity.y / 2000), SCALE_X / 2), SCALE_X),
+					Math.min(Math.max(scale.y + (velocity.y / 2000), SCALE_Y), SCALE_Y + (SCALE_Y / 2)));
 			}
 		}
+		offset.y = (scale.y * 32) - (SCALE_Y * 32);
 	}
 
     override function toString():String {
@@ -170,7 +223,7 @@ class PlayerEntity extends Entity {
 
     override function draw() {
         if (showPlayerMarker) {
-            playerMarker.x = x;
+			playerMarker.x = getMidpoint().x - (14 / 2);
             playerMarker.y = getGraphicBounds().y-14;
             playerMarker.color = playerMarkerColor;
             playerMarker.draw();
