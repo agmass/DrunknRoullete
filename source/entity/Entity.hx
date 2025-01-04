@@ -1,16 +1,26 @@
 package entity;
 
 import abilities.attributes.Attribute;
+import abilities.attributes.AttributeType;
+import flixel.FlxBasic;
+import flixel.FlxCamera;
 import flixel.FlxSprite;
+import flixel.sound.FlxSound;
 import flixel.ui.FlxBar;
 import haxe.ds.HashMap;
+import sound.FootstepManager;
 
 class Entity extends FlxSprite {
 
     public var health = 100.0;
-    public var attributes:Map<String, Attribute> = new Map();
+	public var attributes:Map<AttributeType, Attribute> = new Map();
     public var entityName = "Entity";
     public var debugTracker:Map<String, String> = new Map();
+	public var manuallyUpdateSize = false;
+	public var steppingOn = "concrete";
+	public var footstepCount = 0;
+
+	public var pxTillFootstep = 80.0;
     
     public function new(x,y) {
         super(x,y);
@@ -20,15 +30,45 @@ class Entity extends FlxSprite {
         debugTracker.set("Y", "y");
         debugTracker.set("Velocity X", "velocity.x");
         debugTracker.set("Velocity Y", "velocity.y");
+		debugTracker.set("Stepping On", "steppingOn");
+		debugTracker.set("Footstep Sound Step", "footstepCount");
+		debugTracker.set("Pixels until Footstep", "pxTillFootstep");
     }
 
     override function update(elapsed:Float) {
-        health = Math.min(health, attributes.get(Attribute.MAX_HEALTH).getValue());
+		for (key => value in attributes)
+		{
+			value.max = key.maxBound;
+			value.min = key.minBound;
+
+			if (value.getValue() >= value.max || value.getValue() <= value.min)
+			{
+				value.refreshAndGetValue();
+			}
+		}
+		var newWidth = (32 * attributes.get(Attribute.SIZE_X).getValue());
+		var newHeight = (32 * attributes.get(Attribute.SIZE_Y).getValue());
+		if (!manuallyUpdateSize && (newWidth != width || newHeight != height))
+		{
+			y += height - newHeight;
+			x += (width - newWidth) / 2;
+			setSize(newWidth, newHeight);
+			scale.set(attributes.get(Attribute.SIZE_X).getValue(), attributes.get(Attribute.SIZE_Y).getValue());
+		}
+
+		pxTillFootstep -= last.distanceTo(getPosition());
+		if (pxTillFootstep <= 0)
+		{
+			pxTillFootstep = 80;
+			FootstepManager.playFootstepForEntity(this);
+		}
+
+		health = Math.min(health, attributes.get(Attribute.MAX_HEALTH).getValue());
         super.update(elapsed);
     }
 
     public function createAttributes() {
-        attributes.set(Attribute.MAX_HEALTH, new Attribute(100));
+		attributes.set(Attribute.MAX_HEALTH, new Attribute(100));
     }
 
     override function draw() {
@@ -49,7 +89,7 @@ class Entity extends FlxSprite {
         }
         var attributeString = "";
         for (key => value in attributes) {
-            attributeString += "\n        " + key + ": " + value.getValue() + " (" + value.modifiers.length + " modifiers)";
+			attributeString += "\n        " + key.id + ": " + value.getValue() + " (" + value.modifiers.length + " modifiers)";
         }
         return entityName + " (FlxID: " + ID + ")\n" + debugString + "\n   Attributes:" + attributeString;
     }
