@@ -24,13 +24,15 @@ class Main extends Sprite
 		https://dryoma.itch.io/footsteps-sounds
 	";
 
+	public static var FPS:FPS;
 
 	public function new()
 	{
 		super();
 		trace(attribution);
+		FPS = new FPS(0, 20, FlxColor.WHITE);
+		addChild(FPS);
 		addChild(new FlxGame(0, 0, PlayState));
-		addChild(new FPS(FlxG.width-80,20,FlxColor.WHITE));
 		FootstepManager.loadSurface("concrete");
 		FootstepManager.loadSurface("wood");
 		FootstepManager.loadSurface("carpet");

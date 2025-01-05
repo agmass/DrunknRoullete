@@ -37,6 +37,12 @@ class InputSource {
         return new FlxPoint(0,0);
     }
 
+	public function getLookAngle(origin:FlxPoint):Float
+	{
+		return 0;
+	}
+
+
 
 	public function toString():String
     {

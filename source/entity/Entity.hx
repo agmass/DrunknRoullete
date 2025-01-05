@@ -5,6 +5,7 @@ import abilities.attributes.AttributeType;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxSprite;
+import flixel.math.FlxMath;
 import flixel.sound.FlxSound;
 import flixel.ui.FlxBar;
 import haxe.ds.HashMap;
@@ -87,6 +88,10 @@ class Entity extends FlxSprite {
             var finalValue:Dynamic = null; 
             for (i in 0...splits.length) {
                 finalValue = Reflect.getProperty(currentParent,splits[i]);
+				if (Reflect.getProperty(currentParent, splits[i]) is Float)
+				{
+					finalValue = FlxMath.roundDecimal(Reflect.getProperty(currentParent, splits[i]), 2);
+				}
                 currentParent = finalValue;
             }
             debugString += "\n   " + key + ": " + Std.string(finalValue);

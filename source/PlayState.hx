@@ -61,6 +61,7 @@ class PlayState extends FlxState
 		playerDebugText.camera = HUDCam;
 		add(playerDebugText);
 		playerDebugText.size = 12;
+		playerDebugText.visible = false;
 		add(playerLayer);
 		add(mapLayer);
 	}
@@ -75,18 +76,24 @@ class PlayState extends FlxState
 				activeGamepads.push(gamepad);
 			}
 		}
-		if (FlxG.keys.justPressed.H)
+		/*
+			if (FlxG.keys.justPressed.G)
+			{
+				FlxG.vcr.startRecording(false);
+			}
+				if (FlxG.keys.justPressed.H)
+				{
+					var recording = FlxG.vcr.stopRecording();
+					FlxG.vcr.loadReplay(recording);
+				}
+		 */
+		if (FlxG.keys.justPressed.F3)
 		{
-			var save = FlxG.vcr.stopRecording(true);
-			FlxG.vcr.loadReplay(save, PlayState.new, ["ANY"], 0);
-		}
-		if (FlxG.keys.justPressed.G)
-		{
-			FlxG.vcr.startRecording(false);
+			playerDebugText.visible = !playerDebugText.visible;
 		}
 		FlxG.fixedTimestep = false;
 		var showPlayerMarker = playerLayer.length > 1;
-		playerDebugText.text = "";
+		playerDebugText.text = "\n" + "FPS: " + Main.FPS.currentFPS + "\n";
 		playerLayer.forEachOfType(PlayerEntity, (p)->{
 			if (FlxG.keys.justPressed.O)
 			{
@@ -130,18 +137,14 @@ class PlayState extends FlxState
 				else
 				{
 					amount = [
-						10, 10, 10, 10, 10, 10, 25, 25, 25, 25, 25, 50, 50, 50, 50, 100, 100, 100, 250, 250, 500
-					][FlxG.random.int(0, 20)];
+						10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 25.0, 25.0, 25.0, 25.0, 25.0, 50.0, 50.0, 50.0, 50.0, 100.0, 100.0, 100.0, 250.0, 250.0, 500.0
+					][FlxG.random.int(0, 20)] *= type.additionMultiplier;
 					if (type == Attribute.JUMP_COUNT)
 					{
-						amount = [1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4][FlxG.random.int(0, 14)];
+						amount = [1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0, 4.0][FlxG.random.int(0, 13)] *= type.additionMultiplier;
 					}
 					if (!lostOrWon)
 						amount = -amount;
-				}
-				if (operation.equals(ADD))
-				{
-					amount *= type.additionMultiplier;
 				}
 				trace(type.id);
 				trace(lostOrWon ? "won" : "lost");

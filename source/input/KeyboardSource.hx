@@ -25,6 +25,11 @@ class KeyboardSource extends InputSource {
         super.update();
     }
 
+	override function getLookAngle(origin:FlxPoint):Float
+	{
+		return origin.degreesFrom(new FlxPoint(FlxG.mouse.x, FlxG.mouse.y));
+	}
+
     override function getMovementVector():FlxPoint {
         var x = 0;
         var y = 0;

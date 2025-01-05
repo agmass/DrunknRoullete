@@ -67,6 +67,8 @@ class PlayerEntity extends EquippedEntity
 
         //
 
+		handWeapon.angle = input.getLookAngle(getPosition()) - 90;
+
 		var newWidth = (32 * attributes.get(Attribute.SIZE_X).getValue());
 		var newHeight = (32 * attributes.get(Attribute.SIZE_Y).getValue());
 		y += height - newHeight;
@@ -85,6 +87,7 @@ class PlayerEntity extends EquippedEntity
 
         if (!inputVelocity.isZero()) {
             lastNonZeroInput = inputVelocity;
+			flipX = inputVelocity.x < 0;
         }
 
 

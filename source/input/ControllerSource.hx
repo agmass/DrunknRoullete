@@ -38,8 +38,7 @@ class ControllerSource extends InputSource {
         dashJustPressed = dash.justPressed();
         dashPressed = dash.pressed();
         super.update();
-    }
-
+	}
     override function getMovementVector():FlxPoint {
         return new FlxPoint(horizontal.value(), vertical.value());
     }
