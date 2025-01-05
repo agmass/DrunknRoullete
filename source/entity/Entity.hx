@@ -9,12 +9,14 @@ import flixel.sound.FlxSound;
 import flixel.ui.FlxBar;
 import haxe.ds.HashMap;
 import sound.FootstepManager;
+import util.Language;
 
 class Entity extends FlxSprite {
 
     public var health = 100.0;
 	public var attributes:Map<AttributeType, Attribute> = new Map();
-    public var entityName = "Entity";
+	public var entityName = "entity";
+	public var typeTranslationKey = "basic";
     public var debugTracker:Map<String, String> = new Map();
 	public var manuallyUpdateSize = false;
 	public var steppingOn = "concrete";
@@ -75,6 +77,8 @@ class Entity extends FlxSprite {
         super.draw();
     }
     
+	var translatedTypeName = "";
+
     override function toString():String {
         var debugString = "";
         for (key => value in debugTracker) {
@@ -87,10 +91,28 @@ class Entity extends FlxSprite {
             }
             debugString += "\n   " + key + ": " + Std.string(finalValue);
         }
+		if (translatedTypeName == "")
+		{
+			translatedTypeName = Language.get("entity." + typeTranslationKey);
+		}
         var attributeString = "";
         for (key => value in attributes) {
-			attributeString += "\n        " + key.id + ": " + value.getValue() + " (" + value.modifiers.length + " modifiers)";
+			attributeString += "\n        "
+				+ Language.get("attribute." + key.id)
+				+ ": "
+				+ value.getValue()
+				+ " ("
+				+ value.modifiers.length
+				+ " modifiers)";
         }
-        return entityName + " (FlxID: " + ID + ")\n" + debugString + "\n   Attributes:" + attributeString;
+		return entityName
+			+ " (Type: "
+			+ translatedTypeName
+			+ " FlxID: "
+			+ ID
+			+ ")\n"
+			+ debugString
+			+ "\n   Attributes:"
+			+ attributeString;
     }
 }

@@ -10,6 +10,7 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.group.FlxSpriteGroup;
 import flixel.input.gamepad.mappings.SwitchProMapping;
+import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import input.ControllerSource;
@@ -41,6 +42,7 @@ class PlayState extends FlxState
 	var gameCam:FlxCamera = new FlxCamera();
 	var HUDCam:FlxCamera = new FlxCamera();
 
+
 	override public function create()
 	{
 		super.create();
@@ -55,7 +57,7 @@ class PlayState extends FlxState
 		ground.makeGraphic(Math.round(1920 / 2), 800, FlxColor.RED);
 		ground.immovable = true;
 		mapLayer.add(ground);
-		playerLayer.add(new PlayerEntity(20,20));
+		playerLayer.add(new PlayerEntity(20, 20, "Player 1"));
 		playerDebugText.camera = HUDCam;
 		add(playerDebugText);
 		playerDebugText.size = 12;
@@ -67,12 +69,22 @@ class PlayState extends FlxState
 	{
 		for (gamepad in FlxG.gamepads.getActiveGamepads()) {
 			if (!activeGamepads.contains(gamepad)) {
-				var player = new PlayerEntity(20,20);
+				var player = new PlayerEntity(20, 20, "Player " + playerLayer.length + 1);
 				player.input = new ControllerSource(gamepad);
 				playerLayer.add(player);
 				activeGamepads.push(gamepad);
 			}
 		}
+		if (FlxG.keys.justPressed.H)
+		{
+			var save = FlxG.vcr.stopRecording(true);
+			FlxG.vcr.loadReplay(save, PlayState.new, ["ANY"], 0);
+		}
+		if (FlxG.keys.justPressed.G)
+		{
+			FlxG.vcr.startRecording(false);
+		}
+		FlxG.fixedTimestep = false;
 		var showPlayerMarker = playerLayer.length > 1;
 		playerDebugText.text = "";
 		playerLayer.forEachOfType(PlayerEntity, (p)->{
@@ -113,12 +125,19 @@ class PlayState extends FlxState
 					{
 						amount = FlxG.random.float(0.5, 0.9);
 					}
+					amount = FlxMath.roundDecimal(amount, 1);
 				}
 				else
 				{
-					amount = FlxG.random.int(20, 500);
+					amount = [
+						10, 10, 10, 10, 10, 10, 25, 25, 25, 25, 25, 50, 50, 50, 50, 100, 100, 100, 250, 250, 500
+					][FlxG.random.int(0, 20)];
+					if (type == Attribute.JUMP_COUNT)
+					{
+						amount = [1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4][FlxG.random.int(0, 14)];
+					}
 					if (!lostOrWon)
-						amount = -FlxG.random.int(20, 500);
+						amount = -amount;
 				}
 				if (operation.equals(ADD))
 				{

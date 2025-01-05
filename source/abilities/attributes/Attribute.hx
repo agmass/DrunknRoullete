@@ -13,8 +13,8 @@ class Attribute {
 	public static var SIZE_Y:AttributeType = new AttributeType("size_y", 0.001, 0.45, 2);
 
 	public static var DASH_SPEED:AttributeType = new AttributeType("player.dash_speed", 1, 150, 600);
-	public static var JUMP_COUNT:AttributeType = new AttributeType("player.jump_count", 0.01, 0, 99999999999999999999999, true);
-	public static var CRIT_CHANCE:AttributeType = new AttributeType("player.crit_chance", 0.01, 1, 100);
+	public static var JUMP_COUNT:AttributeType = new AttributeType("player.jump_count", 1, 0, 99999999999999999999999, true);
+	public static var CRIT_CHANCE:AttributeType = new AttributeType("player.crit_chance", 0.1, 1, 100);
 
 	public static var attributesList = [
 		MOVEMENT_SPEED,

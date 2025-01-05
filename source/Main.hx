@@ -6,6 +6,7 @@ import flixel.util.FlxColor;
 import openfl.display.FPS;
 import openfl.display.Sprite;
 import sound.FootstepManager;
+import util.Language;
 
 class Main extends Sprite
 {
@@ -33,5 +34,8 @@ class Main extends Sprite
 		FootstepManager.loadSurface("concrete");
 		FootstepManager.loadSurface("wood");
 		FootstepManager.loadSurface("carpet");
+		Language.refreshLanguages();
+		Language.changeLanguage("en_us");
+
 	}	
 }

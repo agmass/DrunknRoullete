@@ -11,7 +11,8 @@ import flixel.util.FlxColor;
 import input.InputSource;
 import input.KeyboardSource;
 import sound.FootstepManager;
-class PlayerEntity extends Entity {
+class PlayerEntity extends EquippedEntity
+{
 
     public var input:InputSource = new KeyboardSource();
     public var jumps = 0;
@@ -27,7 +28,8 @@ class PlayerEntity extends Entity {
 	public var crouchAttribute_speed:AttributeContainer = new AttributeContainer(MULTIPLY, 0.5);
 	public var crouchAttribute_y:AttributeContainer = new AttributeContainer(FIRST_ADD, -0.25);
 
-    override public function new(x,y) {
+	override public function new(x, y, username)
+	{
         super(x,y);
         makeGraphic(32,32,FlxColor.BLUE);
         acceleration.y = 900;
@@ -41,6 +43,8 @@ class PlayerEntity extends Entity {
         poofParticles.alpha.set(1,1,0,0);
         poofParticles.lifespan.set(0.55,0.65);
 		manuallyUpdateSize = true;
+		typeTranslationKey = "player";
+		entityName = username;
     }
 
     override function createAttributes() {

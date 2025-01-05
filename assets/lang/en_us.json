@@ -1,0 +1,14 @@
+{
+    "name": "English",
+    "attribute.movement_speed": "Movement Speed",
+    "attribute.attack_damage": "Attack Damage",
+    "attribute.jump_height": "Jump Height",
+    "attribute.health": "Health",
+    "attribute.size_x": "Size (X)",
+    "attribute.size_y": "Size (Y)",
+    "attribute.player.dash_speed": "Dash Speed",
+    "attribute.player.jump_count": "Jump Count",
+    "attribute.player.crit_chance": "Critical Hit Chance",
+    "entity.player": "Player Entity",
+    "entity.basic": "Unregistered Entity"
+}

@@ -1,5 +1,12 @@
 package input;
 
+/*
+
+    Modified code
+    File originally from "Iris", 2024 by agmas (me! :3)
+
+*/
+
 import flixel.math.FlxPoint;
 import input.control.Input;
 import input.control.KeyOrMouseInput;
