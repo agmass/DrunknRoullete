@@ -13,6 +13,7 @@ class KeyboardSource extends InputSource {
     public var A:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.A,FlxKey.LEFT], []);
     public var S:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.S,FlxKey.DOWN], []);
     public var D:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.D,FlxKey.RIGHT], []);
+	public var backslot:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.F], []);
     public var dash:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.SPACE, FlxKey.SHIFT], []);
 
     override function update() {
@@ -22,6 +23,8 @@ class KeyboardSource extends InputSource {
         jumpPressed = W.pressed();
         dashJustPressed = dash.justPressed();
         dashPressed = dash.pressed();
+		backslotJustPressed = backslot.justPressed();
+		backslotPressed = backslot.pressed();
         super.update();
     }
 

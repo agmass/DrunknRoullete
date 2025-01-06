@@ -16,8 +16,11 @@ class ControllerSource extends InputSource {
     public var shoot:ButtonControllerInput;
     public var vertical:AnalogControllerInput;
     public var horizontal:AnalogControllerInput;
+	public var vertical_look:AnalogControllerInput;
+	public var horizontal_look:AnalogControllerInput;
     public var dash:ButtonControllerInput;
     public var jump:ButtonControllerInput;
+	public var backslot:ButtonControllerInput;
     public var gamepad:FlxGamepad;
 
     public function new(gamepad:FlxGamepad) {
@@ -25,9 +28,13 @@ class ControllerSource extends InputSource {
         this.gamepad = gamepad;
         vertical = new AnalogControllerInput(gamepad,ControllerDirection.Y,[FlxGamepadInputID.LEFT_ANALOG_STICK],[FlxGamepadInputID.DPAD_DOWN],[FlxGamepadInputID.DPAD_UP]);
         horizontal = new AnalogControllerInput(gamepad,ControllerDirection.X,[FlxGamepadInputID.LEFT_ANALOG_STICK],[FlxGamepadInputID.DPAD_RIGHT],[FlxGamepadInputID.DPAD_LEFT]);
-        shoot = new ButtonControllerInput(gamepad,[FlxGamepadInputID.LEFT_TRIGGER]);
+		vertical_look = new AnalogControllerInput(gamepad, ControllerDirection.Y, [FlxGamepadInputID.RIGHT_ANALOG_STICK], []);
+		horizontal_look = new AnalogControllerInput(gamepad, ControllerDirection.X, [FlxGamepadInputID.RIGHT_ANALOG_STICK], []);
+
+		shoot = new ButtonControllerInput(gamepad, [FlxGamepadInputID.RIGHT_TRIGGER]);
         jump = new ButtonControllerInput(gamepad,[FlxGamepadInputID.A]);
         dash = new ButtonControllerInput(gamepad,[FlxGamepadInputID.B]);
+		backslot = new ButtonControllerInput(gamepad, [FlxGamepadInputID.X]);
     }
 
     override function update() {
@@ -37,8 +44,21 @@ class ControllerSource extends InputSource {
         jumpPressed = jump.pressed();
         dashJustPressed = dash.justPressed();
         dashPressed = dash.pressed();
+		backslotJustPressed = backslot.justPressed();
+		backslotPressed = backslot.pressed();
         super.update();
 	}
+	var lastView = 0.0;
+
+	override function getLookAngle(origin:FlxPoint):Float
+	{
+		if (!new FlxPoint(-horizontal_look.value(), -vertical_look.value()).isZero())
+		{
+			lastView = new FlxPoint(-horizontal_look.value(), -vertical_look.value()).degrees;
+		}
+		return lastView;
+	}
+
     override function getMovementVector():FlxPoint {
         return new FlxPoint(horizontal.value(), vertical.value());
     }

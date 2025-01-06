@@ -29,6 +29,9 @@ class InputSource {
     public var dashPressed = false;
     public var dashJustPressed = false;
 
+	public var backslotPressed = false;
+	public var backslotJustPressed = false;
+
     public function new() {}
 
     public function update() {}

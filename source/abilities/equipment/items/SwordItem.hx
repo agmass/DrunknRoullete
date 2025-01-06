@@ -25,9 +25,9 @@ class SwordItem extends Equipment
 
 	var lastSwing = new FlxPoint(0, 0);
 
-	override function attack(player:PlayerEntity)
+	override function attack(player:EquippedEntity)
 	{
-		var swordSweep = new SweepHitbox(player.getMidpoint().x, player.getMidpoint().y);
+		var swordSweep = new SweepHitbox(player.getMidpoint().x, player.getMidpoint().y, Math.floor(player.attributes.get(Attribute.SIZE_X).getValue() - 1));
 		swordSweep.y -= (swordSweep.height / 2);
 		if (flipX)
 		{
@@ -35,11 +35,11 @@ class SwordItem extends Equipment
 			swordSweep.flipX = true;
 		}
 		player.hitboxes.add(swordSweep);
-		lastSwing = new FlxPoint(80, 0).rotateByDegrees(player.input.getLookAngle(player.getPosition()));
-		player.extraVelocity = lastSwing.negateNew();
-		var add = new FlxPoint(50, 0).rotateByDegrees(player.input.getLookAngle(player.getPosition()));
+		lastSwing = new FlxPoint(80, 0).rotateByDegrees(angle - 90).negate();
+		player.extraVelocity = lastSwing.scaleNew(2).negateNew();
+		var add = new FlxPoint(50, 0).rotateByDegrees(angle - 90).negate();
 		swordSweep.y += -add.y;
-		swordSweep.velocity = new FlxPoint(300, 0).rotateByDegrees(player.input.getLookAngle(player.getPosition())).negate();
+		swordSweep.velocity = new FlxPoint(300, 0).rotateByDegrees(angle - 90);
 		super.attack(player);
 	}
 

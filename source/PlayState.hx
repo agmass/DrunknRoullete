@@ -4,6 +4,7 @@ import abilities.attributes.Attribute;
 import abilities.attributes.AttributeContainer;
 import abilities.attributes.AttributeOperation;
 import entity.PlayerEntity;
+import entity.bosses.BIGEVILREDCUBE;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -36,8 +37,9 @@ class PlayState extends FlxState
 	];
 	var playerDebugText:FlxText = new FlxText(10,10,0);
 
-	var mapLayer:FlxSpriteGroup = new FlxSpriteGroup();
-	var playerLayer:FlxSpriteGroup = new FlxSpriteGroup();
+	public var mapLayer:FlxSpriteGroup = new FlxSpriteGroup();
+	public var playerLayer:FlxSpriteGroup = new FlxSpriteGroup();
+	public var enemyLayer:FlxSpriteGroup = new FlxSpriteGroup();
 
 	var gameCam:FlxCamera = new FlxCamera();
 	var HUDCam:FlxCamera = new FlxCamera();
@@ -58,10 +60,13 @@ class PlayState extends FlxState
 		ground.immovable = true;
 		mapLayer.add(ground);
 		playerLayer.add(new PlayerEntity(20, 20, "Player 1"));
+		enemyLayer.add(new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2));
+		
 		playerDebugText.camera = HUDCam;
 		add(playerDebugText);
 		playerDebugText.size = 12;
 		playerDebugText.visible = false;
+		add(enemyLayer);
 		add(playerLayer);
 		add(mapLayer);
 	}
@@ -170,6 +175,8 @@ class PlayState extends FlxState
 		});
 		super.update(elapsed);
 		FlxG.collide(playerLayer, mapLayer, playerWallCollision);
+		FlxG.collide(playerLayer, enemyLayer);
+		FlxG.collide(enemyLayer, mapLayer, playerWallCollision);
 	}
 
 	public function playerWallCollision(player:PlayerEntity, wall:FlxSprite)

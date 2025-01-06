@@ -56,6 +56,8 @@ class Entity extends FlxSprite {
 			y += height - newHeight;
 			x += (width - newWidth) / 2;
 			setSize(newWidth, newHeight);
+			offset.set(-0.5 * (width - frameWidth), -0.5 * (height - frameHeight));
+			centerOrigin();
 			scale.set(attributes.get(Attribute.SIZE_X).getValue(), attributes.get(Attribute.SIZE_Y).getValue());
 		}
 

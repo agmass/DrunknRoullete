@@ -14,7 +14,7 @@ import input.InputSource;
 import input.KeyboardSource;
 import objects.hitbox.Hitbox;
 import sound.FootstepManager;
-class PlayerEntity extends EquippedEntity
+class PlayerEntity extends HumanoidEntity
 {
 
     public var input:InputSource = new KeyboardSource();
@@ -25,29 +25,19 @@ class PlayerEntity extends EquippedEntity
     public var showPlayerMarker = false;
 	public var playerMarkerColor:FlxColor = FlxColor.TRANSPARENT;
 
-    public var poofParticles = new FlxEmitter();
 	public var ghostParticles = new FlxEmitter();
-	public var hitboxes:FlxTypedSpriteGroup<Hitbox> = new FlxTypedSpriteGroup();
-	public var extraVelocity:FlxPoint = new FlxPoint();
 
-	public var crouchAttribute_x:AttributeContainer = new AttributeContainer(FIRST_ADD, 0.1);
+	public var crouching = false;
+
 	public var crouchAttribute_speed:AttributeContainer = new AttributeContainer(MULTIPLY, 0.5);
-	public var crouchAttribute_y:AttributeContainer = new AttributeContainer(FIRST_ADD, -0.25);
 
 	override public function new(x, y, username)
 	{
         super(x,y);
 		makeGraphic(32, 32, FlxColor.WHITE);
-        acceleration.y = 900;
-        maxVelocity.y = 900;
-        drag.x = 1200;
         debugTracker.set("Jumps", "jumps");
 		debugTracker.set("Can Dash", "canDash");
 
-        poofParticles.makeParticles(13,13);
-        poofParticles.angle.set(-360,360);
-        poofParticles.alpha.set(1,1,0,0);
-        poofParticles.lifespan.set(0.55,0.65);
 		ghostParticles.makeParticles(1, 1, FlxColor.WHITE, 500);
 		ghostParticles.alpha.set(1, 1, 0);
 		ghostParticles.lifespan.set(0.35);
@@ -63,55 +53,71 @@ class PlayerEntity extends EquippedEntity
     }
 
     override function createAttributes() {
-        super.createAttributes();
-		attributes.set(Attribute.SIZE_X, new Attribute(1));
-		attributes.set(Attribute.SIZE_Y, new Attribute(1));
-		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(450));
+		super.createAttributes();
 		attributes.set(Attribute.DASH_SPEED, new Attribute(250));
 		attributes.set(Attribute.JUMP_HEIGHT, new Attribute(500));
+		attributes.set(Attribute.CROUCH_SCALE, new Attribute(0.2));
 		attributes.set(Attribute.JUMP_COUNT, new Attribute(1));
     }
-
-	var wasGrounded = false;
 
     override function update(elapsed:Float) {
 
         // call update() for children here
 		// my ex-wife still wont let me see the kids -adi
 
-        input.update();
-        poofParticles.update(elapsed);
+		input.update();
 		ghostParticles.update(elapsed);
-		hitboxes.update(elapsed);
 
 		// Weapons
 
-		for (hitbox in hitboxes)
+		if (input.backslotJustPressed)
 		{
-			if (hitbox.inactive)
+			var backslotWeapon = holsteredWeapon;
+			holsteredWeapon = handWeapon;
+			handWeapon = backslotWeapon;
+			switchingAnimation = 0.5;
+		}
+
+		if (handWeapon != null)
+		{
+			if (input.attackPressed)
 			{
-				hitboxes.remove(hitbox);
-				hitbox.destroy();
+				if (timeUntilAttack <= 0)
+				{
+					timeUntilAttack = handWeapon.weaponSpeed * attributes.get(Attribute.ATTACK_SPEED).getValue();
+					handWeapon.attack(this);
+				}
+			}
+			if (switchingAnimation > 0)
+			{
+				handWeapon.angle = FlxMath.lerp(input.getLookAngle(getPosition()) - 90, handWeapon.flipX ? 45 : -45, switchingAnimation * 2);
+			}
+			else
+			{
+				handWeapon.angle = input.getLookAngle(getPosition()) - 90;
 			}
 		}
 
-		if (input.attackPressed)
+		if (holsteredWeapon != null)
 		{
-			if (timeUntilAttack <= 0)
+			if (switchingAnimation > 0)
 			{
-				timeUntilAttack = handWeapon.weaponSpeed * attributes.get(Attribute.ATTACK_SPEED).getValue();
-				handWeapon.attack(this);
+				holsteredWeapon.angle = FlxMath.lerp(holsteredWeapon.flipX ? 45 : -45, input.getLookAngle(getPosition()) - 90, switchingAnimation * 2);
 			}
 		}
-		handWeapon.angle = input.getLookAngle(getPosition()) - 90;
-
 		var newWidth = (32 * attributes.get(Attribute.SIZE_X).getValue());
 		var newHeight = (32 * attributes.get(Attribute.SIZE_Y).getValue());
+		if (crouching)
+		{
+			newHeight -= (1 - attributes.get(Attribute.CROUCH_SCALE).getValue()) * 32;
+			newWidth += (1.15 - attributes.get(Attribute.CROUCH_SCALE).getValue()) * 32;
+		}
 		y += height - newHeight;
 		x += (width - newWidth) / 2;
 		setSize(newWidth, newHeight);
-		scale.set(attributes.get(Attribute.SIZE_X).getValue(), attributes.get(Attribute.SIZE_Y).getValue());
 		offset.set(-0.5 * (width - frameWidth), -0.5 * (height - frameHeight));
+		if (!crouching)
+			offset.y -= (newHeight) - getGraphicBounds().height;
 		centerOrigin();
 		squash(isTouching(FLOOR), elapsed);
 
@@ -130,16 +136,6 @@ class PlayerEntity extends EquippedEntity
 		var JUMP_COUNT = attributes.get(Attribute.JUMP_COUNT).getValue();
 		if (isTouching(FLOOR))
 		{
-			if (!wasGrounded)
-			{
-				FootstepManager.playFootstepForEntity(this);
-				poofParticles.x = getMidpoint().x;
-				poofParticles.y = getGraphicBounds().bottom + 2;
-				poofParticles.speed.set(50, 50, 0, 0);
-				poofParticles.scale.set(0.8, 0.8, 1.2, 1.2, 0.2, 0.2, 0.2, 0.2);
-				poofParticles.launchAngle.set(180, 0);
-				poofParticles.start(true, 0.1, FlxG.random.int(3, 6));
-			}
 			jumps = Math.floor(JUMP_COUNT);
 			canDash = true;
 			angle = 0;
@@ -148,21 +144,18 @@ class PlayerEntity extends EquippedEntity
 		{
 			angle = (velocity.x + dashMovement.x) / 350;
 		}
-		wasGrounded = isTouching(FLOOR);
 
 		// cro uch :3
 
 		if (isTouching(FLOOR) && inputVelocity.y > 0.1)
 		{
-			attributes.get(Attribute.SIZE_X).addOperation(crouchAttribute_x);
-			attributes.get(Attribute.SIZE_Y).addOperation(crouchAttribute_y);
+			crouching = true;
 			attributes.get(Attribute.MOVEMENT_SPEED).addOperation(crouchAttribute_speed);
 			attributes.get(Attribute.JUMP_HEIGHT).addOperation(crouchAttribute_speed);
 		}
-		else if (attributes.get(Attribute.SIZE_X).containsOperation(crouchAttribute_x))
+		else if (crouching)
 		{
-			attributes.get(Attribute.SIZE_X).removeOperation(crouchAttribute_x);
-			attributes.get(Attribute.SIZE_Y).removeOperation(crouchAttribute_y);
+			crouching = false;
 			attributes.get(Attribute.MOVEMENT_SPEED).removeOperation(crouchAttribute_speed);
 			attributes.get(Attribute.JUMP_HEIGHT).removeOperation(crouchAttribute_speed);
 		}
@@ -182,12 +175,7 @@ class PlayerEntity extends EquippedEntity
 				FootstepManager.playFootstepForEntity(this);
                 velocity.y = -JUMP_HEIGHT;
             }
-            poofParticles.x = getMidpoint().x;
-            poofParticles.y = getGraphicBounds().bottom-8;
-            poofParticles.speed.set(50,50,0,0);
-            poofParticles.scale.set(0.8,0.8,1.2,1.2,0.2,0.2,0.2,0.2);
-            poofParticles.launchAngle.set(-180, 0);
-            poofParticles.start(true, 0.1, FlxG.random.int(3,6));
+			jumpParticles();
         }
 
         // Ground Pound
@@ -242,31 +230,15 @@ class PlayerEntity extends EquippedEntity
             dashMovement.x = FlxMath.lerp(dashMovement.x, 0, elapsed*3);
         }
         if (dashMovement.y < 0 && velocity.y > 0 || dashMovement.y > 0 && velocity.y < 0) {
-            dashMovement.y = FlxMath.lerp(dashMovement.y, 0, elapsed*3);
-        }
-		if (extraVelocity.x < 0 && velocity.x > 0 || extraVelocity.x > 0 && velocity.x < 0)
-		{
-			extraVelocity.x = FlxMath.lerp(extraVelocity.x, 0, elapsed * 3);
+			dashMovement.y = FlxMath.lerp(dashMovement.y, 0, elapsed * 3);
 		}
-		if (extraVelocity.y < 0 && velocity.y > 0 || dashMovement.y > 0 && velocity.y < 0)
-		{
-			extraVelocity.y = FlxMath.lerp(extraVelocity.y, 0, elapsed * 3);
-		}
-        
-        
+
         super.update(elapsed);
         if (!dashMovement.isZero()) {
             x += dashMovement.x*(elapsed*8);
             y += dashMovement.y*(elapsed*8);
             dashMovement.x -= dashMovement.x*(elapsed*8);
-            dashMovement.y -= dashMovement.y*(elapsed*8);
-        }
-		if (!extraVelocity.isZero())
-		{
-			x += extraVelocity.x * (elapsed * 4);
-			y += extraVelocity.y * (elapsed * 4);
-			extraVelocity.x -= extraVelocity.x * (elapsed * 4);
-			extraVelocity.y -= extraVelocity.y * (elapsed * 4);
+			dashMovement.y -= dashMovement.y * (elapsed * 8);
 		}
     }
 
@@ -279,27 +251,38 @@ class PlayerEntity extends EquippedEntity
 			if (elapsed == -9) {
 				scale.set(SCALE_X, SCALE_Y);
 				// reused taglayer code so this is left here until i implement online
-			} else {
-				var newX = Math.min(scale.x + (elapsed * 7), SCALE_X);
+			}
+			else
+			{
 				if (scale.x > SCALE_X)
 				{
-					newX = Math.max(scale.x - (elapsed * 7), SCALE_X);
+					scale.x = FlxMath.lerp(scale.x, width / 32, elapsed * 11);
 				}
-				var newY = Math.min(scale.y + (elapsed * 7), SCALE_Y);
+				if (scale.x < SCALE_X)
+				{
+					scale.x = FlxMath.lerp(scale.x, width / 32, elapsed * 11);
+				}
 				if (scale.y > SCALE_Y)
 				{
-					newY = Math.max(scale.y - (elapsed * 7), SCALE_Y);
+					scale.y = FlxMath.lerp(scale.y, height / 32, elapsed * 11);
 				}
-				scale.set(newX, newY);
+				if (scale.y < SCALE_Y)
+				{
+					scale.y = FlxMath.lerp(scale.y, height / 32, elapsed * 11);
+				}
 			}
 		} else {
-			if (dashMovement.x > 70 || dashMovement.y > 70) {
+			if (dashMovement.x > 70 || dashMovement.y > 70 || velocity.y < 0)
+			{
 				scale.set(SCALE_X, SCALE_Y);
 
 			} else {
-				scale.set(
-				Math.min(Math.max(scale.x - (velocity.y / 2000), SCALE_X / 2), SCALE_X),
-					Math.min(Math.max(scale.y + (velocity.y / 2000), SCALE_Y), SCALE_Y + (SCALE_Y / 2)));
+				if (velocity.y > 0)
+				{
+					scale.set(
+					FlxMath.lerp(scale.x, SCALE_X / 1.5, elapsed * (velocity.y / 100)),
+						FlxMath.lerp(scale.y, SCALE_Y * 1.5, elapsed * (velocity.y / 100)));
+				}
 			}
 		}
 	}
@@ -318,8 +301,6 @@ class PlayerEntity extends EquippedEntity
             playerMarker.draw();
         }
 		ghostParticles.draw();
-		hitboxes.draw();
-        super.draw();
-        poofParticles.draw();
+		super.draw();
     }
 }

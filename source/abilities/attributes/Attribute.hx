@@ -16,6 +16,7 @@ class Attribute {
 	public static var DASH_SPEED:AttributeType = new AttributeType("player.dash_speed", 1, 150, 600);
 	public static var JUMP_COUNT:AttributeType = new AttributeType("player.jump_count", 1, 0, 99999999999999999999999, true);
 	public static var CRIT_CHANCE:AttributeType = new AttributeType("player.crit_chance", 0.1, 1, 100);
+	public static var CROUCH_SCALE:AttributeType = new AttributeType("player.crouch_scale", 0.001, 0.1, 0.9);
 
 	public static var attributesList = [
 		MOVEMENT_SPEED,
@@ -26,20 +27,24 @@ class Attribute {
 		SIZE_X,
 		DASH_SPEED,
 		JUMP_COUNT,
+		CROUCH_SCALE,
 		CRIT_CHANCE
 	];
 
 
     public var defaultValue = 0.0;
     private var value = 0.0;
+	public var bypassLimits = false;
     public var modifiers:Array<AttributeContainer> = new Array();
 
 	public var min = 0.0;
 	public var max = 0.0;
 
-    public function new(defaultAmount) {
+	public function new(defaultAmount, ?bypass = false)
+	{
         defaultValue = defaultAmount;
         value = defaultAmount;
+		bypassLimits = bypass;
     }
 
     public function refreshAndGetValue():Float {
@@ -57,13 +62,16 @@ class Attribute {
             if (i.operation == AttributeOperation.ADD) finalValue += i.amount;
             else if (i.operation == AttributeOperation.MULTIPLY) finalValue *= i.amount;
         }
-		if (finalValue >= max)
+		if (!bypassLimits)
 		{
-			finalValue = max + firstAddValue;
-		}
-		if (finalValue <= min)
-		{
-			finalValue = min + firstAddValue;
+			if (finalValue >= max)
+			{
+				finalValue = max + firstAddValue;
+			}
+			if (finalValue <= min)
+			{
+				finalValue = min + firstAddValue;
+			}
 		}
         value = finalValue;
         return finalValue;
