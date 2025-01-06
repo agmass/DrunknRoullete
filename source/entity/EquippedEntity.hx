@@ -6,17 +6,25 @@ import abilities.equipment.items.SwordItem;
 
 class EquippedEntity extends Entity
 {
-	var handWeapon:Equipment = new SwordItem();
+	var handWeapon:Equipment;
 	var holsteredWeapon:Equipment;
+	override public function new(x, y)
+	{
+		super(x, y);
+		handWeapon = new SwordItem(this);
+	}
 	override function createAttributes()
 	{
 		super.createAttributes();
-		attributes.set(Attribute.ATTACK_DAMAGE, new Attribute(0));
-		attributes.set(Attribute.ATTACK_SPEED, new Attribute(0));
+		attributes.set(Attribute.ATTACK_DAMAGE, new Attribute(1));
+		attributes.set(Attribute.ATTACK_SPEED, new Attribute(1));
 	}
 
+	public var timeUntilAttack = 0.0;
 	override function update(elapsed:Float)
 	{
+		timeUntilAttack -= elapsed;
+		handWeapon.update(elapsed);
 		super.update(elapsed);
 	}
 

@@ -11,7 +11,7 @@ class Attribute {
 
 	public static var SIZE_X:AttributeType = new AttributeType("size_x", 0.001, 0.45, 2);
 	public static var SIZE_Y:AttributeType = new AttributeType("size_y", 0.001, 0.45, 2);
-	public static var ATTACK_SPEED:AttributeType = new AttributeType("attack_speed", 1, 0.001, 0.1);
+	public static var ATTACK_SPEED:AttributeType = new AttributeType("attack_speed", 0.01, 0.001, 2);
 
 	public static var DASH_SPEED:AttributeType = new AttributeType("player.dash_speed", 1, 150, 600);
 	public static var JUMP_COUNT:AttributeType = new AttributeType("player.jump_count", 1, 0, 99999999999999999999999, true);
@@ -22,6 +22,7 @@ class Attribute {
 		ATTACK_DAMAGE,
 		JUMP_HEIGHT,
 		MAX_HEALTH,
+		ATTACK_SPEED,
 		SIZE_X,
 		DASH_SPEED,
 		JUMP_COUNT,

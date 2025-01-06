@@ -3,6 +3,7 @@ package abilities.equipment;
 import abilities.attributes.AttributeContainer;
 import abilities.attributes.AttributeOperation;
 import abilities.attributes.AttributeType;
+import entity.PlayerEntity;
 import flixel.FlxSprite;
 
 class Equipment extends FlxSprite
@@ -16,6 +17,10 @@ class Equipment extends FlxSprite
 		super();
 		createAttributes();
 	}
+
+	public function attack(player:PlayerEntity) {}
+
+	public function use(player:PlayerEntity) {}
 
 	public function createAttributes() {}
 

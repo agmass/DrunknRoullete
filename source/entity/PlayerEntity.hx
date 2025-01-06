@@ -5,11 +5,14 @@ import abilities.attributes.AttributeContainer;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.effects.particles.FlxEmitter;
+import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
 import input.InputSource;
 import input.KeyboardSource;
+import objects.hitbox.Hitbox;
 import sound.FootstepManager;
 class PlayerEntity extends EquippedEntity
 {
@@ -23,6 +26,9 @@ class PlayerEntity extends EquippedEntity
 	public var playerMarkerColor:FlxColor = FlxColor.TRANSPARENT;
 
     public var poofParticles = new FlxEmitter();
+	public var ghostParticles = new FlxEmitter();
+	public var hitboxes:FlxTypedSpriteGroup<Hitbox> = new FlxTypedSpriteGroup();
+	public var extraVelocity:FlxPoint = new FlxPoint();
 
 	public var crouchAttribute_x:AttributeContainer = new AttributeContainer(FIRST_ADD, 0.1);
 	public var crouchAttribute_speed:AttributeContainer = new AttributeContainer(MULTIPLY, 0.5);
@@ -31,7 +37,7 @@ class PlayerEntity extends EquippedEntity
 	override public function new(x, y, username)
 	{
         super(x,y);
-        makeGraphic(32,32,FlxColor.BLUE);
+		makeGraphic(32, 32, FlxColor.WHITE);
         acceleration.y = 900;
         maxVelocity.y = 900;
         drag.x = 1200;
@@ -42,6 +48,15 @@ class PlayerEntity extends EquippedEntity
         poofParticles.angle.set(-360,360);
         poofParticles.alpha.set(1,1,0,0);
         poofParticles.lifespan.set(0.55,0.65);
+		ghostParticles.makeParticles(1, 1, FlxColor.WHITE, 500);
+		ghostParticles.alpha.set(1, 1, 0);
+		ghostParticles.lifespan.set(0.35);
+
+		ghostParticles.start(false, 0.1, 500);
+		ghostParticles.emitting = false;
+
+		color = FlxColor.BLUE;
+
 		manuallyUpdateSize = true;
 		typeTranslationKey = "player";
 		entityName = username;
@@ -52,6 +67,7 @@ class PlayerEntity extends EquippedEntity
 		attributes.set(Attribute.SIZE_X, new Attribute(1));
 		attributes.set(Attribute.SIZE_Y, new Attribute(1));
 		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(450));
+		attributes.set(Attribute.DASH_SPEED, new Attribute(250));
 		attributes.set(Attribute.JUMP_HEIGHT, new Attribute(500));
 		attributes.set(Attribute.JUMP_COUNT, new Attribute(1));
     }
@@ -61,12 +77,32 @@ class PlayerEntity extends EquippedEntity
     override function update(elapsed:Float) {
 
         // call update() for children here
+		// my ex-wife still wont let me see the kids -adi
 
         input.update();
         poofParticles.update(elapsed);
+		ghostParticles.update(elapsed);
+		hitboxes.update(elapsed);
 
-        //
+		// Weapons
 
+		for (hitbox in hitboxes)
+		{
+			if (hitbox.inactive)
+			{
+				hitboxes.remove(hitbox);
+				hitbox.destroy();
+			}
+		}
+
+		if (input.attackPressed)
+		{
+			if (timeUntilAttack <= 0)
+			{
+				timeUntilAttack = handWeapon.weaponSpeed * attributes.get(Attribute.ATTACK_SPEED).getValue();
+				handWeapon.attack(this);
+			}
+		}
 		handWeapon.angle = input.getLookAngle(getPosition()) - 90;
 
 		var newWidth = (32 * attributes.get(Attribute.SIZE_X).getValue());
@@ -86,9 +122,9 @@ class PlayerEntity extends EquippedEntity
         maxVelocity.x = SPEED*Math.abs(inputVelocity.x);
 
         if (!inputVelocity.isZero()) {
-            lastNonZeroInput = inputVelocity;
-			flipX = inputVelocity.x < 0;
+			lastNonZeroInput = inputVelocity;
         }
+		flipX = input.getLookAngle(getPosition()) < 90 && input.getLookAngle(getPosition()) > -90;
 
 
 		var JUMP_COUNT = attributes.get(Attribute.JUMP_COUNT).getValue();
@@ -166,6 +202,15 @@ class PlayerEntity extends EquippedEntity
 
         // Dash Code
 
+		ghostParticles.x = getMidpoint().x;
+		ghostParticles.y = getMidpoint().y;
+
+		ghostParticles.color.set(color);
+		ghostParticles.scale.set(getGraphicBounds().width, getGraphicBounds().height);
+		ghostParticles.angle.set(angle);
+		ghostParticles.speed.set(0);
+		ghostParticles.emitting = Math.abs(dashMovement.x) + Math.abs(dashMovement.y) > 5;
+
         if (!dashMovement.isZero()) {
             if (isTouching(FLOOR) && dashMovement.y > 0) {
                 dashMovement.y = 0;
@@ -189,6 +234,7 @@ class PlayerEntity extends EquippedEntity
                 dashMovement.x = lastNonZeroInput.x;
                 dashMovement.y = lastNonZeroInput.y;
                 dashMovement = dashMovement.normalize()*DASH_SPEED;
+				FlxG.camera.shake(0.0075, 0.075);
             }
         }
 
@@ -198,6 +244,15 @@ class PlayerEntity extends EquippedEntity
         if (dashMovement.y < 0 && velocity.y > 0 || dashMovement.y > 0 && velocity.y < 0) {
             dashMovement.y = FlxMath.lerp(dashMovement.y, 0, elapsed*3);
         }
+		if (extraVelocity.x < 0 && velocity.x > 0 || extraVelocity.x > 0 && velocity.x < 0)
+		{
+			extraVelocity.x = FlxMath.lerp(extraVelocity.x, 0, elapsed * 3);
+		}
+		if (extraVelocity.y < 0 && velocity.y > 0 || dashMovement.y > 0 && velocity.y < 0)
+		{
+			extraVelocity.y = FlxMath.lerp(extraVelocity.y, 0, elapsed * 3);
+		}
+        
         
         super.update(elapsed);
         if (!dashMovement.isZero()) {
@@ -206,6 +261,13 @@ class PlayerEntity extends EquippedEntity
             dashMovement.x -= dashMovement.x*(elapsed*8);
             dashMovement.y -= dashMovement.y*(elapsed*8);
         }
+		if (!extraVelocity.isZero())
+		{
+			x += extraVelocity.x * (elapsed * 4);
+			y += extraVelocity.y * (elapsed * 4);
+			extraVelocity.x -= extraVelocity.x * (elapsed * 4);
+			extraVelocity.y -= extraVelocity.y * (elapsed * 4);
+		}
     }
 
 
@@ -255,6 +317,8 @@ class PlayerEntity extends EquippedEntity
             playerMarker.color = playerMarkerColor;
             playerMarker.draw();
         }
+		ghostParticles.draw();
+		hitboxes.draw();
         super.draw();
         poofParticles.draw();
     }

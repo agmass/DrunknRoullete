@@ -46,7 +46,7 @@ class PlayState extends FlxState
 	override public function create()
 	{
 		super.create();
-		FlxG.cameras.add(gameCam, true);
+		FlxG.cameras.reset(gameCam);
 		HUDCam.bgColor.alpha = 0;
 		FlxG.cameras.add(HUDCam, false);
 		var ground = new FootstepChangingSprite(0, 800, "concrete");
@@ -70,7 +70,7 @@ class PlayState extends FlxState
 	{
 		for (gamepad in FlxG.gamepads.getActiveGamepads()) {
 			if (!activeGamepads.contains(gamepad)) {
-				var player = new PlayerEntity(20, 20, "Player " + playerLayer.length + 1);
+				var player = new PlayerEntity(20, 20, "Player " + (playerLayer.length + 1));
 				player.input = new ControllerSource(gamepad);
 				playerLayer.add(player);
 				activeGamepads.push(gamepad);
@@ -87,7 +87,7 @@ class PlayState extends FlxState
 					FlxG.vcr.loadReplay(recording);
 				}
 		 */
-		if (FlxG.keys.justPressed.F3)
+		if (FlxG.keys.justPressed.THREE)
 		{
 			playerDebugText.visible = !playerDebugText.visible;
 		}
