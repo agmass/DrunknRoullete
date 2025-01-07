@@ -8,7 +8,7 @@ import input.control.KeyOrMouseInput;
 
 class KeyboardSource extends InputSource {
 
-    public var shoot:KeyOrMouseInput = new KeyOrMouseInput([], [FlxMouseButton.getByID(FlxMouseButtonID.LEFT)]);
+	public var shoot:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.X], [FlxMouseButton.getByID(FlxMouseButtonID.LEFT)]);
     public var W:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.W,FlxKey.UP], []);
     public var A:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.A,FlxKey.LEFT], []);
     public var S:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.S,FlxKey.DOWN], []);

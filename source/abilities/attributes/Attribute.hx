@@ -5,18 +5,19 @@ import haxe.ds.HashMap;
 class Attribute {
 
 	public static var MOVEMENT_SPEED:AttributeType = new AttributeType("movement_speed", 1, 150, 1200);
-	public static var ATTACK_DAMAGE:AttributeType = new AttributeType("attack_damage", 1, 0.1, 10);
+	public static var ATTACK_DAMAGE:AttributeType = new AttributeType("attack_damage", 1, 0.3, 10);
 	public static var JUMP_HEIGHT:AttributeType = new AttributeType("jump_height", 0.5, 50);
 	public static var MAX_HEALTH:AttributeType = new AttributeType("health", 1, 25);
 
 	public static var SIZE_X:AttributeType = new AttributeType("size_x", 0.001, 0.45, 2);
 	public static var SIZE_Y:AttributeType = new AttributeType("size_y", 0.001, 0.45, 2);
-	public static var ATTACK_SPEED:AttributeType = new AttributeType("attack_speed", 0.01, 0.001, 2);
+	public static var ATTACK_SPEED:AttributeType = new AttributeType("attack_speed", 0.01, 0.1, 2);
+	public static var REGENERATION:AttributeType = new AttributeType("regeneration", 0.01, 1, 10);
 
 	public static var DASH_SPEED:AttributeType = new AttributeType("player.dash_speed", 1, 150, 600);
 	public static var JUMP_COUNT:AttributeType = new AttributeType("player.jump_count", 1, 0, 99999999999999999999999, true);
 	public static var CRIT_CHANCE:AttributeType = new AttributeType("player.crit_chance", 0.1, 1, 100);
-	public static var CROUCH_SCALE:AttributeType = new AttributeType("player.crouch_scale", 0.001, 0.1, 0.9);
+	public static var CROUCH_SCALE:AttributeType = new AttributeType("player.crouch_scale", 0.001, 0.3, 0.9);
 
 	public static var attributesList = [
 		MOVEMENT_SPEED,
@@ -28,7 +29,8 @@ class Attribute {
 		DASH_SPEED,
 		JUMP_COUNT,
 		CROUCH_SCALE,
-		CRIT_CHANCE
+		CRIT_CHANCE,
+		REGENERATION
 	];
 
 

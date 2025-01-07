@@ -7,8 +7,10 @@ import flixel.FlxSprite;
 import flixel.effects.particles.FlxEmitter;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
+import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
+import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
 import input.InputSource;
 import input.KeyboardSource;
@@ -26,6 +28,7 @@ class PlayerEntity extends HumanoidEntity
 	public var playerMarkerColor:FlxColor = FlxColor.TRANSPARENT;
 
 	public var ghostParticles = new FlxEmitter();
+	public var toDraw:FlxSpriteGroup = new FlxSpriteGroup();
 
 	public var crouching = false;
 
@@ -54,10 +57,11 @@ class PlayerEntity extends HumanoidEntity
 
     override function createAttributes() {
 		super.createAttributes();
-		attributes.set(Attribute.DASH_SPEED, new Attribute(250));
+		// attributes.set(Attribute.DASH_SPEED, new Attribute(250));
 		attributes.set(Attribute.JUMP_HEIGHT, new Attribute(500));
-		attributes.set(Attribute.CROUCH_SCALE, new Attribute(0.2));
+		attributes.set(Attribute.CROUCH_SCALE, new Attribute(0.8));
 		attributes.set(Attribute.JUMP_COUNT, new Attribute(1));
+		attributes.set(Attribute.ATTACK_DAMAGE, new Attribute(5));
     }
 
     override function update(elapsed:Float) {
@@ -302,5 +306,6 @@ class PlayerEntity extends HumanoidEntity
         }
 		ghostParticles.draw();
 		super.draw();
+		healthBar.draw();
     }
 }

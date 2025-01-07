@@ -3,20 +3,23 @@ package;
 import abilities.attributes.Attribute;
 import abilities.attributes.AttributeContainer;
 import abilities.attributes.AttributeOperation;
+import entity.Entity;
+import entity.EquippedEntity;
 import entity.PlayerEntity;
 import entity.bosses.BIGEVILREDCUBE;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.effects.particles.FlxParticle;
 import flixel.group.FlxSpriteGroup;
 import flixel.input.gamepad.mappings.SwitchProMapping;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import input.ControllerSource;
-import lime.ui.Haptic;
 import objects.FootstepChangingSprite;
+import objects.hitbox.Hitbox;
 
 class PlayState extends FlxState
 {
@@ -51,16 +54,22 @@ class PlayState extends FlxState
 		FlxG.cameras.reset(gameCam);
 		HUDCam.bgColor.alpha = 0;
 		FlxG.cameras.add(HUDCam, false);
-		var ground = new FootstepChangingSprite(0, 800, "concrete");
-		ground.makeGraphic(Math.round(1920 / 2), 800, FlxColor.GRAY);
+		var bg = new FlxSprite(0, 0, AssetPaths.test_bg__png);
+		bg.alpha = 0.2;
+		add(bg);
+		var ground = new FootstepChangingSprite(0, 900, "concrete");
+		ground.makeGraphic(1920, 900, FlxColor.GRAY);
 		ground.immovable = true;
 		mapLayer.add(ground);
-		var ground = new FootstepChangingSprite(Math.round(1920 / 2), 800, "carpet");
-		ground.makeGraphic(Math.round(1920 / 2), 800, FlxColor.RED);
-		ground.immovable = true;
-		mapLayer.add(ground);
-		playerLayer.add(new PlayerEntity(20, 20, "Player 1"));
-		enemyLayer.add(new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2));
+		var wall = new FootstepChangingSprite(-300, 0, "concrete");
+		wall.makeGraphic(500, 900, FlxColor.GRAY);
+		wall.immovable = true;
+		mapLayer.add(wall);
+		var wall = new FootstepChangingSprite(FlxG.width - 200, 0, "concrete");
+		wall.makeGraphic(500, 900, FlxColor.GRAY);
+		wall.immovable = true;
+		mapLayer.add(wall);
+		playerLayer.add(new PlayerEntity(900, 20, "Player 1"));
 		
 		playerDebugText.camera = HUDCam;
 		add(playerDebugText);
@@ -75,13 +84,13 @@ class PlayState extends FlxState
 	{
 		for (gamepad in FlxG.gamepads.getActiveGamepads()) {
 			if (!activeGamepads.contains(gamepad)) {
-				var player = new PlayerEntity(20, 20, "Player " + (playerLayer.length + 1));
+				var player = new PlayerEntity(900, 20, "Player " + (playerLayer.length + 1));
 				player.input = new ControllerSource(gamepad);
 				playerLayer.add(player);
 				activeGamepads.push(gamepad);
 			}
 		}
-		/*
+
 			if (FlxG.keys.justPressed.G)
 			{
 				FlxG.vcr.startRecording(false);
@@ -91,7 +100,10 @@ class PlayState extends FlxState
 					var recording = FlxG.vcr.stopRecording();
 					FlxG.vcr.loadReplay(recording);
 				}
-		 */
+		if (FlxG.keys.justPressed.I)
+		{
+			enemyLayer.add(new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2));
+		}
 		if (FlxG.keys.justPressed.THREE)
 		{
 			playerDebugText.visible = !playerDebugText.visible;
@@ -99,7 +111,70 @@ class PlayState extends FlxState
 		FlxG.fixedTimestep = false;
 		var showPlayerMarker = playerLayer.length > 1;
 		playerDebugText.text = "\n" + "FPS: " + Main.FPS.currentFPS + "\n";
-		playerLayer.forEachOfType(PlayerEntity, (p)->{
+		enemyLayer.forEachOfType(EquippedEntity, (p) ->
+		{
+			FlxG.collide(mapLayer, p.blood, (m, p2) ->
+			{
+				if (p2 is FlxParticle)
+				{
+					var part:FlxParticle = cast(p2);
+					part.velocity.set(0, 0);
+				}
+			});
+			for (hitbox in p.hitboxes)
+			{
+				FlxG.overlap(hitbox, playerLayer, (h, e) ->
+				{
+					if (e is Entity)
+					{
+						if (h is Hitbox)
+						{
+							var e2:Entity = cast(e);
+							var hitbox:Hitbox = cast(h);
+							if (!hitbox.hitEntities.contains(e2))
+							{
+								h.onHit(e2);
+							}
+						}
+					}
+				});
+			}
+		});
+		var currentBarHeight = 0.0;
+		var currentBarIndex = 0;
+		playerLayer.forEachOfType(PlayerEntity, (p) ->
+		{
+			currentBarIndex++;
+			p.healthBar.x = 20;
+			p.healthBar.y = (20 * currentBarIndex) + currentBarHeight;
+			currentBarHeight += p.healthBar.height;
+			p.healthBar.camera = HUDCam;
+			FlxG.collide(mapLayer, p.blood, (m, p2) ->
+			{
+				if (p2 is FlxParticle)
+				{
+					var part:FlxParticle = cast(p2);
+					part.velocity.set(0, 0);
+				}
+			});
+			for (hitbox in p.hitboxes)
+			{
+				FlxG.overlap(hitbox, enemyLayer, (h, e) ->
+				{
+					if (e is Entity)
+					{
+						if (h is Hitbox)
+						{
+							var e2:Entity = cast(e);
+							var hitbox:Hitbox = cast(h);
+							if (!hitbox.hitEntities.contains(e2))
+							{
+								h.onHit(e2);
+							}
+						}
+					}
+				});
+			}
 			if (FlxG.keys.justPressed.O)
 			{
 				var lostOrWon = FlxG.random.bool(50);

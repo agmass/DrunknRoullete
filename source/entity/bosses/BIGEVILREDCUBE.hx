@@ -1,6 +1,8 @@
 package entity.bosses;
 
 import abilities.attributes.Attribute;
+import abilities.attributes.AttributeContainer;
+import abilities.attributes.AttributeOperation;
 import flixel.FlxG;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
@@ -9,12 +11,13 @@ import flixel.util.FlxColor;
 class BIGEVILREDCUBE extends HumanoidEntity
 {
 	var behaviourState = 0;
+	var lives = 3;
 
 	override public function new(x, y)
 	{
 		super(x, y);
 		makeGraphic(32, 32, FlxColor.WHITE);
-		color = FlxColor.RED;
+		color = FlxColor.RED.getDarkened(0.1);
 	}
 
 	override function createAttributes()
@@ -22,11 +25,40 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		super.createAttributes();
 		attributes.set(Attribute.SIZE_X, new Attribute(6, true));
 		attributes.set(Attribute.SIZE_Y, new Attribute(6, true));
-		attributes.set(Attribute.ATTACK_SPEED, new Attribute(2));
+		attributes.set(Attribute.ATTACK_SPEED, new Attribute(3.5, true));
+		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(100, true));
+		attributes.set(Attribute.MAX_HEALTH, new Attribute(200, true));
 	}
+
+	var downscale = new AttributeContainer(AttributeOperation.MULTIPLY, 0.5);
+	var upscale = new AttributeContainer(AttributeOperation.MULTIPLY, 3);
 
 	override function update(elapsed:Float)
 	{
+		if (health <= 0)
+		{
+			if (lives > 0)
+			{
+				health = attributes.get(Attribute.MAX_HEALTH).getValue();
+				lives--;
+				if (lives == 2)
+				{
+					attributes.get(Attribute.SIZE_X).addOperation(downscale);
+					attributes.get(Attribute.SIZE_Y).addOperation(downscale);
+					attributes.get(Attribute.MAX_HEALTH).addOperation(downscale);
+					attributes.get(Attribute.ATTACK_SPEED).addOperation(downscale);
+					attributes.get(Attribute.MOVEMENT_SPEED).addOperation(upscale);
+				}
+				else
+				{
+					attributes.get(Attribute.SIZE_X).removeOperation(downscale);
+					attributes.get(Attribute.SIZE_Y).removeOperation(downscale);
+					attributes.get(Attribute.MAX_HEALTH).removeOperation(downscale);
+					attributes.get(Attribute.ATTACK_SPEED).removeOperation(downscale);
+					attributes.get(Attribute.MOVEMENT_SPEED).removeOperation(upscale);
+				}
+			}
+		}
 		var SPEED = attributes.get(Attribute.MOVEMENT_SPEED).getValue();
 		if (behaviourState == 0)
 		{

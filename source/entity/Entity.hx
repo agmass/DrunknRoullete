@@ -5,9 +5,11 @@ import abilities.attributes.AttributeType;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxSprite;
+import flixel.effects.particles.FlxEmitter;
 import flixel.math.FlxMath;
 import flixel.sound.FlxSound;
 import flixel.ui.FlxBar;
+import flixel.util.FlxColor;
 import haxe.ds.HashMap;
 import sound.FootstepManager;
 import util.Language;
@@ -24,6 +26,13 @@ class Entity extends FlxSprite {
 	public var footstepCount = 0;
 
 	public var pxTillFootstep = 80.0;
+	public var blood:FlxEmitter = new FlxEmitter();
+
+	public var healthBar:FlxBar = new FlxBar(20, 20, FlxBarFillDirection.LEFT_TO_RIGHT, 400, 40);
+
+	var lastHealth = 100.0;
+
+	public var naturalRegeneration = 0.0;
     
     public function new(x,y) {
         super(x,y);
@@ -36,9 +45,43 @@ class Entity extends FlxSprite {
 		debugTracker.set("Stepping On", "steppingOn");
 		debugTracker.set("Footstep Sound Step", "footstepCount");
 		debugTracker.set("Pixels until Footstep", "pxTillFootstep");
+		blood.makeParticles(6, 6, FlxColor.RED);
+		blood.launchAngle.set(120, 60);
+		blood.lifespan.set(15, 20);
+		blood.acceleration.set(0, 900);
+		blood.alpha.set(1, 1, 0, 0);
+		blood.speed.set(900, 300, 0, 0);
+		blood.allowCollisions = ANY;
+		healthBar.createColoredEmptyBar(FlxColor.BLACK, true, FlxColor.BLACK, 2);
+		healthBar.createColoredFilledBar(FlxColor.RED, true, FlxColor.BLACK, 2);
     }
 
     override function update(elapsed:Float) {
+		naturalRegeneration -= elapsed;
+		if (health <= 0)
+		{
+			kill();
+		}
+		blood.x = getGraphicMidpoint().x;
+		blood.y = getGraphicMidpoint().y;
+		blood.scale.set(scale.x, scale.y);
+		if (lastHealth > health)
+		{
+			blood.start(true, 0, Math.ceil(lastHealth - health));
+			naturalRegeneration = 5;
+		}
+		lastHealth = health;
+		if (attributes.exists(Attribute.REGENERATION))
+		{
+			if (naturalRegeneration < 0)
+			{
+				health += elapsed * attributes.get(Attribute.REGENERATION).getValue();
+			}
+		}
+		blood.update(elapsed);
+		healthBar.value = health;
+		healthBar.setRange(0, attributes.get(Attribute.MAX_HEALTH).getValue());
+
 		for (key => value in attributes)
 		{
 			value.max = key.maxBound;
@@ -78,6 +121,7 @@ class Entity extends FlxSprite {
 
     override function draw() {
         super.draw();
+		blood.draw();
     }
     
 	var translatedTypeName = "";
