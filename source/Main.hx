@@ -22,9 +22,17 @@ class Main extends Sprite
 
 		\"Footstep Sounds by Dryoma\"
 		https://dryoma.itch.io/footsteps-sounds
+
+
+		All following sounds are by creators from Freesound.
+
+		\"Sword Swings\" by samsterbirdies
+		\"Swoosh\" by porkmucher
+		\"Rock Hit\" by link boy
 	";
 
 	public static var FPS:FPS;
+	public static var subtitles:Map<String, Float> = [];
 
 	public function new()
 	{
@@ -33,9 +41,8 @@ class Main extends Sprite
 		FPS = new FPS(0, 20, FlxColor.WHITE);
 		addChild(FPS);
 		addChild(new FlxGame(0, 0, PlayState));
-		FootstepManager.loadSurface("concrete");
-		FootstepManager.loadSurface("wood");
-		FootstepManager.loadSurface("carpet");
+		MultiSoundManager.loadMultiSounds();
+		MultiSoundManager.loadSurfaces();
 		Language.refreshLanguages();
 		Language.changeLanguage("en_us");
 

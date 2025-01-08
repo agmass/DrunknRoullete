@@ -4,6 +4,7 @@ import abilities.attributes.Attribute;
 import abilities.attributes.AttributeType;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
+import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.effects.particles.FlxEmitter;
 import flixel.math.FlxMath;
@@ -60,6 +61,10 @@ class Entity extends FlxSprite {
 		naturalRegeneration -= elapsed;
 		if (health <= 0)
 		{
+			if (this is PlayerEntity)
+			{
+				FlxG.resetState();
+			}
 			kill();
 		}
 		blood.x = getGraphicMidpoint().x;
@@ -68,6 +73,7 @@ class Entity extends FlxSprite {
 		if (lastHealth > health)
 		{
 			blood.start(true, 0, Math.ceil(lastHealth - health));
+			MultiSoundManager.playRandomSound(this, "hit");
 			naturalRegeneration = 5;
 		}
 		lastHealth = health;
@@ -108,7 +114,7 @@ class Entity extends FlxSprite {
 		if (pxTillFootstep <= 0)
 		{
 			pxTillFootstep = 80;
-			FootstepManager.playFootstepForEntity(this);
+			MultiSoundManager.playFootstepForEntity(this);
 		}
 
 		health = Math.min(health, attributes.get(Attribute.MAX_HEALTH).getValue());

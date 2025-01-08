@@ -15,6 +15,8 @@ import flixel.util.FlxColor;
 import input.InputSource;
 import input.KeyboardSource;
 import objects.hitbox.Hitbox;
+import openfl.filters.ShaderFilter;
+import shader.ColoredItemShader;
 import sound.FootstepManager;
 class PlayerEntity extends HumanoidEntity
 {
@@ -37,18 +39,19 @@ class PlayerEntity extends HumanoidEntity
 	override public function new(x, y, username)
 	{
         super(x,y);
-		makeGraphic(32, 32, FlxColor.WHITE);
+		// makeGraphic(32, 32, FlxColor.WHITE);
+		loadGraphic(AssetPaths.goober__png);
         debugTracker.set("Jumps", "jumps");
 		debugTracker.set("Can Dash", "canDash");
 
-		ghostParticles.makeParticles(1, 1, FlxColor.WHITE, 500);
+		ghostParticles.loadParticles(graphic);
 		ghostParticles.alpha.set(1, 1, 0);
 		ghostParticles.lifespan.set(0.35);
 
-		ghostParticles.start(false, 0.1, 500);
+		ghostParticles.start(false, 0.15, 500);
 		ghostParticles.emitting = false;
 
-		color = FlxColor.BLUE;
+		// color = FlxColor.BLUE;
 
 		manuallyUpdateSize = true;
 		typeTranslationKey = "player";
@@ -61,10 +64,10 @@ class PlayerEntity extends HumanoidEntity
 		attributes.set(Attribute.JUMP_HEIGHT, new Attribute(500));
 		attributes.set(Attribute.CROUCH_SCALE, new Attribute(0.8));
 		attributes.set(Attribute.JUMP_COUNT, new Attribute(1));
-		attributes.set(Attribute.ATTACK_DAMAGE, new Attribute(5));
     }
 
     override function update(elapsed:Float) {
+
 
         // call update() for children here
 		// my ex-wife still wont let me see the kids -adi
@@ -109,12 +112,12 @@ class PlayerEntity extends HumanoidEntity
 				holsteredWeapon.angle = FlxMath.lerp(holsteredWeapon.flipX ? 45 : -45, input.getLookAngle(getPosition()) - 90, switchingAnimation * 2);
 			}
 		}
-		var newWidth = (32 * attributes.get(Attribute.SIZE_X).getValue());
-		var newHeight = (32 * attributes.get(Attribute.SIZE_Y).getValue());
+		var newWidth = (64 * attributes.get(Attribute.SIZE_X).getValue());
+		var newHeight = (80 * attributes.get(Attribute.SIZE_Y).getValue());
 		if (crouching)
 		{
-			newHeight -= (1 - attributes.get(Attribute.CROUCH_SCALE).getValue()) * 32;
-			newWidth += (1.15 - attributes.get(Attribute.CROUCH_SCALE).getValue()) * 32;
+			newHeight -= (1 - attributes.get(Attribute.CROUCH_SCALE).getValue()) * 64;
+			newWidth += (1.15 - attributes.get(Attribute.CROUCH_SCALE).getValue()) * 80;
 		}
 		y += height - newHeight;
 		x += (width - newWidth) / 2;
@@ -146,7 +149,7 @@ class PlayerEntity extends HumanoidEntity
 		}
 		else
 		{
-			angle = (velocity.x + dashMovement.x) / 350;
+			angle = (velocity.x + dashMovement.x + extraVelocity.x) / 350;
 		}
 
 		// cro uch :3
@@ -176,7 +179,7 @@ class PlayerEntity extends HumanoidEntity
                     dashMovement.x *= scale;
                 }
             } else {
-				FootstepManager.playFootstepForEntity(this);
+				MultiSoundManager.playFootstepForEntity(this);
                 velocity.y = -JUMP_HEIGHT;
             }
 			jumpParticles();
@@ -197,8 +200,18 @@ class PlayerEntity extends HumanoidEntity
 		ghostParticles.x = getMidpoint().x;
 		ghostParticles.y = getMidpoint().y;
 
-		ghostParticles.color.set(color);
-		ghostParticles.scale.set(getGraphicBounds().width, getGraphicBounds().height);
+		ghostParticles.scale.set(scale.x
+			+ Math.abs(Math.abs(dashMovement.x) + Math.abs(dashMovement.y)) / 450,
+			scale.y
+			+ Math.abs(Math.abs(dashMovement.x) + Math.abs(dashMovement.y)) / 450,
+			scale.x
+			+ Math.abs(Math.abs(dashMovement.x) + Math.abs(dashMovement.y)) / 450,
+			scale.y
+			+ (Math.abs(dashMovement.x) + Math.abs(dashMovement.y)) / 450, scale.x, scale.y);
+		for (particle in ghostParticles)
+		{
+			particle.shader = new ColoredItemShader(FlxColor.BLUE.getLightened(0.2));
+		}
 		ghostParticles.angle.set(angle);
 		ghostParticles.speed.set(0);
 		ghostParticles.emitting = Math.abs(dashMovement.x) + Math.abs(dashMovement.y) > 5;
@@ -260,33 +273,32 @@ class PlayerEntity extends HumanoidEntity
 			{
 				if (scale.x > SCALE_X)
 				{
-					scale.x = FlxMath.lerp(scale.x, width / 32, elapsed * 11);
+					scale.x = FlxMath.lerp(scale.x, width / 64, elapsed * 11);
 				}
 				if (scale.x < SCALE_X)
 				{
-					scale.x = FlxMath.lerp(scale.x, width / 32, elapsed * 11);
+					scale.x = FlxMath.lerp(scale.x, width / 64, elapsed * 11);
 				}
 				if (scale.y > SCALE_Y)
 				{
-					scale.y = FlxMath.lerp(scale.y, height / 32, elapsed * 11);
+					scale.y = FlxMath.lerp(scale.y, height / 80, elapsed * 11);
 				}
 				if (scale.y < SCALE_Y)
 				{
-					scale.y = FlxMath.lerp(scale.y, height / 32, elapsed * 11);
+					scale.y = FlxMath.lerp(scale.y, height / 80, elapsed * 11);
 				}
 			}
 		} else {
-			if (dashMovement.x > 70 || dashMovement.y > 70 || velocity.y < 0)
+			if (dashMovement.x > 70 || dashMovement.y > 70)
 			{
 				scale.set(SCALE_X, SCALE_Y);
 
-			} else {
-				if (velocity.y > 0)
-				{
-					scale.set(
-					FlxMath.lerp(scale.x, SCALE_X / 1.5, elapsed * (velocity.y / 100)),
-						FlxMath.lerp(scale.y, SCALE_Y * 1.5, elapsed * (velocity.y / 100)));
-				}
+			}
+			else
+			{
+				scale.set(
+				FlxMath.lerp(scale.x, SCALE_X / 1.15, elapsed * (Math.abs(velocity.y) / 100)),
+					FlxMath.lerp(scale.y, SCALE_Y * 1.15, elapsed * (Math.abs(velocity.y) / 100)));
 			}
 		}
 	}

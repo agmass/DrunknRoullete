@@ -48,7 +48,7 @@ class HumanoidEntity extends EquippedEntity
 		if (isTouching(FLOOR) && !wasGrounded)
 		{
 			var sc = attributes.get(Attribute.SIZE_X).getValue();
-			FootstepManager.playFootstepForEntity(this);
+			MultiSoundManager.playFootstepForEntity(this);
 			poofParticles.x = getMidpoint().x;
 			poofParticles.y = getGraphicBounds().bottom + 2;
 			poofParticles.speed.set(50 * sc, 50 * sc, 0, 0);

@@ -10,8 +10,8 @@ import objects.hitbox.Hitbox;
 
 class EquippedEntity extends Entity
 {
-	var handWeapon:Equipment;
-	var holsteredWeapon:Equipment;
+	public var handWeapon:Equipment;
+	public var holsteredWeapon:Equipment;
 	public var hitboxes:FlxTypedSpriteGroup<Hitbox> = new FlxTypedSpriteGroup();
 
 	public var switchingAnimation = 0.0;
@@ -27,6 +27,7 @@ class EquippedEntity extends Entity
 	{
 		super.createAttributes();
 		attributes.set(Attribute.ATTACK_DAMAGE, new Attribute(1));
+		attributes.set(Attribute.ATTACK_KNOCKBACK, new Attribute(10));
 		attributes.set(Attribute.ATTACK_SPEED, new Attribute(1));
 	}
 
@@ -59,11 +60,11 @@ class EquippedEntity extends Entity
 		}
 		if (extraVelocity.x < 0 && velocity.x > 0 || extraVelocity.x > 0 && velocity.x < 0)
 		{
-			extraVelocity.x = FlxMath.lerp(extraVelocity.x, 0, elapsed * 3);
+			extraVelocity.x = FlxMath.lerp(extraVelocity.x, 0, elapsed * 6);
 		}
 		if (extraVelocity.y < 0 && velocity.y > 0 || extraVelocity.y > 0 && velocity.y < 0)
 		{
-			extraVelocity.y = FlxMath.lerp(extraVelocity.y, 0, elapsed * 3);
+			extraVelocity.y = FlxMath.lerp(extraVelocity.y, 0, elapsed * 6);
 		}
         
 		super.update(elapsed);

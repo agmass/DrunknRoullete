@@ -3,12 +3,20 @@
     "attribute.movement_speed": "Movement Speed",
     "attribute.attack_damage": "Attack Damage",
     "attribute.jump_height": "Jump Height",
-    "attribute.health": "Health",
+    "attribute.attack_speed": "Attack Speed",
+    "attribute.health": "Max Health",
     "attribute.size_x": "Size (X)",
     "attribute.size_y": "Size (Y)",
+    "attribute.regeneration": "Natural Regeneration",
+    "attribute.player.crouch_scale": "Crouch Scale",
     "attribute.player.dash_speed": "Dash Speed",
     "attribute.player.jump_count": "Jump Count",
     "attribute.player.crit_chance": "Critical Hit Chance",
     "entity.player": "Player Entity",
-    "entity.basic": "Unregistered Entity"
+    "entity.basic": "Unregistered Entity",
+
+    "subtitle.footsteps": "Footsteps",
+    "subtitle.hit": "Damage Taken",
+    "subtitle.critical_swing": "Ground Swing",
+    "subtitle.swing": "Sword Swinging"
 }

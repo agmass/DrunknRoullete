@@ -1,5 +1,6 @@
 package objects.hitbox;
 
+import abilities.attributes.Attribute;
 import entity.Entity;
 import flixel.FlxSprite;
 import flixel.math.FlxPoint;
@@ -20,8 +21,10 @@ class SweepHitbox extends Hitbox
 
 	override function onHit(victim:Entity)
 	{
-		victim.velocity = velocity.scaleNew(1).scalePoint(new FlxPoint(3, 1.5));
 		super.onHit(victim);
+		if (victim == shooter)
+			return;
+		victim.velocity = velocity.scaleNew(shooter.attributes.get(Attribute.ATTACK_KNOCKBACK).getValue()).scalePoint(new FlxPoint(3, 1.5));
 	}
 
 	override function update(elapsed:Float)

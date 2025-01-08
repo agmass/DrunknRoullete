@@ -20,6 +20,8 @@ import flixel.util.FlxColor;
 import input.ControllerSource;
 import objects.FootstepChangingSprite;
 import objects.hitbox.Hitbox;
+import util.Language;
+import util.SubtitlesBox;
 
 class PlayState extends FlxState
 {
@@ -47,6 +49,8 @@ class PlayState extends FlxState
 	var gameCam:FlxCamera = new FlxCamera();
 	var HUDCam:FlxCamera = new FlxCamera();
 
+	var whatYouGambled:FlxText = new FlxText(0, 0, 0, "", 32);
+
 
 	override public function create()
 	{
@@ -69,7 +73,12 @@ class PlayState extends FlxState
 		wall.makeGraphic(500, 900, FlxColor.GRAY);
 		wall.immovable = true;
 		mapLayer.add(wall);
+		var subtitles = new SubtitlesBox();
+		add(subtitles);
+		subtitles.camera = HUDCam;
 		playerLayer.add(new PlayerEntity(900, 20, "Player 1"));
+		add(whatYouGambled);
+		whatYouGambled.camera = HUDCam;
 		
 		playerDebugText.camera = HUDCam;
 		add(playerDebugText);
@@ -91,6 +100,7 @@ class PlayState extends FlxState
 			}
 		}
 
+		#if FLX_DEBUG
 			if (FlxG.keys.justPressed.G)
 			{
 				FlxG.vcr.startRecording(false);
@@ -100,6 +110,7 @@ class PlayState extends FlxState
 					var recording = FlxG.vcr.stopRecording();
 					FlxG.vcr.loadReplay(recording);
 				}
+		#end
 		if (FlxG.keys.justPressed.I)
 		{
 			enemyLayer.add(new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2));
@@ -123,7 +134,7 @@ class PlayState extends FlxState
 			});
 			for (hitbox in p.hitboxes)
 			{
-				FlxG.overlap(hitbox, playerLayer, (h, e) ->
+				FlxG.overlap(hitbox, this, (h, e) ->
 				{
 					if (e is Entity)
 					{
@@ -140,6 +151,7 @@ class PlayState extends FlxState
 				});
 			}
 		});
+		var gambaText = "";
 		var currentBarHeight = 0.0;
 		var currentBarIndex = 0;
 		playerLayer.forEachOfType(PlayerEntity, (p) ->
@@ -159,7 +171,7 @@ class PlayState extends FlxState
 			});
 			for (hitbox in p.hitboxes)
 			{
-				FlxG.overlap(hitbox, enemyLayer, (h, e) ->
+				FlxG.overlap(hitbox, this, (h, e) ->
 				{
 					if (e is Entity)
 					{
@@ -177,6 +189,7 @@ class PlayState extends FlxState
 			}
 			if (FlxG.keys.justPressed.O)
 			{
+				gambaText += "\n\n" + p.entityName;
 				var lostOrWon = FlxG.random.bool(50);
 				var amount = 0.0;
 
@@ -229,6 +242,24 @@ class PlayState extends FlxState
 				trace(type.id);
 				trace(lostOrWon ? "won" : "lost");
 				trace("amount that was " + operation.getName() + "ed: " + amount);
+				gambaText += "\n" + Language.get("attribute." + type.id) + " ";
+				if (operation == ADD)
+				{
+					if (lostOrWon)
+					{
+						gambaText += "gained +" + amount;
+					}
+					else
+					{
+						gambaText += "lost " + amount;
+					}
+				}
+				if (operation == MULTIPLY)
+				{
+					gambaText += "multiplied x" + amount;
+				}
+				gambaText += "\n";
+
 				if (!p.attributes.exists(type))
 				{
 					p.attributes.set(type, new Attribute(0));
@@ -239,6 +270,7 @@ class PlayState extends FlxState
 				{
 					p.attributes.get(Attribute.SIZE_Y).addOperation(new AttributeContainer(operation, amount));
 				}
+				gambaText += Language.get("attribute." + type.id) + " is now at " + p.attributes.get(type).getValue();
 			}
 			if (p.playerMarkerColor == FlxColor.TRANSPARENT)
 			{
@@ -246,13 +278,21 @@ class PlayState extends FlxState
 				playerMarkerColors.splice(0,1);
 			}
 			p.showPlayerMarker = showPlayerMarker;
-			playerDebugText.text += p.toString() + "\n";
+			playerDebugText.text += p.toString() + "\n\n";
 		});
+		if (gambaText != "")
+		{
+			whatYouGambled.alpha = 1;
+			whatYouGambled.text = gambaText;
+		}
+		whatYouGambled.screenCenter();
+		whatYouGambled.alpha -= elapsed / 6.5;
 		super.update(elapsed);
 		FlxG.collide(playerLayer, mapLayer, playerWallCollision);
 		FlxG.collide(playerLayer, enemyLayer);
 		FlxG.collide(enemyLayer, mapLayer, playerWallCollision);
 	}
+
 
 	public function playerWallCollision(player:PlayerEntity, wall:FlxSprite)
 	{

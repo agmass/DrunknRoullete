@@ -6,24 +6,57 @@ import flixel.sound.FlxSound;
 import flixel.system.FlxAssets;
 import haxe.ds.HashMap;
 import openfl.Assets;
+import util.Language;
 
-class FootstepManager
+class MultiSoundManager
 {
 	public static var surfaceMap:Map<String, Array<String>> = new Map();
+	public static var multiSounds:Map<String, Array<String>> = new Map();
 
-	/*
-		WARNING!! expensive if a lot of assets. only use when initializingg
+	/**
+	 *	WARNING!! expensive if a lot of assets. only use when initializing
 	 */
-	public static function loadSurface(surfaceName:String)
+	public static function loadSurfaces()
 	{
-		surfaceMap.set(surfaceName, []);
 		for (i in AssetPaths.allFiles)
 		{
-			if (StringTools.startsWith(i, "assets/sounds/footsteps/" + surfaceName))
+			if (StringTools.startsWith(i, "assets/sounds/footsteps/"))
 			{
-				surfaceMap.get(surfaceName).push(i);
+				var cut = i.substring(24).split("/")[0];
+				if (!surfaceMap.exists(cut))
+				{
+					surfaceMap.set(cut, []);
+					trace("Found new footstep surface: " + cut);
+				}
+				surfaceMap.get(cut).push(i);
 			}
 		}
+	}
+
+	/**
+		WARNING!! expensive if a lot of assets. only use when initializing
+	 */
+	public static function loadMultiSounds()
+	{
+		for (i in AssetPaths.allFiles)
+		{
+			if (StringTools.startsWith(i, "assets/sounds/multisound/"))
+			{
+				var cut = i.substring(25).split("/")[0];
+				if (!multiSounds.exists(cut))
+				{
+					trace("Found new multisound: " + cut);
+					multiSounds.set(cut, []);
+				}
+				multiSounds.get(cut).push(i);
+			}
+		}
+	}
+
+	public static function playRandomSound(entity:Entity, soundName:String)
+	{
+		Main.subtitles.set(Language.get("subtitle." + soundName), 4);
+		FlxG.sound.play(multiSounds.get(soundName)[FlxG.random.int(0, multiSounds.get(soundName).length - 1)]);
 	}
 
 	public static function playFootstepForEntity(entity:Entity)
@@ -35,7 +68,9 @@ class FootstepManager
 				entity.footstepCount = -1;
 			}
 			entity.footstepCount++;
-			FlxG.sound.play(surfaceMap.get(entity.steppingOn)[entity.footstepCount]);
+			Main.subtitles.set(Language.get("subtitle.footsteps"), 4);
+			var sound = FlxG.sound.play(surfaceMap.get(entity.steppingOn)[entity.footstepCount]);
+			sound.proximity(entity.x, entity.y, entity, 1920, true);
 		}
 	}
 }
