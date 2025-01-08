@@ -12,7 +12,7 @@ class Attribute {
 
 	public static var SIZE_X:AttributeType = new AttributeType("size_x", 0.001, 0.45, 2);
 	public static var SIZE_Y:AttributeType = new AttributeType("size_y", 0.001, 0.45, 2);
-	public static var ATTACK_SPEED:AttributeType = new AttributeType("attack_speed", 0.01, 0.1, 2);
+	public static var ATTACK_SPEED:AttributeType = new AttributeType("attack_speed", 0.01, 0.2, 2);
 	public static var REGENERATION:AttributeType = new AttributeType("regeneration", 0.01, 1, 10);
 
 	public static var DASH_SPEED:AttributeType = new AttributeType("player.dash_speed", 1, 150, 600);
@@ -21,17 +21,18 @@ class Attribute {
 	public static var CROUCH_SCALE:AttributeType = new AttributeType("player.crouch_scale", 0.001, 0.3, 0.9);
 
 	public static var attributesList = [
-		MOVEMENT_SPEED,
+		/*MOVEMENT_SPEED,
 		ATTACK_DAMAGE,
 		JUMP_HEIGHT,
 		MAX_HEALTH,
-		ATTACK_SPEED,
+			ATTACK_SPEED, */
 		SIZE_X,
-		DASH_SPEED,
+		/*DASH_SPEED,
 		JUMP_COUNT,
 		CROUCH_SCALE,
+			ATTACK_KNOCKBACK,
 		// CRIT_CHANCE,
-		REGENERATION
+			REGENERATION */
 	];
 
 

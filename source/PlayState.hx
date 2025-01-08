@@ -121,6 +121,7 @@ class PlayState extends FlxState
 		}
 		FlxG.fixedTimestep = false;
 		var showPlayerMarker = playerLayer.length > 1;
+		gameCam.pixelPerfectRender = true;
 		playerDebugText.text = "\n" + "FPS: " + Main.FPS.currentFPS + "\n";
 		enemyLayer.forEachOfType(EquippedEntity, (p) ->
 		{

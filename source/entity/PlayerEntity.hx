@@ -35,7 +35,11 @@ class PlayerEntity extends HumanoidEntity
 	public var crouching = false;
 
 	public var crouchAttribute_speed:AttributeContainer = new AttributeContainer(MULTIPLY, 0.5);
+	public var HITBOX_X = 36;
+	public var HITBOX_Y = 67;
 
+	public var GRAPHIC_X = 64;
+	public var GRAPHIC_Y = 80;
 	override public function new(x, y, username)
 	{
         super(x,y);
@@ -62,7 +66,7 @@ class PlayerEntity extends HumanoidEntity
 		super.createAttributes();
 		// attributes.set(Attribute.DASH_SPEED, new Attribute(250));
 		attributes.set(Attribute.JUMP_HEIGHT, new Attribute(500));
-		attributes.set(Attribute.CROUCH_SCALE, new Attribute(0.8));
+		attributes.set(Attribute.CROUCH_SCALE, new Attribute(0.75));
 		attributes.set(Attribute.JUMP_COUNT, new Attribute(1));
     }
 
@@ -112,19 +116,19 @@ class PlayerEntity extends HumanoidEntity
 				holsteredWeapon.angle = FlxMath.lerp(holsteredWeapon.flipX ? 45 : -45, input.getLookAngle(getPosition()) - 90, switchingAnimation * 2);
 			}
 		}
-		var newWidth = (64 * attributes.get(Attribute.SIZE_X).getValue());
-		var newHeight = (80 * attributes.get(Attribute.SIZE_Y).getValue());
+		var newWidth = (HITBOX_X * attributes.get(Attribute.SIZE_X).getValue());
+		var newHeight = (HITBOX_Y * attributes.get(Attribute.SIZE_Y).getValue());
+
+		offset.set(0, 0);
+
+
 		if (crouching)
 		{
-			newHeight -= (1 - attributes.get(Attribute.CROUCH_SCALE).getValue()) * 64;
-			newWidth += (1.15 - attributes.get(Attribute.CROUCH_SCALE).getValue()) * 80;
+			newHeight -= ((1 - attributes.get(Attribute.CROUCH_SCALE).getValue()) * HITBOX_X) * 1.2;
+			newWidth += ((attributes.get(Attribute.CROUCH_SCALE).getValue()) * HITBOX_Y) * 0.2;
 		}
 		y += height - newHeight;
-		x += (width - newWidth) / 2;
 		setSize(newWidth, newHeight);
-		offset.set(-0.5 * (width - frameWidth), -0.5 * (height - frameHeight));
-		if (!crouching)
-			offset.y -= (newHeight) - getGraphicBounds().height;
 		centerOrigin();
 		squash(isTouching(FLOOR), elapsed);
 
@@ -264,6 +268,8 @@ class PlayerEntity extends HumanoidEntity
 	{
 		var SCALE_X = attributes.get(Attribute.SIZE_X).getValue();
 		var SCALE_Y = attributes.get(Attribute.SIZE_Y).getValue();
+		scale.set(SCALE_X, SCALE_Y);
+		return;
 		if (grounded) {
 			if (elapsed == -9) {
 				scale.set(SCALE_X, SCALE_Y);
@@ -273,19 +279,19 @@ class PlayerEntity extends HumanoidEntity
 			{
 				if (scale.x > SCALE_X)
 				{
-					scale.x = FlxMath.lerp(scale.x, width / 64, elapsed * 11);
+					scale.x = FlxMath.lerp(scale.x, width / HITBOX_X, elapsed * 11);
 				}
 				if (scale.x < SCALE_X)
 				{
-					scale.x = FlxMath.lerp(scale.x, width / 64, elapsed * 11);
+					scale.x = FlxMath.lerp(scale.x, width / HITBOX_X, elapsed * 11);
 				}
 				if (scale.y > SCALE_Y)
 				{
-					scale.y = FlxMath.lerp(scale.y, height / 80, elapsed * 11);
+					scale.y = FlxMath.lerp(scale.y, height / HITBOX_Y, elapsed * 11);
 				}
 				if (scale.y < SCALE_Y)
 				{
-					scale.y = FlxMath.lerp(scale.y, height / 80, elapsed * 11);
+					scale.y = FlxMath.lerp(scale.y, height / HITBOX_Y, elapsed * 11);
 				}
 			}
 		} else {

@@ -27,7 +27,7 @@ class EquippedEntity extends Entity
 	{
 		super.createAttributes();
 		attributes.set(Attribute.ATTACK_DAMAGE, new Attribute(1));
-		attributes.set(Attribute.ATTACK_KNOCKBACK, new Attribute(10));
+		attributes.set(Attribute.ATTACK_KNOCKBACK, new Attribute(1));
 		attributes.set(Attribute.ATTACK_SPEED, new Attribute(1));
 	}
 
