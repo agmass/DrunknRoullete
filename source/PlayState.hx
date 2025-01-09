@@ -57,6 +57,8 @@ class PlayState extends FlxState
 	override public function create()
 	{
 		super.create();
+		Main.audioPanner = new FlxSprite(FlxG.width / 2, FlxG.height / 2);
+		Main.audioPanner.makeGraphic(1, 1, FlxColor.TRANSPARENT);
 		if (FlxNapeSpace.space == null)
 			FlxNapeSpace.init();
 		FlxNapeSpace.space.gravity.setxy(0, 1200);
@@ -70,11 +72,11 @@ class PlayState extends FlxState
 		ground.makeGraphic(1920, 900, FlxColor.GRAY);
 		ground.immovable = true;
 		mapLayer.add(ground);
-		var wall = new FootstepChangingSprite((-300) + 250, 0, "concrete");
+		var wall = new FootstepChangingSprite(0, 400, "concrete");
 		wall.makeGraphic(500, 900, FlxColor.GRAY);
 		wall.immovable = true;
 		mapLayer.add(wall);
-		var wall = new FootstepChangingSprite((FlxG.width - 200) - 250, 0, "concrete");
+		var wall = new FootstepChangingSprite((FlxG.width - 100), 400, "concrete");
 		wall.makeGraphic(500, 900, FlxColor.GRAY);
 		wall.immovable = true;
 		mapLayer.add(wall); 
@@ -84,14 +86,14 @@ class PlayState extends FlxState
 		playerLayer.add(new PlayerEntity(900, 20, "Player 1"));
 		add(whatYouGambled);
 		whatYouGambled.camera = HUDCam;
-		
-		playerDebugText.camera = HUDCam;
-		add(playerDebugText);
+
 		playerDebugText.size = 12;
 		playerDebugText.visible = false;
 		add(enemyLayer);
 		add(playerLayer);
 		add(mapLayer);
+		playerDebugText.camera = HUDCam;
+		add(playerDebugText);
 	}
 
 	override public function update(elapsed:Float)
@@ -125,6 +127,7 @@ class PlayState extends FlxState
 			playerDebugText.visible = !playerDebugText.visible;
 		}
 		FlxG.fixedTimestep = false;
+		FlxG.autoPause = false;
 		var showPlayerMarker = playerLayer.length > 1;
 		gameCam.pixelPerfectRender = true;
 		playerDebugText.text = "\n" + "FPS: " + Main.FPS.currentFPS + "\n";
@@ -169,6 +172,10 @@ class PlayState extends FlxState
 			FlxG.overlap(p.collideables, playerLayer, (c:Projectile, e:Entity) ->
 			{
 				c.onOverlapWithEntity(e);
+			});
+			FlxG.overlap(p.collideables, mapLayer, (c:Projectile, e:Entity) ->
+			{
+				c.onOverlapWithMap();
 			});
 			currentBarIndex++;
 			p.healthBar.x = 20;

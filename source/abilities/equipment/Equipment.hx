@@ -9,6 +9,7 @@ import flixel.FlxSprite;
 
 class Equipment extends FlxSprite
 {
+	public var wielder:EquippedEntity;
 	public var translationKey = "";
 	public var attributes:Map<AttributeType, AttributeContainer> = new Map<AttributeType, AttributeContainer>();
 	public var weaponSpeed:Float = 0;

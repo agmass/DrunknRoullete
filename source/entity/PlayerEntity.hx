@@ -124,23 +124,23 @@ class PlayerEntity extends HumanoidEntity
 		var newWidth = (HITBOX_X * attributes.get(Attribute.SIZE_X).getValue());
 		var newHeight = (HITBOX_Y * attributes.get(Attribute.SIZE_Y).getValue());
 
-		offset.set(-0.5 * (width - frameWidth), Math.floor(-0.5 * (height - frameHeight)));
 
 
 		if (crouching)
 		{
 			newHeight -= ((1 - attributes.get(Attribute.CROUCH_SCALE).getValue()) * HITBOX_X) * 1.2;
-			newWidth += ((attributes.get(Attribute.CROUCH_SCALE).getValue()) * HITBOX_Y) * 0.2;
-		}
-		else
-		{
-			offset.y -= (newHeight) - getGraphicBounds().height;
+			newWidth += ((attributes.get(Attribute.CROUCH_SCALE).getValue()) * HITBOX_Y) * 0.5;
 		}
 		y += height - newHeight;
 		x += (width - newWidth) / 2;
 		setSize(newWidth, newHeight);
 		centerOrigin();
 		squash(isTouching(FLOOR), elapsed);
+		offset.set(-0.5 * (newWidth - frameWidth), (-0.5 * (newHeight - frameHeight)) - 1);
+		if (!crouching)
+		{
+			offset.y -= (newHeight) - getGraphicBounds().height;
+		}
 
 		var SPEED = attributes.get(Attribute.MOVEMENT_SPEED).getValue();
 		var JUMP_HEIGHT = attributes.get(Attribute.JUMP_HEIGHT).getValue();

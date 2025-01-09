@@ -18,9 +18,9 @@ import util.Language;
 import util.Projectile;
 
 /*
- * This is the "sword item" because that's what it was called during development. This item is really the Beer Bottle.
+ * Should be expanded by other classes to specify stats and graphics, or custom behaviour
  */
-class SwordItem extends Equipment
+class BasicProjectileShootingItem extends Equipment
 {
 	public var broken = 0.0;
 
@@ -35,6 +35,7 @@ class SwordItem extends Equipment
 	}
 
 	var lastSwing = new FlxPoint(0, 0);
+
 	public var bottle:BottleProjectile = null;
 
 	override function alt_fire(player:EquippedEntity)
@@ -54,7 +55,6 @@ class SwordItem extends Equipment
 		}
 		super.alt_fire(player);
 	}
-
 
 	override function attack(player:EquippedEntity)
 	{
@@ -126,6 +126,7 @@ class SwordItem extends Equipment
 	{
 		attributes.set(Attribute.ATTACK_DAMAGE, new AttributeContainer(AttributeOperation.FIRST_ADD, 12));
 	}
+
 	override function draw()
 	{
 		if (bottle != null)

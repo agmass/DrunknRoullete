@@ -9,4 +9,5 @@ class Projectile extends FlxNapeSprite
 	public var destroyOnCollision = false;
 
 	public function onOverlapWithEntity(entity:Entity) {}
+	public function onOverlapWithMap() {}
 }

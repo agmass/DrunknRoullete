@@ -2,6 +2,7 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxGame;
+import flixel.FlxSprite;
 import flixel.util.FlxColor;
 import js.Browser;
 import openfl.display.FPS;
@@ -25,15 +26,25 @@ class Main extends Sprite
 		https://dryoma.itch.io/footsteps-sounds
 
 
+		All following sounds are by creators from Pixabay.
+
+		\"Glass Bottle Smash\" by Universfield
+		\"Glass Hit\" by Universfield
+
 		All following sounds are by creators from Freesound.
 
 		\"Sword Swings\" by samsterbirdies
 		\"Swoosh\" by porkmucher
 		\"Rock Hit\" by link boy
+		
+		All following sounds aren't sounds, but are quotes. They're pretty silly. :3
+
+		\"drunk soviet simulator\" - __REDACTED__
 	";
 
 	public static var FPS:FPS;
 	public static var subtitles:Map<String, Float> = [];
+	public static var audioPanner:FlxSprite;
 
 	public function new()
 	{
@@ -48,6 +59,10 @@ class Main extends Sprite
 		Language.changeLanguage("en_us");
 		#if html5
 		FlxG.stage.showDefaultContextMenu = false;
+		Browser.document.addEventListener("mousedown", (event) ->
+		{
+			event.preventDefault();
+		});
 		#end
 
 	}	

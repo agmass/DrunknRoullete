@@ -18,7 +18,7 @@ class Attribute {
 	public static var DASH_SPEED:AttributeType = new AttributeType("player.dash_speed", 1, 150, 600);
 	public static var JUMP_COUNT:AttributeType = new AttributeType("player.jump_count", 1, 0, 99999999999999999999999, true);
 	public static var CRIT_CHANCE:AttributeType = new AttributeType("player.crit_chance", 0.1, 1, 100);
-	public static var CROUCH_SCALE:AttributeType = new AttributeType("player.crouch_scale", 0.001, 0.3, 0.9);
+	public static var CROUCH_SCALE:AttributeType = new AttributeType("player.crouch_scale", 0.001, 0.45, 0.9);
 
 	public static var attributesList = [
 		MOVEMENT_SPEED,

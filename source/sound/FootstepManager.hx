@@ -53,10 +53,19 @@ class MultiSoundManager
 		}
 	}
 
+	public static function playRandomSoundByItself(x, y, soundName:String, ?pitch = 1.0, ?volume = 1.0)
+	{
+		Main.subtitles.set(Language.get("subtitle." + soundName), 4);
+		var sound = FlxG.sound.play(multiSounds.get(soundName)[FlxG.random.int(0, multiSounds.get(soundName).length - 1)]);
+		sound.proximity(x, y, Main.audioPanner, 1920, true);
+		sound.pitch = pitch;
+		sound.volume = volume;
+	}
 	public static function playRandomSound(entity:Entity, soundName:String, ?pitch = 1.0, ?volume = 1.0)
 	{
 		Main.subtitles.set(Language.get("subtitle." + soundName), 4);
 		var sound = FlxG.sound.play(multiSounds.get(soundName)[FlxG.random.int(0, multiSounds.get(soundName).length - 1)]);
+		sound.proximity(entity.x, entity.y, Main.audioPanner, 1920, true);
 		sound.pitch = pitch;
 		sound.volume = volume;
 	}
@@ -72,7 +81,7 @@ class MultiSoundManager
 			entity.footstepCount++;
 			Main.subtitles.set(Language.get("subtitle.footsteps"), 4);
 			var sound = FlxG.sound.play(surfaceMap.get(entity.steppingOn)[entity.footstepCount]);
-			sound.proximity(entity.x, entity.y, entity, 1920, true);
+			sound.proximity(entity.x, entity.y, Main.audioPanner, 1920, true);
 		}
 	}
 }

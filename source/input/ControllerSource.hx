@@ -21,6 +21,7 @@ class ControllerSource extends InputSource {
     public var dash:ButtonControllerInput;
     public var jump:ButtonControllerInput;
 	public var backslot:ButtonControllerInput;
+	public var alt_fire:ButtonControllerInput;
     public var gamepad:FlxGamepad;
 
     public function new(gamepad:FlxGamepad) {
@@ -32,6 +33,7 @@ class ControllerSource extends InputSource {
 		horizontal_look = new AnalogControllerInput(gamepad, ControllerDirection.X, [FlxGamepadInputID.RIGHT_ANALOG_STICK], []);
 
 		shoot = new ButtonControllerInput(gamepad, [FlxGamepadInputID.RIGHT_TRIGGER]);
+		alt_fire = new ButtonControllerInput(gamepad, [FlxGamepadInputID.LEFT_TRIGGER]);
         jump = new ButtonControllerInput(gamepad,[FlxGamepadInputID.A]);
         dash = new ButtonControllerInput(gamepad,[FlxGamepadInputID.B]);
 		backslot = new ButtonControllerInput(gamepad, [FlxGamepadInputID.X]);
@@ -46,6 +48,8 @@ class ControllerSource extends InputSource {
         dashPressed = dash.pressed();
 		backslotJustPressed = backslot.justPressed();
 		backslotPressed = backslot.pressed();
+		altFireJustPressed = alt_fire.justPressed();
+		altFirePressed = alt_fire.pressed();
         super.update();
 	}
 	var lastView = 0.0;
