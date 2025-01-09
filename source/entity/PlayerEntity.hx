@@ -5,6 +5,7 @@ import abilities.attributes.AttributeContainer;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.effects.particles.FlxEmitter;
+import flixel.graphics.atlas.TexturePackerAtlas;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.group.FlxSpriteGroup;
@@ -35,8 +36,8 @@ class PlayerEntity extends HumanoidEntity
 	public var crouching = false;
 
 	public var crouchAttribute_speed:AttributeContainer = new AttributeContainer(MULTIPLY, 0.5);
-	public var HITBOX_X = 36;
-	public var HITBOX_Y = 67;
+	public var HITBOX_X = 38;
+	public var HITBOX_Y = 68;
 
 	public var GRAPHIC_X = 64;
 	public var GRAPHIC_Y = 80;
@@ -99,6 +100,10 @@ class PlayerEntity extends HumanoidEntity
 					handWeapon.attack(this);
 				}
 			}
+			if (input.altFirePressed)
+			{
+				handWeapon.alt_fire(this);
+			}
 			if (switchingAnimation > 0)
 			{
 				handWeapon.angle = FlxMath.lerp(input.getLookAngle(getPosition()) - 90, handWeapon.flipX ? 45 : -45, switchingAnimation * 2);
@@ -119,7 +124,7 @@ class PlayerEntity extends HumanoidEntity
 		var newWidth = (HITBOX_X * attributes.get(Attribute.SIZE_X).getValue());
 		var newHeight = (HITBOX_Y * attributes.get(Attribute.SIZE_Y).getValue());
 
-		offset.set(0, 0);
+		offset.set(-0.5 * (width - frameWidth), Math.floor(-0.5 * (height - frameHeight)));
 
 
 		if (crouching)
@@ -127,7 +132,12 @@ class PlayerEntity extends HumanoidEntity
 			newHeight -= ((1 - attributes.get(Attribute.CROUCH_SCALE).getValue()) * HITBOX_X) * 1.2;
 			newWidth += ((attributes.get(Attribute.CROUCH_SCALE).getValue()) * HITBOX_Y) * 0.2;
 		}
+		else
+		{
+			offset.y -= (newHeight) - getGraphicBounds().height;
+		}
 		y += height - newHeight;
+		x += (width - newWidth) / 2;
 		setSize(newWidth, newHeight);
 		centerOrigin();
 		squash(isTouching(FLOOR), elapsed);
@@ -268,8 +278,6 @@ class PlayerEntity extends HumanoidEntity
 	{
 		var SCALE_X = attributes.get(Attribute.SIZE_X).getValue();
 		var SCALE_Y = attributes.get(Attribute.SIZE_Y).getValue();
-		scale.set(SCALE_X, SCALE_Y);
-		return;
 		if (grounded) {
 			if (elapsed == -9) {
 				scale.set(SCALE_X, SCALE_Y);

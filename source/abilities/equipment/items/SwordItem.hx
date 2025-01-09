@@ -7,13 +7,19 @@ import entity.EquippedEntity;
 import entity.PlayerEntity;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.addons.nape.FlxNapeSprite;
 import flixel.math.FlxAngle;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import objects.hitbox.SweepHitbox;
+import projectiles.BottleProjectile;
 import sound.FootstepManager.MultiSoundManager;
 import util.Language;
+import util.Projectile;
 
+/*
+ * This is the "sword item" because that's what it was called during development. This item is really the Beer Bottle.
+ */
 class SwordItem extends Equipment
 {
 	var wielder:EquippedEntity;
@@ -27,9 +33,30 @@ class SwordItem extends Equipment
 	}
 
 	var lastSwing = new FlxPoint(0, 0);
+	public var bottle:BottleProjectile = null;
+
+	override function alt_fire(player:EquippedEntity)
+	{
+		if (bottle == null)
+		{
+			bottle = new BottleProjectile(x, y, AssetPaths.sword__png, true, true);
+			var add = new FlxPoint(800, 0).rotateByDegrees(angle - 90);
+			bottle.body.velocity.setxy(add.x, add.y);
+			bottle.body.rotateShapes(-add.x);
+			bottle.shooter = player;
+			bottle.setBodyMaterial(0.5, 0.4, 0.7, 0.2, 1);
+			player.collideables.add(bottle);
+		}
+		super.alt_fire(player);
+	}
+
 
 	override function attack(player:EquippedEntity)
 	{
+		if (bottle != null)
+		{
+			return;
+		}
 		var swordSweep = new SweepHitbox(player.getMidpoint().x, player.getMidpoint().y, Math.floor(player.attributes.get(Attribute.SIZE_X).getValue() - 1));
 		swordSweep.shooter = player;
 		swordSweep.y -= (swordSweep.height / 2);
@@ -47,36 +74,51 @@ class SwordItem extends Equipment
 		swordSweep.damage *= player.attributes.get(Attribute.ATTACK_DAMAGE).getValue();
 		if (player.isTouching(FLOOR))
 		{
-			FlxG.sound.play(AssetPaths.critswing__ogg);
+			var sound = FlxG.sound.play(AssetPaths.critswing__ogg);
+			sound.pitch = 1.8;
+			sound.volume = 0.45;
 			Main.subtitles.set(Language.get("subtitle.critical_swing"), 4);
 		}
 		else
 		{
-			MultiSoundManager.playRandomSound(player, "swing");
+			MultiSoundManager.playRandomSound(player, "swing", 1.8, 0.45);
 		}
 		super.attack(player);
 	}
 
 	override function update(elapsed:Float)
 	{
-
-		offset.x = FlxMath.lerp(0, lastSwing.x,
-			Math.max(wielder.timeUntilAttack / (weaponSpeed + wielder.attributes.get(Attribute.ATTACK_SPEED).getValue()), 0));
-		offset.y = FlxMath.lerp(0, lastSwing.y,
-			Math.max(wielder.timeUntilAttack / (weaponSpeed + wielder.attributes.get(Attribute.ATTACK_SPEED).getValue()), 0));
-		if (wielder.holsteredWeapon != null)
+		if (bottle != null)
 		{
-			if (wielder.holsteredWeapon.ID == ID)
+			if (!bottle.alive)
 			{
-				offset.x = 0;
-				offset.y = 0;
+				bottle = null;
+			}
+			else
+			{
+				bottle.update(elapsed);
 			}
 		}
+		offset.x = FlxMath.lerp(0, lastSwing.x,
+			Math.max(wielder.timeUntilAttack / (weaponSpeed + wielder.attributes.get(Attribute.ATTACK_SPEED).getValue()), 0));
+		offset.y = FlxMath.lerp(6, lastSwing.y,
+			Math.max(wielder.timeUntilAttack / (weaponSpeed + wielder.attributes.get(Attribute.ATTACK_SPEED).getValue()), 0));
 		super.update(elapsed);
 	}
 
 	override public function createAttributes()
 	{
 		attributes.set(Attribute.ATTACK_DAMAGE, new AttributeContainer(AttributeOperation.FIRST_ADD, 12));
+	}
+	override function draw()
+	{
+		if (bottle != null)
+		{
+			bottle.draw();
+		}
+		else
+		{
+			super.draw();
+		}
 	}
 }

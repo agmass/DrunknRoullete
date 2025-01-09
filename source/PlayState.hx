@@ -11,6 +11,7 @@ import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.addons.nape.FlxNapeSpace;
 import flixel.effects.particles.FlxParticle;
 import flixel.group.FlxSpriteGroup;
 import flixel.input.gamepad.mappings.SwitchProMapping;
@@ -21,6 +22,7 @@ import input.ControllerSource;
 import objects.FootstepChangingSprite;
 import objects.hitbox.Hitbox;
 import util.Language;
+import util.Projectile;
 import util.SubtitlesBox;
 
 class PlayState extends FlxState
@@ -55,24 +57,27 @@ class PlayState extends FlxState
 	override public function create()
 	{
 		super.create();
+		if (FlxNapeSpace.space == null)
+			FlxNapeSpace.init();
+		FlxNapeSpace.space.gravity.setxy(0, 1200);
 		FlxG.cameras.reset(gameCam);
 		HUDCam.bgColor.alpha = 0;
 		FlxG.cameras.add(HUDCam, false);
 		var bg = new FlxSprite(0, 0, AssetPaths.test_bg__png);
 		bg.alpha = 0.2;
 		add(bg);
-		var ground = new FootstepChangingSprite(0, 900, "concrete");
+		var ground = new FootstepChangingSprite(FlxG.width / 2, 1300, "concrete");
 		ground.makeGraphic(1920, 900, FlxColor.GRAY);
 		ground.immovable = true;
 		mapLayer.add(ground);
-		var wall = new FootstepChangingSprite(-300, 0, "concrete");
+		var wall = new FootstepChangingSprite((-300) + 250, 0, "concrete");
 		wall.makeGraphic(500, 900, FlxColor.GRAY);
 		wall.immovable = true;
 		mapLayer.add(wall);
-		var wall = new FootstepChangingSprite(FlxG.width - 200, 0, "concrete");
+		var wall = new FootstepChangingSprite((FlxG.width - 200) - 250, 0, "concrete");
 		wall.makeGraphic(500, 900, FlxColor.GRAY);
 		wall.immovable = true;
-		mapLayer.add(wall);
+		mapLayer.add(wall); 
 		var subtitles = new SubtitlesBox();
 		add(subtitles);
 		subtitles.camera = HUDCam;
@@ -157,6 +162,14 @@ class PlayState extends FlxState
 		var currentBarIndex = 0;
 		playerLayer.forEachOfType(PlayerEntity, (p) ->
 		{
+			FlxG.overlap(p.collideables, enemyLayer, (c:Projectile, e:Entity) ->
+			{
+				c.onOverlapWithEntity(e);
+			});
+			FlxG.overlap(p.collideables, playerLayer, (c:Projectile, e:Entity) ->
+			{
+				c.onOverlapWithEntity(e);
+			});
 			currentBarIndex++;
 			p.healthBar.x = 20;
 			p.healthBar.y = (20 * currentBarIndex) + currentBarHeight;

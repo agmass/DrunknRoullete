@@ -53,10 +53,12 @@ class MultiSoundManager
 		}
 	}
 
-	public static function playRandomSound(entity:Entity, soundName:String)
+	public static function playRandomSound(entity:Entity, soundName:String, ?pitch = 1.0, ?volume = 1.0)
 	{
 		Main.subtitles.set(Language.get("subtitle." + soundName), 4);
-		FlxG.sound.play(multiSounds.get(soundName)[FlxG.random.int(0, multiSounds.get(soundName).length - 1)]);
+		var sound = FlxG.sound.play(multiSounds.get(soundName)[FlxG.random.int(0, multiSounds.get(soundName).length - 1)]);
+		sound.pitch = pitch;
+		sound.volume = volume;
 	}
 
 	public static function playFootstepForEntity(entity:Entity)

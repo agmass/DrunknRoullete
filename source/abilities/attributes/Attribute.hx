@@ -21,18 +21,18 @@ class Attribute {
 	public static var CROUCH_SCALE:AttributeType = new AttributeType("player.crouch_scale", 0.001, 0.3, 0.9);
 
 	public static var attributesList = [
-		/*MOVEMENT_SPEED,
+		MOVEMENT_SPEED,
 		ATTACK_DAMAGE,
 		JUMP_HEIGHT,
 		MAX_HEALTH,
-			ATTACK_SPEED, */
+		ATTACK_SPEED, 
 		SIZE_X,
-		/*DASH_SPEED,
+		DASH_SPEED,
 		JUMP_COUNT,
 		CROUCH_SCALE,
 			ATTACK_KNOCKBACK,
 		// CRIT_CHANCE,
-			REGENERATION */
+		REGENERATION 
 	];
 
 

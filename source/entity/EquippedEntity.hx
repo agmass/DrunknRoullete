@@ -4,15 +4,18 @@ import abilities.attributes.Attribute;
 import abilities.equipment.Equipment;
 import abilities.equipment.items.SwordItem;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
+import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import objects.hitbox.Hitbox;
+import util.Projectile;
 
 class EquippedEntity extends Entity
 {
 	public var handWeapon:Equipment;
 	public var holsteredWeapon:Equipment;
 	public var hitboxes:FlxTypedSpriteGroup<Hitbox> = new FlxTypedSpriteGroup();
+	public var collideables:FlxTypedSpriteGroup<Projectile> = new FlxTypedSpriteGroup<Projectile>();
 
 	public var switchingAnimation = 0.0;
 	public var timeUntilAttack = 0.0;
@@ -47,6 +50,8 @@ class EquippedEntity extends Entity
 		timeUntilAttack -= elapsed;
 		if (handWeapon != null)
 			handWeapon.update(elapsed);
+		if (holsteredWeapon != null)
+			holsteredWeapon.update(elapsed);
 		if (!extraVelocity.isZero())
 		{
 			if (isTouching(FLOOR) || isTouching(UP))

@@ -12,14 +12,21 @@ class Equipment extends FlxSprite
 	public var translationKey = "";
 	public var attributes:Map<AttributeType, AttributeContainer> = new Map<AttributeType, AttributeContainer>();
 	public var weaponSpeed:Float = 0;
+	public var equipped = false;
 
 	public function new()
 	{
 		super();
 		createAttributes();
 	}
+	public function canSwapOut():Bool
+	{
+		return false;
+	}
 
 	public function attack(player:EquippedEntity) {}
+
+	public function alt_fire(player:EquippedEntity) {}
 
 	public function use(player:EquippedEntity) {}
 

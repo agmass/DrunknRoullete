@@ -3,6 +3,7 @@ package;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.util.FlxColor;
+import js.Browser;
 import openfl.display.FPS;
 import openfl.display.Sprite;
 import sound.FootstepManager;
@@ -45,6 +46,9 @@ class Main extends Sprite
 		MultiSoundManager.loadSurfaces();
 		Language.refreshLanguages();
 		Language.changeLanguage("en_us");
+		#if html5
+		FlxG.stage.showDefaultContextMenu = false;
+		#end
 
 	}	
 }

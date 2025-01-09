@@ -32,6 +32,9 @@ class InputSource {
 	public var backslotPressed = false;
 	public var backslotJustPressed = false;
 
+	public var altFirePressed = false;
+	public var altFireJustPressed = false;
+
     public function new() {}
 
     public function update() {}

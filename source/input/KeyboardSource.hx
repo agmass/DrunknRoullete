@@ -9,6 +9,7 @@ import input.control.KeyOrMouseInput;
 class KeyboardSource extends InputSource {
 
 	public var shoot:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.X], [FlxMouseButton.getByID(FlxMouseButtonID.LEFT)]);
+	public var alt_fire:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.C], [FlxMouseButton.getByID(FlxMouseButtonID.RIGHT)]);
     public var W:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.W,FlxKey.UP], []);
     public var A:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.A,FlxKey.LEFT], []);
     public var S:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.S,FlxKey.DOWN], []);
@@ -25,6 +26,8 @@ class KeyboardSource extends InputSource {
         dashPressed = dash.pressed();
 		backslotJustPressed = backslot.justPressed();
 		backslotPressed = backslot.pressed();
+		altFireJustPressed = alt_fire.justPressed();
+		altFirePressed = alt_fire.pressed();
         super.update();
     }
 
