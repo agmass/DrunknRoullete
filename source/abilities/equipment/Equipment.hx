@@ -14,6 +14,7 @@ class Equipment extends FlxSprite
 	public var attributes:Map<AttributeType, AttributeContainer> = new Map<AttributeType, AttributeContainer>();
 	public var weaponSpeed:Float = 0;
 	public var equipped = false;
+	public var changePlayerAnimation = false;
 
 	public function new()
 	{

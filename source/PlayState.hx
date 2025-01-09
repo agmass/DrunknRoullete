@@ -80,8 +80,8 @@ class PlayState extends FlxState
 		wall.makeGraphic(500, 900, FlxColor.GRAY);
 		wall.immovable = true;
 		mapLayer.add(wall); 
-		var subtitles = new SubtitlesBox();
 		add(subtitles);
+		subtitles.visible = false;
 		subtitles.camera = HUDCam;
 		playerLayer.add(new PlayerEntity(900, 20, "Player 1"));
 		add(whatYouGambled);
@@ -95,6 +95,7 @@ class PlayState extends FlxState
 		playerDebugText.camera = HUDCam;
 		add(playerDebugText);
 	}
+	var subtitles = new SubtitlesBox();
 
 	override public function update(elapsed:Float)
 	{
@@ -125,6 +126,10 @@ class PlayState extends FlxState
 		if (FlxG.keys.justPressed.THREE)
 		{
 			playerDebugText.visible = !playerDebugText.visible;
+		}
+		if (FlxG.keys.justPressed.K)
+		{
+			subtitles.visible = !subtitles.visible;
 		}
 		FlxG.fixedTimestep = false;
 		FlxG.autoPause = false;
@@ -252,7 +257,8 @@ class PlayState extends FlxState
 				{
 					amount = [
 						10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 25.0, 25.0, 25.0, 25.0, 25.0, 50.0, 50.0, 50.0, 50.0, 100.0, 100.0, 100.0, 250.0, 250.0, 500.0
-					][FlxG.random.int(0, 20)] *= type.additionMultiplier;
+					][FlxG.random.int(0, 20)];
+					amount *= type.additionMultiplier;
 					if (type == Attribute.JUMP_COUNT)
 					{
 						amount = [1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0, 4.0][FlxG.random.int(0, 13)] *= type.additionMultiplier;

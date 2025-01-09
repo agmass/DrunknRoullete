@@ -20,9 +20,10 @@ class BottleProjectile extends Projectile
 	{
 		super(x, y, null, false, true);
 		loadGraphicFromSprite(originalBottle);
-		createRectangularBody();
+		createRectangularBody(14, 41);
 		shards.loadParticles(AssetPaths.shard__png, 6, 18, true);
 		shards.acceleration.set(0, 400);
+		shards.alpha.set(1, 1, 0, 0);
 	}
 
 	override function onOverlapWithMap()

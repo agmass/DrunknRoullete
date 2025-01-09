@@ -93,12 +93,14 @@ class SwordItem extends Equipment
 
 	override function update(elapsed:Float)
 	{
+		changePlayerAnimation = bottle != null;
 		if (bottle != null)
 		{
 			if (bottle.broken)
 				broken = 2.0;
 			if (!bottle.alive)
 			{
+				bottle.destroy();
 				bottle = null;
 			}
 			else

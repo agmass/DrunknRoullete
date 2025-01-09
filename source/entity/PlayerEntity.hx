@@ -45,11 +45,15 @@ class PlayerEntity extends HumanoidEntity
 	{
         super(x,y);
 		// makeGraphic(32, 32, FlxColor.WHITE);
-		loadGraphic(AssetPaths.goober__png);
+		loadGraphic(AssetPaths.goober__png, true, 40, 69);
+		animation.add("idle", [0]);
+		animation.add("walk", [1, 0, 2, 0], 3);
+		animation.add("idle_no_weapon", [3]);
+		animation.add("walk_no_weapon", [4, 3, 5, 3], 3);
         debugTracker.set("Jumps", "jumps");
 		debugTracker.set("Can Dash", "canDash");
 
-		ghostParticles.loadParticles(graphic);
+		ghostParticles.loadParticles(AssetPaths.goober_shadow__png);
 		ghostParticles.alpha.set(1, 1, 0);
 		ghostParticles.lifespan.set(0.35);
 
@@ -129,7 +133,6 @@ class PlayerEntity extends HumanoidEntity
 		if (crouching)
 		{
 			newHeight -= ((1 - attributes.get(Attribute.CROUCH_SCALE).getValue()) * HITBOX_X) * 1.2;
-			newWidth += ((attributes.get(Attribute.CROUCH_SCALE).getValue()) * HITBOX_Y) * 0.5;
 		}
 		y += height - newHeight;
 		x += (width - newWidth) / 2;
@@ -149,8 +152,14 @@ class PlayerEntity extends HumanoidEntity
         maxVelocity.x = SPEED*Math.abs(inputVelocity.x);
 
         if (!inputVelocity.isZero()) {
+			animation.play("walk" + ((handWeapon != null && !handWeapon.changePlayerAnimation) ? "" : "_no_weapon"));
+			animation.timeScale = Math.abs(velocity.x) / 80;
 			lastNonZeroInput = inputVelocity;
-        }
+		}
+		else
+		{
+			animation.play("idle" + ((handWeapon != null && !handWeapon.changePlayerAnimation) ? "" : "_no_weapon"));
+		}
 		flipX = input.getLookAngle(getPosition()) < 90 && input.getLookAngle(getPosition()) > -90;
 
 
@@ -278,6 +287,9 @@ class PlayerEntity extends HumanoidEntity
 	{
 		var SCALE_X = attributes.get(Attribute.SIZE_X).getValue();
 		var SCALE_Y = attributes.get(Attribute.SIZE_Y).getValue();
+		var crouchSquish = 1.0;
+		if (crouching)
+			crouchSquish = 1 + ((attributes.get(Attribute.CROUCH_SCALE).getValue()) * 0.5);
 		if (grounded) {
 			if (elapsed == -9) {
 				scale.set(SCALE_X, SCALE_Y);
@@ -287,11 +299,11 @@ class PlayerEntity extends HumanoidEntity
 			{
 				if (scale.x > SCALE_X)
 				{
-					scale.x = FlxMath.lerp(scale.x, width / HITBOX_X, elapsed * 11);
+					scale.x = FlxMath.lerp(scale.x, (width / HITBOX_X) * crouchSquish, elapsed * 11);
 				}
 				if (scale.x < SCALE_X)
 				{
-					scale.x = FlxMath.lerp(scale.x, width / HITBOX_X, elapsed * 11);
+					scale.x = FlxMath.lerp(scale.x, (width / HITBOX_X) * crouchSquish, elapsed * 11);
 				}
 				if (scale.y > SCALE_Y)
 				{
