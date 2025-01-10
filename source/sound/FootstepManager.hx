@@ -11,6 +11,7 @@ import util.Language;
 class MultiSoundManager
 {
 	public static var surfaceMap:Map<String, Array<String>> = new Map();
+	public static var footstepVolume:Map<String, Float> = new Map();
 	public static var multiSounds:Map<String, Array<String>> = new Map();
 
 	/**
@@ -82,6 +83,7 @@ class MultiSoundManager
 			Main.subtitles.set(Language.get("subtitle.footsteps"), 4);
 			var sound = FlxG.sound.play(surfaceMap.get(entity.steppingOn)[entity.footstepCount]);
 			sound.proximity(entity.x, entity.y, Main.audioPanner, 1920, true);
+			sound.volume = footstepVolume.exists(entity.steppingOn) ? footstepVolume.get(entity.steppingOn) : 1;
 		}
 	}
 }

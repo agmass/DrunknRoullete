@@ -9,6 +9,7 @@ import flixel.FlxSprite;
 import flixel.effects.particles.FlxEmitter;
 import flixel.math.FlxMath;
 import flixel.sound.FlxSound;
+import flixel.text.FlxText;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
 import haxe.ds.HashMap;
@@ -30,8 +31,10 @@ class Entity extends FlxSprite {
 	public var blood:FlxEmitter = new FlxEmitter();
 
 	public var healthBar:FlxBar = new FlxBar(20, 20, FlxBarFillDirection.LEFT_TO_RIGHT, 400, 40);
+	public var nametag:FlxText = new FlxText(0, 0, 0, "", 24);
 
 	var lastHealth = 100.0;
+	public var bossHealthBar = false;
 
 	public var naturalRegeneration = 0.0;
     
@@ -85,6 +88,7 @@ class Entity extends FlxSprite {
 			}
 		}
 		blood.update(elapsed);
+		nametag.text = entityName;
 		healthBar.value = health;
 		healthBar.setRange(0, attributes.get(Attribute.MAX_HEALTH).getValue());
 
@@ -128,6 +132,11 @@ class Entity extends FlxSprite {
     override function draw() {
         super.draw();
 		blood.draw();
+		if (bossHealthBar)
+		{
+			healthBar.draw();
+			nametag.draw();
+		}
     }
     
 	var translatedTypeName = "";

@@ -48,6 +48,7 @@ class SwordItem extends Equipment
 			bottle.body.velocity.setxy(add.x, add.y);
 			bottle.body.rotate(bottle.body.position, angle * FlxAngle.TO_RAD);
 			bottle.shooter = player;
+			bottle.body.space = Main.napeSpace;
 			bottle.setBodyMaterial(0.5, 0.4, 0.7, 0.2, 1);
 			player.collideables.add(bottle);
 			MultiSoundManager.playRandomSound(player, "swing", 1.8, 0.45);
@@ -98,7 +99,7 @@ class SwordItem extends Equipment
 		{
 			if (bottle.broken)
 				broken = 2.0;
-			if (!bottle.alive)
+			if (bottle.returnToShooter)
 			{
 				bottle.destroy();
 				bottle = null;
@@ -119,7 +120,7 @@ class SwordItem extends Equipment
 		broken -= elapsed;
 		offset.x = FlxMath.lerp(0, lastSwing.x,
 			Math.max(wielder.timeUntilAttack / (weaponSpeed + wielder.attributes.get(Attribute.ATTACK_SPEED).getValue()), 0));
-		offset.y = FlxMath.lerp(6 * wielder.attributes.get(Attribute.SIZE_X).getValue(), lastSwing.y,
+		offset.y = FlxMath.lerp(wielder is PlayerEntity ? 6 : 0 * wielder.attributes.get(Attribute.SIZE_X).getValue(), lastSwing.y,
 			Math.max(wielder.timeUntilAttack / (weaponSpeed + wielder.attributes.get(Attribute.ATTACK_SPEED).getValue()), 0));
 		super.update(elapsed);
 	}

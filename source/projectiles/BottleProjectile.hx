@@ -44,7 +44,7 @@ class BottleProjectile extends Projectile
 		{
 			if (dontPickUp <= 0)
 			{
-				this.kill();
+				returnToShooter = true;
 			}
 			return;
 		}
@@ -78,7 +78,7 @@ class BottleProjectile extends Projectile
 		shards.update(elapsed);
 		if (hitEntity)
 		{
-			this.kill();
+			returnToShooter = true;
 		}
 	}
 

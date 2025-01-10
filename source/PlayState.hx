@@ -12,6 +12,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.addons.nape.FlxNapeSpace;
+import flixel.addons.nape.FlxNapeSprite;
 import flixel.effects.particles.FlxParticle;
 import flixel.group.FlxSpriteGroup;
 import flixel.input.gamepad.mappings.SwitchProMapping;
@@ -19,8 +20,13 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import input.ControllerSource;
+import input.KeyboardSource;
+import nape.geom.Vec2;
 import objects.FootstepChangingSprite;
+import objects.ImmovableFootstepChangingSprite;
 import objects.hitbox.Hitbox;
+import substate.PauseSubState;
+import util.EnviornmentsLoader;
 import util.Language;
 import util.Projectile;
 import util.SubtitlesBox;
@@ -28,7 +34,6 @@ import util.SubtitlesBox;
 class PlayState extends FlxState
 {
 
-	var activeGamepads = [];
 	var playerMarkerColors = [
 		FlxColor.BLUE,
 		FlxColor.RED,
@@ -53,58 +58,114 @@ class PlayState extends FlxState
 
 	var whatYouGambled:FlxText = new FlxText(0, 0, 0, "", 32);
 
+	override function destroy()
+	{
+		Main.napeSpace.clear();
+		super.destroy();
+	}
 
 	override public function create()
 	{
 		super.create();
 		Main.audioPanner = new FlxSprite(FlxG.width / 2, FlxG.height / 2);
 		Main.audioPanner.makeGraphic(1, 1, FlxColor.TRANSPARENT);
-		if (FlxNapeSpace.space == null)
-			FlxNapeSpace.init();
-		FlxNapeSpace.space.gravity.setxy(0, 1200);
 		FlxG.cameras.reset(gameCam);
 		HUDCam.bgColor.alpha = 0;
 		FlxG.cameras.add(HUDCam, false);
 		var bg = new FlxSprite(0, 0, AssetPaths.test_bg__png);
 		bg.alpha = 0.2;
 		add(bg);
-		var ground = new FootstepChangingSprite(FlxG.width / 2, 1300, "concrete");
-		ground.makeGraphic(1920, 900, FlxColor.GRAY);
+		var ground = new ImmovableFootstepChangingSprite(FlxG.width / 2, 1080, "concrete");
+		ground.makeGraphic(1920, 250, FlxColor.TRANSPARENT);
 		ground.immovable = true;
 		mapLayer.add(ground);
-		var wall = new FootstepChangingSprite(0, 400, "concrete");
-		wall.makeGraphic(500, 900, FlxColor.GRAY);
+		var roof = new ImmovableFootstepChangingSprite(FlxG.width / 2, 0, "concrete");
+		roof.makeGraphic(1920, 250, FlxColor.TRANSPARENT);
+		roof.immovable = true;
+		mapLayer.add(roof);
+		var wall = new ImmovableFootstepChangingSprite(0, 537, "concrete");
+		wall.makeGraphic(378, 1080, FlxColor.TRANSPARENT);
 		wall.immovable = true;
 		mapLayer.add(wall);
-		var wall = new FootstepChangingSprite((FlxG.width - 100), 400, "concrete");
-		wall.makeGraphic(500, 900, FlxColor.GRAY);
-		wall.immovable = true;
-		mapLayer.add(wall); 
+		var wall2 = new ImmovableFootstepChangingSprite(FlxG.width, 537, "concrete");
+		wall2.makeGraphic(378, 1080, FlxColor.TRANSPARENT);
+		wall2.immovable = true;
+		mapLayer.add(wall2);
+		var enviornment = new FlxSprite(0, 0);
+		var bgName = EnviornmentsLoader.enviornments[FlxG.random.int(0, EnviornmentsLoader.enviornments.length - 1)];
+		enviornment.loadGraphic(bgName, true, 1280, 720);
+		enviornment.setGraphicSize(1920, 1080);
+		enviornment.updateHitbox();
+		var frames = [];
+		for (i in 0...Math.floor(enviornment.width / 1280) + 1)
+		{
+			frames.push(i);
+		}
+		enviornment.animation.add("idle", frames, 2);
+		enviornment.animation.play("idle");
+		var enviornmentbg = new FlxSprite(0, 0);
+		enviornmentbg.loadGraphic(StringTools.replace(StringTools.replace(bgName, "enviorments", "backgrounds"), ".png", "_back.png"), true, 1280, 720);
+		enviornmentbg.setGraphicSize(1920, 1080);
+		enviornmentbg.updateHitbox();
+		enviornmentbg.animation.add("idle", frames, 2);
+		enviornmentbg.animation.play("idle");
 		add(subtitles);
 		subtitles.visible = false;
 		subtitles.camera = HUDCam;
-		playerLayer.add(new PlayerEntity(900, 20, "Player 1"));
+		// playerLayer.add(new PlayerEntity(900, 20, "Player 1"));
 		add(whatYouGambled);
 		whatYouGambled.camera = HUDCam;
+		if (bgName == AssetPaths.winbig__png)
+		{
+			ground.footstepSoundName = "carpet";
+			var table = new FootstepChangingSprite(FlxG.random.int(300, 1200), 300, "wood");
+			table.loadGraphic(AssetPaths.table__png);
+			table.createRectangularBody();
+			table.body.space = Main.napeSpace;
+			table.setBodyMaterial(-1, 4, 4, 2, 0);
+			table.immovable = true;
+			mapLayer.add(table);
+		}
 
 		playerDebugText.size = 12;
 		playerDebugText.visible = false;
+		add(enviornmentbg);
 		add(enemyLayer);
 		add(playerLayer);
 		add(mapLayer);
+		add(enviornment);
 		playerDebugText.camera = HUDCam;
 		add(playerDebugText);
 	}
 	var subtitles = new SubtitlesBox();
+	var takenGamepads = [];
+	var kmbConnected = false;
 
 	override public function update(elapsed:Float)
 	{
-		for (gamepad in FlxG.gamepads.getActiveGamepads()) {
-			if (!activeGamepads.contains(gamepad)) {
+		if (Main.napeSpace != null && elapsed > 0)
+		{
+			Main.napeSpace.step(elapsed);
+		}
+		Main.detectConnections();
+		if (Main.connectionsDirty)
+		{
+			for (i in Main.activeGamepads)
+			{
+				if (!takenGamepads.contains(i))
+				{
+					var player = new PlayerEntity(900, 20, "Player " + (playerLayer.length + 1));
+					player.input = new ControllerSource(i);
+					playerLayer.add(player);
+					takenGamepads.push(i);
+				}
+			}
+			if (Main.kbmConnected && !kmbConnected)
+			{
+				kmbConnected = true;
 				var player = new PlayerEntity(900, 20, "Player " + (playerLayer.length + 1));
-				player.input = new ControllerSource(gamepad);
+				player.input = new KeyboardSource();
 				playerLayer.add(player);
-				activeGamepads.push(gamepad);
 			}
 		}
 
@@ -136,6 +197,22 @@ class PlayState extends FlxState
 		var showPlayerMarker = playerLayer.length > 1;
 		gameCam.pixelPerfectRender = true;
 		playerDebugText.text = "\n" + "FPS: " + Main.FPS.currentFPS + "\n";
+		var currentBarHeight = 0.0;
+		var currentBarIndex = 0;
+		enemyLayer.forEachOfType(Entity, (p) ->
+		{
+			if (p.bossHealthBar)
+			{
+				currentBarIndex++;
+				p.healthBar.screenCenter(X);
+				p.healthBar.y = (80 * currentBarIndex) + currentBarHeight;
+				p.nametag.screenCenter(X);
+				p.nametag.y = p.healthBar.y - 40;
+				currentBarHeight += p.healthBar.height;
+				p.healthBar.camera = HUDCam;
+				p.nametag.camera = HUDCam;
+			}
+		});
 		enemyLayer.forEachOfType(EquippedEntity, (p) ->
 		{
 			FlxG.collide(mapLayer, p.blood, (m, p2) ->
@@ -166,8 +243,6 @@ class PlayState extends FlxState
 			}
 		});
 		var gambaText = "";
-		var currentBarHeight = 0.0;
-		var currentBarIndex = 0;
 		playerLayer.forEachOfType(PlayerEntity, (p) ->
 		{
 			FlxG.overlap(p.collideables, enemyLayer, (c:Projectile, e:Entity) ->
@@ -182,10 +257,6 @@ class PlayState extends FlxState
 			{
 				c.onOverlapWithMap();
 			});
-			currentBarIndex++;
-			p.healthBar.x = 20;
-			p.healthBar.y = (20 * currentBarIndex) + currentBarHeight;
-			currentBarHeight += p.healthBar.height;
 			p.healthBar.camera = HUDCam;
 			FlxG.collide(mapLayer, p.blood, (m, p2) ->
 			{
@@ -212,6 +283,11 @@ class PlayState extends FlxState
 						}
 					}
 				});
+			}
+			if (FlxG.keys.justPressed.ESCAPE)
+			{
+				var tempState:PauseSubState = new PauseSubState();
+				openSubState(tempState);
 			}
 			if (FlxG.keys.justPressed.O)
 			{

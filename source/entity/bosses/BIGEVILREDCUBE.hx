@@ -17,8 +17,10 @@ class BIGEVILREDCUBE extends HumanoidEntity
 	override public function new(x, y)
 	{
 		super(x, y);
-		makeGraphic(32, 32, FlxColor.WHITE);
-		color = FlxColor.RED.getDarkened(0.1);
+		loadGraphic(AssetPaths.evilmf__png);
+		typeTranslationKey = "evil_cube";
+		entityName = "Evil Red Guy";
+		bossHealthBar = true;
 	}
 
 	override function createAttributes()
@@ -94,7 +96,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		}
 		if (behaviourState == 0 && downtime < 0)
 		{
-			if (!isTouching(FLOOR))
+			if (!isTouching(FLOOR) && !wantsToGoDown)
 			{
 				velocity.y = 400;
 			}
@@ -116,6 +118,21 @@ class BIGEVILREDCUBE extends HumanoidEntity
 				if (Math.abs(closestDistance) > (32 * 6) + 300)
 				{
 					acceleration.x = -(FlxMath.bound(getPosition().addPoint(closest.getPosition().negateNew()).x, -1, 1) * (SPEED * 3));
+					if (isTouching(WALL))
+					{
+						if (isTouching(FLOOR))
+						{
+							velocity.y = -600;
+							wantsToGoDown = true;
+						}
+					}
+					else
+					{
+						if (isTouching(FLOOR))
+						{
+							wantsToGoDown = false;
+						}
+					}
 				}
 				else
 				{
@@ -124,6 +141,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 						timeUntilAttack = handWeapon.weaponSpeed * attributes.get(Attribute.ATTACK_SPEED).getValue();
 						handWeapon.attack(this);
 					}
+					wantsToGoDown = false;
 					acceleration.x = 0;
 				}
 			}
@@ -180,4 +198,5 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		}
 
 	}
+	var wantsToGoDown = false;
 }

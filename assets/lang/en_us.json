@@ -19,5 +19,10 @@
     "subtitle.hit": "Damage Taken",
     "subtitle.critical_swing": "Ground Swing",
     "subtitle.glass_break": "Glass Breaking",
-    "subtitle.swing": "Bottle Swooshing"
+    "subtitle.swing": "Bottle Swooshing",
+
+    "pause.play": "Resume",
+    "pause.menu": "Back to Menu",
+    "button.options": "Options",
+    "button.start": "Play"
 }

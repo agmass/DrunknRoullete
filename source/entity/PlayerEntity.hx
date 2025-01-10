@@ -4,6 +4,7 @@ import abilities.attributes.Attribute;
 import abilities.attributes.AttributeContainer;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.addons.effects.FlxTrail;
 import flixel.effects.particles.FlxEmitter;
 import flixel.graphics.atlas.TexturePackerAtlas;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -17,7 +18,7 @@ import input.InputSource;
 import input.KeyboardSource;
 import objects.hitbox.Hitbox;
 import openfl.filters.ShaderFilter;
-import shader.ColoredItemShader;
+import shader.FadingOut;
 import sound.FootstepManager;
 class PlayerEntity extends HumanoidEntity
 {
@@ -30,10 +31,11 @@ class PlayerEntity extends HumanoidEntity
     public var showPlayerMarker = false;
 	public var playerMarkerColor:FlxColor = FlxColor.TRANSPARENT;
 
-	public var ghostParticles = new FlxEmitter();
+	// public var ghostParticles = new FlxEmitter();
 	public var toDraw:FlxSpriteGroup = new FlxSpriteGroup();
 
 	public var crouching = false;
+	public var trail:FlxTrail;
 
 	public var crouchAttribute_speed:AttributeContainer = new AttributeContainer(MULTIPLY, 0.5);
 	public var HITBOX_X = 38;
@@ -52,13 +54,7 @@ class PlayerEntity extends HumanoidEntity
 		animation.add("walk_no_weapon", [4, 3, 5, 3], 3);
         debugTracker.set("Jumps", "jumps");
 		debugTracker.set("Can Dash", "canDash");
-
-		ghostParticles.loadParticles(AssetPaths.goober_shadow__png);
-		ghostParticles.alpha.set(1, 1, 0);
-		ghostParticles.lifespan.set(0.35);
-
-		ghostParticles.start(false, 0.15, 500);
-		ghostParticles.emitting = false;
+		trail = new FlxTrail(this, null, 4, 4, 0.8, 0.25);
 
 		// color = FlxColor.BLUE;
 
@@ -75,17 +71,20 @@ class PlayerEntity extends HumanoidEntity
 		attributes.set(Attribute.JUMP_COUNT, new Attribute(1));
     }
 
+	var trailFade = 0.0;
+
     override function update(elapsed:Float) {
 
+		if (lastHealth != health || health < 20)
+		{
+			healthBar.alpha = 1;
+		}
 
         // call update() for children here
 		// my ex-wife still wont let me see the kids -adi
 
 		input.update();
-		ghostParticles.update(elapsed);
-
-		// Weapons
-
+		trail.update(elapsed);
 		if (input.backslotJustPressed)
 		{
 			var backslotWeapon = holsteredWeapon;
@@ -220,25 +219,6 @@ class PlayerEntity extends HumanoidEntity
 
         // Dash Code
 
-		ghostParticles.x = getMidpoint().x;
-		ghostParticles.y = getMidpoint().y;
-
-		ghostParticles.scale.set(scale.x
-			+ Math.abs(Math.abs(dashMovement.x) + Math.abs(dashMovement.y)) / 450,
-			scale.y
-			+ Math.abs(Math.abs(dashMovement.x) + Math.abs(dashMovement.y)) / 450,
-			scale.x
-			+ Math.abs(Math.abs(dashMovement.x) + Math.abs(dashMovement.y)) / 450,
-			scale.y
-			+ (Math.abs(dashMovement.x) + Math.abs(dashMovement.y)) / 450, scale.x, scale.y);
-		for (particle in ghostParticles)
-		{
-			particle.shader = new ColoredItemShader(FlxColor.BLUE.getLightened(0.2));
-		}
-		ghostParticles.angle.set(angle);
-		ghostParticles.speed.set(0);
-		ghostParticles.emitting = Math.abs(dashMovement.x) + Math.abs(dashMovement.y) > 5;
-
         if (!dashMovement.isZero()) {
             if (isTouching(FLOOR) && dashMovement.y > 0) {
                 dashMovement.y = 0;
@@ -262,6 +242,7 @@ class PlayerEntity extends HumanoidEntity
                 dashMovement.x = lastNonZeroInput.x;
                 dashMovement.y = lastNonZeroInput.y;
                 dashMovement = dashMovement.normalize()*DASH_SPEED;
+				MultiSoundManager.playRandomSound(this, "dash", 0.9, 0.5);
 				FlxG.camera.shake(0.0075, 0.075);
             }
         }
@@ -272,6 +253,10 @@ class PlayerEntity extends HumanoidEntity
         if (dashMovement.y < 0 && velocity.y > 0 || dashMovement.y > 0 && velocity.y < 0) {
 			dashMovement.y = FlxMath.lerp(dashMovement.y, 0, elapsed * 3);
 		}
+
+		healthBar.alpha -= elapsed * 0.35;
+		// health bar
+
 
         super.update(elapsed);
         if (!dashMovement.isZero()) {
@@ -327,7 +312,21 @@ class PlayerEntity extends HumanoidEntity
 					FlxMath.lerp(scale.y, SCALE_Y * 1.15, elapsed * (Math.abs(velocity.y) / 100)));
 			}
 		}
+		if (Math.abs(dashMovement.x) + Math.abs(dashMovement.y) < 30)
+		{
+			trailFadeOut.alphaFade.value[0] -= elapsed * 3;
+			for (sprite in trail.members)
+			{
+				sprite.shader = trailFadeOut;
+			}
+		}
+		else
+		{
+			trailFadeOut.alphaFade.value[0] = 1;
+		}
 	}
+
+	var trailFadeOut = new FadingOut();
 
     override function toString():String {
         return super.toString() + "\n   Input:"+ input.toString();
@@ -336,13 +335,25 @@ class PlayerEntity extends HumanoidEntity
     var playerMarker:FlxSprite = new FlxSprite(0,0,AssetPaths.player_marker__png);
 
     override function draw() {
+		healthBar.x = getMidpoint().x - (healthBar.width / 2);
+		healthBar.y = getGraphicBounds().y - 12;
+
+		healthBar.scale.set(0.25, 0.25);
+		healthBar.updateHitbox();
         if (showPlayerMarker) {
 			playerMarker.x = getMidpoint().x - (14 / 2);
-            playerMarker.y = getGraphicBounds().y-14;
+			if (healthBar.alpha > 0)
+			{
+				playerMarker.y = healthBar.getGraphicBounds().y - 14;
+			}
+			else
+			{
+				playerMarker.y = getGraphicBounds().y - 14;
+			}
             playerMarker.color = playerMarkerColor;
             playerMarker.draw();
         }
-		ghostParticles.draw();
+		trail.draw();
 		super.draw();
 		healthBar.draw();
     }

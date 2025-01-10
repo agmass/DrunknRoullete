@@ -3,12 +3,20 @@ package;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxSprite;
+import flixel.addons.nape.FlxNapeSpace;
+import flixel.input.gamepad.FlxGamepad;
 import flixel.util.FlxColor;
-import js.Browser;
+import nape.geom.Vec2;
+import nape.space.Space;
 import openfl.display.FPS;
 import openfl.display.Sprite;
 import sound.FootstepManager;
+import state.MenuState;
+import util.EnviornmentsLoader;
 import util.Language;
+#if html5
+import js.Browser;
+#end
 
 class Main extends Sprite
 {
@@ -45,6 +53,10 @@ class Main extends Sprite
 	public static var FPS:FPS;
 	public static var subtitles:Map<String, Float> = [];
 	public static var audioPanner:FlxSprite;
+	public static var activeGamepads:Array<FlxGamepad> = [];
+	public static var kbmConnected = false;
+	public static var connectionsDirty = false;
+	public static var napeSpace:Space;
 
 	public function new()
 	{
@@ -52,11 +64,15 @@ class Main extends Sprite
 		trace(attribution);
 		FPS = new FPS(0, 20, FlxColor.WHITE);
 		addChild(FPS);
-		addChild(new FlxGame(0, 0, PlayState));
+		napeSpace = new Space(new Vec2(0, 1200));
 		MultiSoundManager.loadMultiSounds();
 		MultiSoundManager.loadSurfaces();
+		EnviornmentsLoader.loadEnviornments();
 		Language.refreshLanguages();
 		Language.changeLanguage("en_us");
+		MultiSoundManager.footstepVolume.set("carpet", 0.15);
+		MultiSoundManager.footstepVolume.set("wood", 0.75);
+		addChild(new FlxGame(0, 0, MenuState));
 		#if html5
 		FlxG.stage.showDefaultContextMenu = false;
 		Browser.document.addEventListener("mousedown", (event) ->
@@ -64,6 +80,22 @@ class Main extends Sprite
 			event.preventDefault();
 		});
 		#end
+	}
 
-	}	
+	public static function detectConnections()
+	{
+		for (gamepad in FlxG.gamepads.getActiveGamepads())
+		{
+			if (!Main.activeGamepads.contains(gamepad))
+			{
+				Main.activeGamepads.push(gamepad);
+				connectionsDirty = true;
+			}
+		}
+		if (FlxG.keys.firstPressed() != -1 || FlxG.mouse.justPressed)
+		{
+			kbmConnected = true;
+			connectionsDirty = true;
+		}
+	}
 }
