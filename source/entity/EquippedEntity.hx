@@ -84,6 +84,11 @@ class EquippedEntity extends Entity
 
 	override function draw()
 	{
+		if (ragdoll != null)
+		{
+			ragdoll.draw();
+			return;
+		}
 		if (holsteredWeapon != null)
 		{
 			holsteredWeapon.x = getGraphicMidpoint().x - (holsteredWeapon.width / 2);

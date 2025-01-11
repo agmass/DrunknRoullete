@@ -24,8 +24,11 @@ import input.KeyboardSource;
 import nape.geom.Vec2;
 import objects.FootstepChangingSprite;
 import objects.ImmovableFootstepChangingSprite;
+import objects.SlotMachine;
+import objects.SpriteToInteract;
 import objects.hitbox.Hitbox;
 import substate.PauseSubState;
+import ui.InGameHUD;
 import util.EnviornmentsLoader;
 import util.Language;
 import util.Projectile;
@@ -49,15 +52,21 @@ class PlayState extends FlxState
 	];
 	var playerDebugText:FlxText = new FlxText(10,10,0);
 
+	public var mapLayerFront:FlxSpriteGroup = new FlxSpriteGroup();
+	public var mapLayerBehind:FlxSpriteGroup = new FlxSpriteGroup();
+	public var interactable:FlxSpriteGroup = new FlxSpriteGroup();
 	public var mapLayer:FlxSpriteGroup = new FlxSpriteGroup();
 	public var playerLayer:FlxSpriteGroup = new FlxSpriteGroup();
 	public var enemyLayer:FlxSpriteGroup = new FlxSpriteGroup();
 
+	public var tokens = 0;
+
 	var gameCam:FlxCamera = new FlxCamera();
 	var HUDCam:FlxCamera = new FlxCamera();
 
-	var whatYouGambled:FlxText = new FlxText(0, 0, 0, "", 32);
+	public var gameHud:InGameHUD = new InGameHUD();
 
+	public var whatYouGambled:FlxText = new FlxText(0, 0, 0, "ssda", 32);
 	override function destroy()
 	{
 		Main.napeSpace.clear();
@@ -78,19 +87,19 @@ class PlayState extends FlxState
 		var ground = new ImmovableFootstepChangingSprite(FlxG.width / 2, 1080, "concrete");
 		ground.makeGraphic(1920, 250, FlxColor.TRANSPARENT);
 		ground.immovable = true;
-		mapLayer.add(ground);
+		mapLayerFront.add(ground);
 		var roof = new ImmovableFootstepChangingSprite(FlxG.width / 2, 0, "concrete");
 		roof.makeGraphic(1920, 250, FlxColor.TRANSPARENT);
 		roof.immovable = true;
-		mapLayer.add(roof);
+		mapLayerFront.add(roof);
 		var wall = new ImmovableFootstepChangingSprite(0, 537, "concrete");
 		wall.makeGraphic(378, 1080, FlxColor.TRANSPARENT);
 		wall.immovable = true;
-		mapLayer.add(wall);
+		mapLayerFront.add(wall);
 		var wall2 = new ImmovableFootstepChangingSprite(FlxG.width, 537, "concrete");
 		wall2.makeGraphic(378, 1080, FlxColor.TRANSPARENT);
 		wall2.immovable = true;
-		mapLayer.add(wall2);
+		mapLayerFront.add(wall2);
 		var enviornment = new FlxSprite(0, 0);
 		var bgName = EnviornmentsLoader.enviornments[FlxG.random.int(0, EnviornmentsLoader.enviornments.length - 1)];
 		enviornment.loadGraphic(bgName, true, 1280, 720);
@@ -114,28 +123,45 @@ class PlayState extends FlxState
 		subtitles.camera = HUDCam;
 		// playerLayer.add(new PlayerEntity(900, 20, "Player 1"));
 		add(whatYouGambled);
+		whatYouGambled.alpha = 0;
 		whatYouGambled.camera = HUDCam;
 		if (bgName == AssetPaths.winbig__png)
 		{
 			ground.footstepSoundName = "carpet";
-			var table = new FootstepChangingSprite(FlxG.random.int(300, 1200), 300, "wood");
+			/*var table = new FootstepChangingSprite(FlxG.random.int(300, 1200), ground.y - 16, "wood");
 			table.loadGraphic(AssetPaths.table__png);
 			table.createRectangularBody();
 			table.body.space = Main.napeSpace;
 			table.setBodyMaterial(-1, 4, 4, 2, 0);
 			table.immovable = true;
-			mapLayer.add(table);
+					mapLayerBehind.add(table); */
 		}
+		var slotMachine = new SlotMachine(FlxG.random.int(300, 1200), ground.y - 256, "concrete");
+		slotMachine.loadGraphic(AssetPaths.slot_machine__png);
+		slotMachine.createRectangularBody(72, 132);
+		slotMachine.body.allowRotation = false;
+		slotMachine.body.space = Main.napeSpace;
+		slotMachine.setBodyMaterial(-1, 4, 4, 2, 0);
+		slotMachine.immovable = true;
+		slotMachine.offset.y = 12;
+		slotMachine.setSize(72, 132);
+		interactable.add(slotMachine);
+		mapLayer.add(mapLayerBehind);
+		mapLayer.add(mapLayerFront);
 
 		playerDebugText.size = 12;
 		playerDebugText.visible = false;
 		add(enviornmentbg);
+		add(mapLayerBehind);
+		add(interactable);
 		add(enemyLayer);
 		add(playerLayer);
-		add(mapLayer);
+		add(mapLayerFront);
 		add(enviornment);
 		playerDebugText.camera = HUDCam;
 		add(playerDebugText);
+		gameHud.camera = HUDCam;
+		add(gameHud);
 	}
 	var subtitles = new SubtitlesBox();
 	var takenGamepads = [];
@@ -143,10 +169,18 @@ class PlayState extends FlxState
 
 	override public function update(elapsed:Float)
 	{
+		for (sprite in interactable)
+		{
+			if (sprite is SpriteToInteract)
+			{
+				cast(sprite, SpriteToInteract).showTip = false;
+			}
+		}
 		if (Main.napeSpace != null && elapsed > 0)
 		{
 			Main.napeSpace.step(elapsed);
 		}
+		gameHud.amountText.text = tokens + "";
 		Main.detectConnections();
 		if (Main.connectionsDirty)
 		{
@@ -157,6 +191,7 @@ class PlayState extends FlxState
 					var player = new PlayerEntity(900, 20, "Player " + (playerLayer.length + 1));
 					player.input = new ControllerSource(i);
 					playerLayer.add(player);
+					player.screenCenter();
 					takenGamepads.push(i);
 				}
 			}
@@ -166,6 +201,16 @@ class PlayState extends FlxState
 				var player = new PlayerEntity(900, 20, "Player " + (playerLayer.length + 1));
 				player.input = new KeyboardSource();
 				playerLayer.add(player);
+				player.screenCenter();
+			}
+		}
+		var pressedDebugSpawn = false;
+
+		for (i in Main.activeGamepads)
+		{
+			if (i.justPressed.RIGHT_STICK_CLICK)
+			{
+				pressedDebugSpawn = true;
 			}
 		}
 
@@ -180,7 +225,7 @@ class PlayState extends FlxState
 					FlxG.vcr.loadReplay(recording);
 				}
 		#end
-		if (FlxG.keys.justPressed.I)
+		if (FlxG.keys.justPressed.I || pressedDebugSpawn)
 		{
 			enemyLayer.add(new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2));
 		}
@@ -201,6 +246,12 @@ class PlayState extends FlxState
 		var currentBarIndex = 0;
 		enemyLayer.forEachOfType(Entity, (p) ->
 		{
+			if (!p.alive)
+			{
+				enemyLayer.remove(p);
+				p.destroy();
+				return;
+			}
 			if (p.bossHealthBar)
 			{
 				currentBarIndex++;
@@ -242,7 +293,6 @@ class PlayState extends FlxState
 				});
 			}
 		});
-		var gambaText = "";
 		playerLayer.forEachOfType(PlayerEntity, (p) ->
 		{
 			FlxG.overlap(p.collideables, enemyLayer, (c:Projectile, e:Entity) ->
@@ -289,9 +339,26 @@ class PlayState extends FlxState
 				var tempState:PauseSubState = new PauseSubState();
 				openSubState(tempState);
 			}
-			if (FlxG.keys.justPressed.O)
+			var isInteractingWithSlots = false;
+			FlxG.overlap(p, interactable, (a, b) ->
 			{
-				gambaText += "\n\n" + p.entityName;
+				if (b is SpriteToInteract)
+				{
+					var sti = cast(b, SpriteToInteract);
+					sti.showTip = true;
+					if (b is SlotMachine)
+					{
+						isInteractingWithSlots = true;
+					}
+				}
+			});
+			if (p.input.interactJustPressed && isInteractingWithSlots && tokens > 0)
+			{
+				if (gambaTime > 0.0)
+				{
+					return;
+				}
+				tokens--;
 				var lostOrWon = FlxG.random.bool(50);
 				var amount = 0.0;
 
@@ -345,35 +412,48 @@ class PlayState extends FlxState
 				trace(type.id);
 				trace(lostOrWon ? "won" : "lost");
 				trace("amount that was " + operation.getName() + "ed: " + amount);
-				gambaText += "\n" + Language.get("attribute." + type.id) + " ";
+				gambaText1 = "\n" + Language.get("attribute." + type.id) + " ";
 				if (operation == ADD)
 				{
 					if (lostOrWon)
 					{
-						gambaText += "gained +" + amount;
+						gambaText2 = "gained +" + amount;
 					}
 					else
 					{
-						gambaText += "lost " + amount;
+						gambaText2 = "lost " + amount;
 					}
 				}
 				if (operation == MULTIPLY)
 				{
-					gambaText += "multiplied x" + amount;
+					gambaText2 = "multiplied x" + amount;
 				}
-				gambaText += "\n";
 
 				if (!p.attributes.exists(type))
 				{
 					p.attributes.set(type, new Attribute(0));
 					p.attributes.get(type).addOperation(new AttributeContainer(ADD, type.minBound));
+					p.attributes.get(type).min = type.minBound;
 				}
 				p.attributes.get(type).addOperation(new AttributeContainer(operation, amount));
 				if (type == Attribute.SIZE_X)
 				{
 					p.attributes.get(Attribute.SIZE_Y).addOperation(new AttributeContainer(operation, amount));
 				}
-				gambaText += Language.get("attribute." + type.id) + " is now at " + p.attributes.get(type).getValue();
+				if (type == Attribute.MAX_HEALTH)
+				{
+					p.health = p.attributes.get(type).refreshAndGetValue();
+				}
+				gambaText3 = " (" + p.attributes.get(type).refreshAndGetValue() + ")";
+				whatYouGambled.text = "";
+			}
+			else
+			{
+				if (p.input.interactJustPressed && isInteractingWithSlots)
+				{
+					whatYouGambled.alpha = 1;
+					whatYouGambled.text = "You don't have any slot tokens! (top left)\nSpawn a (test) boss by pressing \"I\" or \"R3\" and kill it to get tokens!";
+				}
 			}
 			if (p.playerMarkerColor == FlxColor.TRANSPARENT)
 			{
@@ -383,21 +463,66 @@ class PlayState extends FlxState
 			p.showPlayerMarker = showPlayerMarker;
 			playerDebugText.text += p.toString() + "\n\n";
 		});
-		if (gambaText != "")
+		if (gambaText1 != "" && whatYouGambled.text == "")
 		{
 			whatYouGambled.alpha = 1;
-			whatYouGambled.text = gambaText;
+			gambaTime = 0.0;
+		}
+		noEpilepsy -= elapsed;
+		if (gambaTime != -1)
+			gambaTime += elapsed;
+		if (gambaTime >= 0.0 && noEpilepsy <= 0.0)
+		{
+			noEpilepsy = 0.1;
+			if (gambaTime >= 1.5)
+			{
+				whatYouGambled.text = gambaText1;
+			}
+			else
+			{
+				whatYouGambled.text = Language.get("attribute." + Attribute.attributesList[FlxG.random.int(0, Attribute.attributesList.length - 1)].id) + " ";
+			}
+
+			if (gambaTime >= 3.0)
+			{
+				whatYouGambled.text += gambaText2 + gambaText3;
+			}
+			else
+			{
+				switch (FlxG.random.int(0, 2))
+				{
+					case 0:
+						whatYouGambled.text += "gained +" + "???";
+					case 1:
+						whatYouGambled.text += "lost -" + "???";
+					case 2:
+						whatYouGambled.text += "multiplied x" + "???";
+				}
+			}
+			if (gambaTime >= 4.0)
+			{
+				gambaTime = -1.0;
+			}
+		}
+		else
+		{
+			if (gambaTime < 0)
+				whatYouGambled.alpha -= elapsed * 0.25;
 		}
 		whatYouGambled.screenCenter();
-		whatYouGambled.alpha -= elapsed / 6.5;
 		super.update(elapsed);
 		FlxG.collide(playerLayer, mapLayer, playerWallCollision);
 		FlxG.collide(playerLayer, enemyLayer);
 		FlxG.collide(enemyLayer, mapLayer, playerWallCollision);
 	}
+	var gambaText1 = "";
+	var gambaText2 = "";
+	var gambaText3 = "";
+	var gambaTime = -1.0;
+	var noEpilepsy = 0.0;
 
 
-	public function playerWallCollision(player:PlayerEntity, wall:FlxSprite)
+	public function playerWallCollision(player:Entity, wall:FlxSprite)
 	{
 		if (wall is FootstepChangingSprite)
 		{

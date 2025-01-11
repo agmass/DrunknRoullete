@@ -6,7 +6,7 @@ class Attribute {
 
 	public static var MOVEMENT_SPEED:AttributeType = new AttributeType("movement_speed", 1, 150, 1200);
 	public static var ATTACK_DAMAGE:AttributeType = new AttributeType("attack_damage", 0.01, 0.75, 3.5);
-	public static var ATTACK_KNOCKBACK:AttributeType = new AttributeType("attack_knockback", 1, 0.3, 10);
+	public static var ATTACK_KNOCKBACK:AttributeType = new AttributeType("attack_knockback", 1, 0.01, 10);
 	public static var JUMP_HEIGHT:AttributeType = new AttributeType("jump_height", 0.5, 50);
 	public static var MAX_HEALTH:AttributeType = new AttributeType("health", 1, 25);
 
@@ -23,7 +23,6 @@ class Attribute {
 	public static var attributesList = [
 		MOVEMENT_SPEED,
 		ATTACK_DAMAGE,
-		JUMP_HEIGHT,
 		MAX_HEALTH,
 		ATTACK_SPEED, 
 		SIZE_X,
@@ -64,17 +63,18 @@ class Attribute {
 		for (i in modifiers)
 		{
             if (i.operation == AttributeOperation.ADD) finalValue += i.amount;
-            else if (i.operation == AttributeOperation.MULTIPLY) finalValue *= i.amount;
-        }
-		if (!bypassLimits)
-		{
-			if (finalValue >= max)
+			else if (i.operation == AttributeOperation.MULTIPLY)
+				finalValue *= i.amount;
+			if (!bypassLimits)
 			{
-				finalValue = max + firstAddValue;
-			}
-			if (finalValue <= min)
-			{
-				finalValue = min + firstAddValue;
+				if (finalValue >= max)
+				{
+					finalValue = max + firstAddValue;
+				}
+				if (finalValue <= min)
+				{
+					finalValue = min + firstAddValue;
+				}
 			}
 		}
         value = finalValue;

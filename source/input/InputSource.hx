@@ -35,6 +35,9 @@ class InputSource {
 	public var altFirePressed = false;
 	public var altFireJustPressed = false;
 
+	public var interactFirePressed = false;
+	public var interactJustPressed = false;
+
     public function new() {}
 
     public function update() {}

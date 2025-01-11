@@ -22,6 +22,7 @@ class ControllerSource extends InputSource {
     public var jump:ButtonControllerInput;
 	public var backslot:ButtonControllerInput;
 	public var alt_fire:ButtonControllerInput;
+	public var interact:ButtonControllerInput;
     public var gamepad:FlxGamepad;
 
     public function new(gamepad:FlxGamepad) {
@@ -36,7 +37,8 @@ class ControllerSource extends InputSource {
 		alt_fire = new ButtonControllerInput(gamepad, [FlxGamepadInputID.LEFT_TRIGGER]);
         jump = new ButtonControllerInput(gamepad,[FlxGamepadInputID.A]);
         dash = new ButtonControllerInput(gamepad,[FlxGamepadInputID.B]);
-		backslot = new ButtonControllerInput(gamepad, [FlxGamepadInputID.X]);
+		backslot = new ButtonControllerInput(gamepad, [FlxGamepadInputID.Y]);
+		interact = new ButtonControllerInput(gamepad, [FlxGamepadInputID.X]);
     }
 
     override function update() {
@@ -50,6 +52,8 @@ class ControllerSource extends InputSource {
 		backslotPressed = backslot.pressed();
 		altFireJustPressed = alt_fire.justPressed();
 		altFirePressed = alt_fire.pressed();
+		interactJustPressed = interact.justPressed();
+		interactFirePressed = interact.pressed();
         super.update();
 	}
 	var lastView = 0.0;

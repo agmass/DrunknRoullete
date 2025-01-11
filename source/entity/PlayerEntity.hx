@@ -75,6 +75,12 @@ class PlayerEntity extends HumanoidEntity
 
     override function update(elapsed:Float) {
 
+		if (ragdoll != null)
+		{
+			healthBar.alpha = 0;
+			super.update(elapsed);
+			return;
+		}
 		if (lastHealth != health || health < 20)
 		{
 			healthBar.alpha = 1;

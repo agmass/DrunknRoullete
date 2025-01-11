@@ -11,7 +11,7 @@ import flixel.util.FlxColor;
 class BIGEVILREDCUBE extends HumanoidEntity
 {
 	var behaviourState = 0;
-	var lives = 3;
+	var lives = 1;
 	var downtime = 1.0;
 
 	override public function new(x, y)
@@ -21,6 +21,8 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		typeTranslationKey = "evil_cube";
 		entityName = "Evil Red Guy";
 		bossHealthBar = true;
+		rewards = new Rewards(FlxG.random.int(3, 6), true);
+		health = attributes.get(Attribute.MAX_HEALTH).getValue();
 	}
 
 	override function createAttributes()
@@ -28,9 +30,9 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		super.createAttributes();
 		attributes.set(Attribute.SIZE_X, new Attribute(6, true));
 		attributes.set(Attribute.SIZE_Y, new Attribute(6, true));
-		attributes.set(Attribute.ATTACK_SPEED, new Attribute(3.5, true));
-		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(100, true));
-		attributes.set(Attribute.MAX_HEALTH, new Attribute(200, true));
+		attributes.set(Attribute.ATTACK_SPEED, new Attribute(3.5 + FlxG.random.float(-0.5, 0.5), true));
+		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(100 + FlxG.random.int(-10, 100), true));
+		attributes.set(Attribute.MAX_HEALTH, new Attribute(200 + FlxG.random.int(-10, 100), true));
 	}
 
 	var downscale = new AttributeContainer(AttributeOperation.MULTIPLY, 0.5);
@@ -42,9 +44,8 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		{
 			if (lives > 0)
 			{
-				health = attributes.get(Attribute.MAX_HEALTH).getValue();
 				lives--;
-				if (lives == 2 || lives == 0)
+				if (lives == 0)
 				{
 					attributes.get(Attribute.SIZE_X).addOperation(downscale);
 					attributes.get(Attribute.SIZE_Y).addOperation(downscale);
@@ -70,6 +71,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 					handWeapon = backslotWeapon;
 					switchingAnimation = 0.5;
 				}
+				health = attributes.get(Attribute.MAX_HEALTH).getValue();
 			}
 		}
 		var SPEED = attributes.get(Attribute.MOVEMENT_SPEED).getValue();
@@ -190,7 +192,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 				{
 					if (player.overlaps(this))
 					{
-						player.health -= 75;
+						player.health -= 20;
 						velocity.y = -400;
 					}
 				});

@@ -14,6 +14,7 @@ class KeyboardSource extends InputSource {
     public var A:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.A,FlxKey.LEFT], []);
     public var S:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.S,FlxKey.DOWN], []);
     public var D:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.D,FlxKey.RIGHT], []);
+	public var interact:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.E], []);
 	public var backslot:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.F], []);
     public var dash:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.SPACE, FlxKey.SHIFT], []);
 
@@ -28,6 +29,8 @@ class KeyboardSource extends InputSource {
 		backslotPressed = backslot.pressed();
 		altFireJustPressed = alt_fire.justPressed();
 		altFirePressed = alt_fire.pressed();
+		interactJustPressed = interact.justPressed();
+		interactFirePressed = interact.pressed();
         super.update();
     }
 

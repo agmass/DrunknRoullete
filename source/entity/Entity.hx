@@ -2,14 +2,18 @@ package entity;
 
 import abilities.attributes.Attribute;
 import abilities.attributes.AttributeType;
+import entity.bosses.Rewards;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.addons.nape.FlxNapeSprite;
 import flixel.effects.particles.FlxEmitter;
+import flixel.math.FlxAngle;
 import flixel.math.FlxMath;
 import flixel.sound.FlxSound;
 import flixel.text.FlxText;
+import flixel.tweens.FlxTween;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
 import haxe.ds.HashMap;
@@ -35,12 +39,15 @@ class Entity extends FlxSprite {
 
 	var lastHealth = 100.0;
 	public var bossHealthBar = false;
+	public var rewards:Rewards = null;
+	public var ragdoll:FlxNapeSprite;
 
 	public var naturalRegeneration = 0.0;
     
     public function new(x,y) {
         super(x,y);
         createAttributes();
+		health = attributes.get(Attribute.MAX_HEALTH).getValue();
         debugTracker.set("Health", "health");
         debugTracker.set("X", "x");
         debugTracker.set("Y", "y");
@@ -62,13 +69,56 @@ class Entity extends FlxSprite {
 
     override function update(elapsed:Float) {
 		naturalRegeneration -= elapsed;
-		if (health <= 0)
+		if (health <= 0 && ragdoll == null)
 		{
+			if (FlxG.state is PlayState)
+			{
+				if (rewards != null)
+				{
+					var ps:PlayState = cast(FlxG.state);
+					if (rewards.tokens > 0)
+					{
+						var b = rewards.tokens;
+						ps.tokens += b;
+						ps.whatYouGambled.text = "+" + b + " tokens!";
+						ps.whatYouGambled.alpha = 1;
+					}
+					if (rewards.healPlayers)
+					{
+						ps.playerLayer.forEachOfType(PlayerEntity, (pe) ->
+						{
+							pe.health = pe.attributes.get(Attribute.MAX_HEALTH).getValue();
+						});
+					}
+				}
+			}
+			ragdoll = new FlxNapeSprite(x, y, null, false, true);
+			ragdoll.loadGraphicFromSprite(this);
+			ragdoll.scale.set(scale.x, scale.y);
+			ragdoll.createRectangularBody();
+			allowCollisions = NONE;
+			ragdoll.body.space = Main.napeSpace;
+			ragdoll.body.rotate(ragdoll.body.position, FlxG.random.float(-180, 180) * FlxAngle.TO_RAD);
+			ragdoll.body.velocity.setxy(FlxG.random.int(-400, 400), FlxG.random.int(-400, 400));
+			ragdoll.setBodyMaterial(0.05, 0.9, 1.6, 20, 1);
 			if (this is PlayerEntity)
 			{
-				FlxG.resetState();
+				FlxG.camera.fade(FlxColor.BLACK, 5, false);
 			}
-			kill();
+			FlxTween.tween(ragdoll, {alpha: 0}, 6);
+		}
+		if (ragdoll != null)
+		{
+			ragdoll.update(elapsed);
+			if (ragdoll.alpha == 0)
+			{
+				if (this is PlayerEntity)
+				{
+					FlxG.resetState();
+				}
+				kill();
+			}
+			return;
 		}
 		blood.x = getGraphicMidpoint().x;
 		blood.y = getGraphicMidpoint().y;
@@ -130,6 +180,11 @@ class Entity extends FlxSprite {
     }
 
     override function draw() {
+		if (ragdoll != null)
+		{
+			ragdoll.draw();
+			return;
+		}
         super.draw();
 		blood.draw();
 		if (bossHealthBar)
