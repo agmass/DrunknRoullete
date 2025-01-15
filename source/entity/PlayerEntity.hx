@@ -2,6 +2,7 @@ package entity;
 
 import abilities.attributes.Attribute;
 import abilities.attributes.AttributeContainer;
+import abilities.equipment.items.BasicProjectileShootingItem;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.effects.FlxTrail;
@@ -61,6 +62,7 @@ class PlayerEntity extends HumanoidEntity
 		manuallyUpdateSize = true;
 		typeTranslationKey = "player";
 		entityName = username;
+		holsteredWeapon = new BasicProjectileShootingItem(this);
     }
 
     override function createAttributes() {
@@ -101,6 +103,7 @@ class PlayerEntity extends HumanoidEntity
 
 		if (handWeapon != null)
 		{
+			handWeapon.equipped = true;
 			if (input.attackPressed)
 			{
 				if (timeUntilAttack <= 0)
@@ -125,6 +128,7 @@ class PlayerEntity extends HumanoidEntity
 
 		if (holsteredWeapon != null)
 		{
+			holsteredWeapon.equipped = false;
 			if (switchingAnimation > 0)
 			{
 				holsteredWeapon.angle = FlxMath.lerp(holsteredWeapon.flipX ? 45 : -45, input.getLookAngle(getPosition()) - 90, switchingAnimation * 2);

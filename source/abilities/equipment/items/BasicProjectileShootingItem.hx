@@ -8,11 +8,14 @@ import entity.PlayerEntity;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.nape.FlxNapeSprite;
+import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.math.FlxAngle;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
+import nape.geom.Vec2;
 import objects.hitbox.SweepHitbox;
 import projectiles.BottleProjectile;
+import projectiles.BulletProjectile;
 import sound.FootstepManager.MultiSoundManager;
 import util.Language;
 import util.Projectile;
@@ -22,61 +25,40 @@ import util.Projectile;
  */
 class BasicProjectileShootingItem extends Equipment
 {
-	public var broken = 0.0;
 
-	override public function new(entity:EquippedEntity)
+	public var bulletSpeed = 1200;
+	public var maxBullets = 8;
+	public var shootyAnimation = 0.0;
+	public var bullets:FlxTypedSpriteGroup<BulletProjectile> = new FlxTypedSpriteGroup();
+
+	override public function new(entity)
 	{
-		super();
+		super(entity);
 		weaponSpeed = 0.5;
-		loadGraphic(AssetPaths.sword__png, true, 24, 48);
-		animation.add("full", [0]);
-		animation.add("broken", [1]);
-		wielder = entity;
-	}
-
-	var lastSwing = new FlxPoint(0, 0);
-
-	public var bottle:BottleProjectile = null;
-
-	override function alt_fire(player:EquippedEntity)
-	{
-		if (broken > 0)
-			return;
-		if (bottle == null)
-		{
-			bottle = new BottleProjectile(x, y, this);
-			var add = new FlxPoint(800, 0).rotateByDegrees(angle - 90);
-			bottle.body.velocity.setxy(add.x, add.y);
-			bottle.body.rotate(bottle.body.position, angle * FlxAngle.TO_RAD);
-			bottle.shooter = player;
-			bottle.setBodyMaterial(0.5, 0.4, 0.7, 0.2, 1);
-			player.collideables.add(bottle);
-			MultiSoundManager.playRandomSound(player, "swing", 1.8, 0.45);
-		}
-		super.alt_fire(player);
+		loadGraphic(AssetPaths.gun__png);
 	}
 
 	override function attack(player:EquippedEntity)
 	{
-		if (bottle != null)
+		if (bullets.length >= maxBullets)
 		{
+			MultiSoundManager.playRandomSound(player, "out_of_ammo", FlxG.random.float(0.9, 1.1));
 			return;
 		}
-		var swordSweep = new SweepHitbox(player.getMidpoint().x, player.getMidpoint().y, Math.floor(player.attributes.get(Attribute.SIZE_X).getValue() - 1));
-		swordSweep.shooter = player;
-		swordSweep.y -= (swordSweep.height / 2);
+		var bullet = new BulletProjectile(player.getMidpoint().x, player.getMidpoint().y);
+		bullet.shooter = player;
+		bullet.y -= (bullet.height / 2);
 		if (flipX)
 		{
-			swordSweep.x -= swordSweep.width;
-			swordSweep.flipX = true;
+			bullet.x -= bullet.width;
+			bullet.flipX = true;
 		}
-		player.hitboxes.add(swordSweep);
-		lastSwing = new FlxPoint(80, 0).rotateByDegrees(angle - 90).negate();
-		var add = new FlxPoint(50, 0).rotateByDegrees(angle - 90).negate();
-		player.extraVelocity = lastSwing.scaleNew(1.2).negateNew();
-		swordSweep.y += -add.y;
-		swordSweep.velocity = new FlxPoint(300, 0).rotateByDegrees(angle - 90);
-		swordSweep.damage *= player.attributes.get(Attribute.ATTACK_DAMAGE).getValue();
+		shootyAnimation = 1.0;
+		var vel = new FlxPoint(bulletSpeed, 0).rotateByDegrees(angle - 90);
+		bullet.body.velocity = new Vec2(vel.x, vel.y);
+		bullets.add(bullet);
+		bullet.angle = angle;
+		player.collideables.add(bullet);
 		if (player.isTouching(FLOOR))
 		{
 			var sound = FlxG.sound.play(AssetPaths.critswing__ogg);
@@ -93,49 +75,36 @@ class BasicProjectileShootingItem extends Equipment
 
 	override function update(elapsed:Float)
 	{
-		if (bottle != null)
+		shootyAnimation -= elapsed * (shootyAnimation * 6);
+		for (projectile in bullets)
 		{
-			if (bottle.broken)
-				broken = 2.0;
-			if (!bottle.alive)
+			if (projectile.returnToShooter)
 			{
-				bottle = null;
-			}
-			else
-			{
-				bottle.update(elapsed);
+				projectile.body.position.setxy(-1000, -1000);
+				projectile.destroy();
+				wielder.collideables.remove(projectile);
+				bullets.remove(projectile, true);
+				projectile = null;
 			}
 		}
-		if (broken > 0.0)
+		bullets.update(elapsed);
+		super.update(elapsed);
+		if (flipX)
 		{
-			animation.play("broken");
+			angle += FlxMath.lerp(0, 50, FlxMath.bound(shootyAnimation, 0, 1));
 		}
 		else
 		{
-			animation.play("full");
+			angle -= FlxMath.lerp(0, 50, FlxMath.bound(shootyAnimation, 0, 1));
 		}
-		broken -= elapsed;
-		offset.x = FlxMath.lerp(0, lastSwing.x,
-			Math.max(wielder.timeUntilAttack / (weaponSpeed + wielder.attributes.get(Attribute.ATTACK_SPEED).getValue()), 0));
-		offset.y = FlxMath.lerp(6 * wielder.attributes.get(Attribute.SIZE_X).getValue(), lastSwing.y,
-			Math.max(wielder.timeUntilAttack / (weaponSpeed + wielder.attributes.get(Attribute.ATTACK_SPEED).getValue()), 0));
-		super.update(elapsed);
-	}
-
-	override public function createAttributes()
-	{
-		attributes.set(Attribute.ATTACK_DAMAGE, new AttributeContainer(AttributeOperation.FIRST_ADD, 12));
+		offset.y = 6;
+		offset.x = 0;
 	}
 
 	override function draw()
 	{
-		if (bottle != null)
-		{
-			bottle.draw();
-		}
-		else
-		{
-			super.draw();
-		}
+		bullets.draw();
+		super.draw();
 	}
+
 }

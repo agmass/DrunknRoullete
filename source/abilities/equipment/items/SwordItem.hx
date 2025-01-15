@@ -26,12 +26,11 @@ class SwordItem extends Equipment
 
 	override public function new(entity:EquippedEntity)
 	{
-		super();
+		super(entity);
 		weaponSpeed = 0.5;
 		loadGraphic(AssetPaths.sword__png, true, 24, 48);
 		animation.add("full", [0]);
 		animation.add("broken", [1]);
-		wielder = entity;
 	}
 
 	var lastSwing = new FlxPoint(0, 0);
@@ -101,6 +100,7 @@ class SwordItem extends Equipment
 				broken = 2.0;
 			if (bottle.returnToShooter)
 			{
+				bottle.body.space = null;
 				bottle.destroy();
 				bottle = null;
 			}
@@ -118,17 +118,21 @@ class SwordItem extends Equipment
 			animation.play("full");
 		}
 		broken -= elapsed;
-		offset.x = FlxMath.lerp(0, lastSwing.x,
-			Math.max(wielder.timeUntilAttack / (weaponSpeed + wielder.attributes.get(Attribute.ATTACK_SPEED).getValue()), 0));
-		offset.y = FlxMath.lerp(wielder is PlayerEntity ? 6 : 0 * wielder.attributes.get(Attribute.SIZE_X).getValue(), lastSwing.y,
-			Math.max(wielder.timeUntilAttack / (weaponSpeed + wielder.attributes.get(Attribute.ATTACK_SPEED).getValue()), 0));
+		if (equipped)
+		{
+			offset.x = FlxMath.lerp(0, lastSwing.x,
+				Math.max(wielder.timeUntilAttack / (weaponSpeed + wielder.attributes.get(Attribute.ATTACK_SPEED).getValue()), 0));
+			offset.y = FlxMath.lerp(wielder is PlayerEntity ? 6 : 0 * wielder.attributes.get(Attribute.SIZE_X).getValue(), lastSwing.y,
+				Math.max(wielder.timeUntilAttack / (weaponSpeed + wielder.attributes.get(Attribute.ATTACK_SPEED).getValue()), 0));
+		}
+		else
+		{
+			offset.x = 0;
+			offset.y = 6;
+		}
 		super.update(elapsed);
 	}
 
-	override public function createAttributes()
-	{
-		attributes.set(Attribute.ATTACK_DAMAGE, new AttributeContainer(AttributeOperation.FIRST_ADD, 12));
-	}
 	override function draw()
 	{
 		if (bottle != null)

@@ -2,7 +2,7 @@ package objects;
 
 import flixel.FlxSprite;
 
-class SpriteToInteract extends FootstepChangingSprite
+class SpriteToInteract extends FlxSprite
 {
 	public var showTip = false;
 	public var tooltipSprite:FlxSprite = new FlxSprite(0, 0, AssetPaths.interactTip__png);

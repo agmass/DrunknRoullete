@@ -79,9 +79,6 @@ class Entity extends FlxSprite {
 					if (rewards.tokens > 0)
 					{
 						var b = rewards.tokens;
-						ps.tokens += b;
-						ps.whatYouGambled.text = "+" + b + " tokens!";
-						ps.whatYouGambled.alpha = 1;
 					}
 					if (rewards.healPlayers)
 					{

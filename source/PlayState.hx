@@ -28,6 +28,7 @@ import objects.SlotMachine;
 import objects.SpriteToInteract;
 import objects.hitbox.Hitbox;
 import substate.PauseSubState;
+import substate.SlotsSubState;
 import ui.InGameHUD;
 import util.EnviornmentsLoader;
 import util.Language;
@@ -58,15 +59,11 @@ class PlayState extends FlxState
 	public var mapLayer:FlxSpriteGroup = new FlxSpriteGroup();
 	public var playerLayer:FlxSpriteGroup = new FlxSpriteGroup();
 	public var enemyLayer:FlxSpriteGroup = new FlxSpriteGroup();
-
-	public var tokens = 0;
-
 	var gameCam:FlxCamera = new FlxCamera();
 	var HUDCam:FlxCamera = new FlxCamera();
 
 	public var gameHud:InGameHUD = new InGameHUD();
 
-	public var whatYouGambled:FlxText = new FlxText(0, 0, 0, "ssda", 32);
 	override function destroy()
 	{
 		Main.napeSpace.clear();
@@ -122,9 +119,6 @@ class PlayState extends FlxState
 		subtitles.visible = false;
 		subtitles.camera = HUDCam;
 		// playerLayer.add(new PlayerEntity(900, 20, "Player 1"));
-		add(whatYouGambled);
-		whatYouGambled.alpha = 0;
-		whatYouGambled.camera = HUDCam;
 		if (bgName == AssetPaths.winbig__png)
 		{
 			ground.footstepSoundName = "carpet";
@@ -136,12 +130,8 @@ class PlayState extends FlxState
 			table.immovable = true;
 					mapLayerBehind.add(table); */
 		}
-		var slotMachine = new SlotMachine(FlxG.random.int(300, 1200), ground.y - 256, "concrete");
+		var slotMachine = new SlotMachine(FlxG.random.int(300, 1200), ground.y - 264);
 		slotMachine.loadGraphic(AssetPaths.slot_machine__png);
-		slotMachine.createRectangularBody(72, 132);
-		slotMachine.body.allowRotation = false;
-		slotMachine.body.space = Main.napeSpace;
-		slotMachine.setBodyMaterial(-1, 4, 4, 2, 0);
 		slotMachine.immovable = true;
 		slotMachine.offset.y = 12;
 		slotMachine.setSize(72, 132);
@@ -180,7 +170,6 @@ class PlayState extends FlxState
 		{
 			Main.napeSpace.step(elapsed);
 		}
-		gameHud.amountText.text = tokens + "";
 		Main.detectConnections();
 		if (Main.connectionsDirty)
 		{
@@ -248,7 +237,12 @@ class PlayState extends FlxState
 		{
 			if (!p.alive)
 			{
-				enemyLayer.remove(p);
+				enemyLayer.remove(p, true);
+				if (p.ragdoll != null)
+				{
+					p.ragdoll.body.position.setxy(-1000, -1000);
+					p.ragdoll.destroy();
+				}
 				p.destroy();
 				return;
 			}
@@ -295,6 +289,10 @@ class PlayState extends FlxState
 		});
 		playerLayer.forEachOfType(PlayerEntity, (p) ->
 		{
+			FlxG.collide(p.hitboxes, mapLayer, (c:Hitbox, e) ->
+			{
+				c.onHitWall();
+			});
 			FlxG.overlap(p.collideables, enemyLayer, (c:Projectile, e:Entity) ->
 			{
 				c.onOverlapWithEntity(e);
@@ -352,108 +350,9 @@ class PlayState extends FlxState
 					}
 				}
 			});
-			if (p.input.interactJustPressed && isInteractingWithSlots && tokens > 0)
+			if (p.input.interactJustPressed && isInteractingWithSlots)
 			{
-				if (gambaTime > 0.0)
-				{
-					return;
-				}
-				tokens--;
-				var lostOrWon = FlxG.random.bool(50);
-				var amount = 0.0;
-
-				var operation:AttributeOperation = [AttributeOperation.ADD, AttributeOperation.MULTIPLY][FlxG.random.int(0, 1)];
-				var listForBet = Attribute.attributesList;
-				var type = listForBet[FlxG.random.int(0, listForBet.length - 1)];
-				if (!p.attributes.exists(type))
-				{
-					lostOrWon = true;
-				}
-				else
-				{
-					if (type.maxBound <= p.attributes.get(type).getValue())
-					{
-						lostOrWon = false;
-					}
-					if (type.minBound >= p.attributes.get(type).getValue())
-					{
-						lostOrWon = true;
-					}
-				}
-				if (type.mustBeAddition)
-				{
-					operation = ADD;
-				}
-				if (operation.equals(MULTIPLY))
-				{
-					if (lostOrWon)
-					{
-						amount = FlxG.random.float(1.1, 1.5);
-					}
-					else
-					{
-						amount = FlxG.random.float(0.5, 0.9);
-					}
-					amount = FlxMath.roundDecimal(amount, 1);
-				}
-				else
-				{
-					amount = [
-						10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 25.0, 25.0, 25.0, 25.0, 25.0, 50.0, 50.0, 50.0, 50.0, 100.0, 100.0, 100.0, 250.0, 250.0, 500.0
-					][FlxG.random.int(0, 20)];
-					amount *= type.additionMultiplier;
-					if (type == Attribute.JUMP_COUNT)
-					{
-						amount = [1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0, 4.0][FlxG.random.int(0, 13)] *= type.additionMultiplier;
-					}
-					if (!lostOrWon)
-						amount = -amount;
-				}
-				trace(type.id);
-				trace(lostOrWon ? "won" : "lost");
-				trace("amount that was " + operation.getName() + "ed: " + amount);
-				gambaText1 = "\n" + Language.get("attribute." + type.id) + " ";
-				if (operation == ADD)
-				{
-					if (lostOrWon)
-					{
-						gambaText2 = "gained +" + amount;
-					}
-					else
-					{
-						gambaText2 = "lost " + amount;
-					}
-				}
-				if (operation == MULTIPLY)
-				{
-					gambaText2 = "multiplied x" + amount;
-				}
-
-				if (!p.attributes.exists(type))
-				{
-					p.attributes.set(type, new Attribute(0));
-					p.attributes.get(type).addOperation(new AttributeContainer(ADD, type.minBound));
-					p.attributes.get(type).min = type.minBound;
-				}
-				p.attributes.get(type).addOperation(new AttributeContainer(operation, amount));
-				if (type == Attribute.SIZE_X)
-				{
-					p.attributes.get(Attribute.SIZE_Y).addOperation(new AttributeContainer(operation, amount));
-				}
-				if (type == Attribute.MAX_HEALTH)
-				{
-					p.health = p.attributes.get(type).refreshAndGetValue();
-				}
-				gambaText3 = " (" + p.attributes.get(type).refreshAndGetValue() + ")";
-				whatYouGambled.text = "";
-			}
-			else
-			{
-				if (p.input.interactJustPressed && isInteractingWithSlots)
-				{
-					whatYouGambled.alpha = 1;
-					whatYouGambled.text = "You don't have any slot tokens! (top left)\nSpawn a (test) boss by pressing \"I\" or \"R3\" and kill it to get tokens!";
-				}
+				openSubState(new SlotsSubState(p));
 			}
 			if (p.playerMarkerColor == FlxColor.TRANSPARENT)
 			{
@@ -463,56 +362,12 @@ class PlayState extends FlxState
 			p.showPlayerMarker = showPlayerMarker;
 			playerDebugText.text += p.toString() + "\n\n";
 		});
-		if (gambaText1 != "" && whatYouGambled.text == "")
-		{
-			whatYouGambled.alpha = 1;
-			gambaTime = 0.0;
-		}
 		noEpilepsy -= elapsed;
 		if (gambaTime != -1)
 			gambaTime += elapsed;
-		if (gambaTime >= 0.0 && noEpilepsy <= 0.0)
-		{
-			noEpilepsy = 0.1;
-			if (gambaTime >= 1.5)
-			{
-				whatYouGambled.text = gambaText1;
-			}
-			else
-			{
-				whatYouGambled.text = Language.get("attribute." + Attribute.attributesList[FlxG.random.int(0, Attribute.attributesList.length - 1)].id) + " ";
-			}
-
-			if (gambaTime >= 3.0)
-			{
-				whatYouGambled.text += gambaText2 + gambaText3;
-			}
-			else
-			{
-				switch (FlxG.random.int(0, 2))
-				{
-					case 0:
-						whatYouGambled.text += "gained +" + "???";
-					case 1:
-						whatYouGambled.text += "lost -" + "???";
-					case 2:
-						whatYouGambled.text += "multiplied x" + "???";
-				}
-			}
-			if (gambaTime >= 4.0)
-			{
-				gambaTime = -1.0;
-			}
-		}
-		else
-		{
-			if (gambaTime < 0)
-				whatYouGambled.alpha -= elapsed * 0.25;
-		}
-		whatYouGambled.screenCenter();
 		super.update(elapsed);
 		FlxG.collide(playerLayer, mapLayer, playerWallCollision);
-		FlxG.collide(playerLayer, enemyLayer);
+		// FlxG.collide(playerLayer, enemyLayer);
 		FlxG.collide(enemyLayer, mapLayer, playerWallCollision);
 	}
 	var gambaText1 = "";

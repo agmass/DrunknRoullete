@@ -36,7 +36,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 	}
 
 	var downscale = new AttributeContainer(AttributeOperation.MULTIPLY, 0.5);
-	var upscale = new AttributeContainer(AttributeOperation.MULTIPLY, 5);
+	var upscale = new AttributeContainer(AttributeOperation.MULTIPLY, 3.4);
 
 	override function update(elapsed:Float)
 	{
@@ -193,7 +193,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 					if (player.overlaps(this))
 					{
 						player.health -= 20;
-						velocity.y = -400;
+						velocity.y = -900;
 					}
 				});
 			}

@@ -3,6 +3,11 @@ package util;
 import entity.Entity;
 import flixel.addons.nape.FlxNapeSprite;
 
+/*
+ * Projectiles are physics based and should be used for sillier or more skillfull weapon output
+ * For predictable weapon output, extend Hitbox instead
+ */
+
 class Projectile extends FlxNapeSprite
 {
 	public var shooter:Entity;

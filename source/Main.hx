@@ -33,6 +33,9 @@ class Main extends Sprite
 		\"Footstep Sounds by Dryoma\"
 		https://dryoma.itch.io/footsteps-sounds
 
+		\"Empty Weapons (Sound effect)\" by BoostSound
+		https://www.youtube.com/watch?v=dBJUIYv52Xw
+
 
 		All following sounds are by creators from Pixabay.
 
@@ -45,7 +48,7 @@ class Main extends Sprite
 		\"Swoosh\" by porkmucher
 		\"Rock Hit\" by link boy
 		
-		All following sounds aren't sounds, but are quotes. They're pretty silly. :3
+		# Silly Quotes
 
 		\"drunk soviet simulator\" - __REDACTED__
 	";
@@ -78,12 +81,14 @@ class Main extends Sprite
 		Browser.document.addEventListener("mousedown", (event) ->
 		{
 			event.preventDefault();
-		});
+		}, {capture: false, passive: false});
 		#end
 	}
 
 	public static function detectConnections()
 	{
+		if (FlxG.keys.justPressed.O)
+			FlxG.fullscreen = !FlxG.fullscreen;
 		for (gamepad in FlxG.gamepads.getActiveGamepads())
 		{
 			if (!Main.activeGamepads.contains(gamepad))

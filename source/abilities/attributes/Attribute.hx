@@ -6,7 +6,7 @@ class Attribute {
 
 	public static var MOVEMENT_SPEED:AttributeType = new AttributeType("movement_speed", 1, 150, 1200);
 	public static var ATTACK_DAMAGE:AttributeType = new AttributeType("attack_damage", 0.01, 0.75, 3.5);
-	public static var ATTACK_KNOCKBACK:AttributeType = new AttributeType("attack_knockback", 1, 0.01, 10);
+	public static var ATTACK_KNOCKBACK:AttributeType = new AttributeType("attack_knockback", 0.01, 0.4, 5);
 	public static var JUMP_HEIGHT:AttributeType = new AttributeType("jump_height", 0.5, 50);
 	public static var MAX_HEALTH:AttributeType = new AttributeType("health", 1, 25);
 
@@ -28,9 +28,8 @@ class Attribute {
 		SIZE_X,
 		DASH_SPEED,
 		JUMP_COUNT,
-		CROUCH_SCALE,
 		ATTACK_KNOCKBACK,
-		// CRIT_CHANCE,
+		CRIT_CHANCE,
 		REGENERATION 
 	];
 

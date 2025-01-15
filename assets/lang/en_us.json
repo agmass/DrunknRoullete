@@ -21,6 +21,8 @@
     "subtitle.critical_swing": "Ground Swing",
     "subtitle.glass_break": "Glass Breaking",
     "subtitle.swing": "Bottle Swooshing",
+    "subtitle.dash": "Dash",
+    "subtitle.out_of_ammo": "Gun Out Of Ammo",
 
     "pause.play": "Resume",
     "pause.menu": "Back to Menu",
