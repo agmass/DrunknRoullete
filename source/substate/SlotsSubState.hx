@@ -26,6 +26,10 @@ class SlotsSubState extends FlxSubState
 	public var possibleAddNumbers = [10, 25, 50, 100, 250, 500];
 	public var middle = 0.0;
 
+	public var bg1:FlxSprite;
+	public var bg2:FlxSprite;
+	public var bg3:FlxSprite;
+
 	override public function new(player:PlayerEntity)
 	{
 		super();
@@ -48,27 +52,38 @@ class SlotsSubState extends FlxSubState
 				operationIcons.push(i);
 			}
 		}
-		var bg:FlxSprite = new FlxSprite().makeGraphic(168, 286);
-		bg.screenCenter();
-		bg.x -= (168 + 12);
+		var slotsMachine:FlxSprite = new FlxSprite(0, 0, AssetPaths.slots__png);
+		slotsMachine.loadGraphic(AssetPaths.slots__png, true, 256, 256);
+		slotsMachine.scale.set(4.21875, 4.21875);
+		slotsMachine.updateHitbox();
+		slotsMachine.screenCenter();
+		var bg:FlxSprite = new FlxSprite(slotsMachine.x, slotsMachine.y).makeGraphic(168, 286);
+		bg.x += 62 * 4.218;
+		bg.y = 67 * 4.218;
 		add(bg);
-		var bg:FlxSprite = new FlxSprite().makeGraphic(168, 286);
-		bg.screenCenter();
+		bg1 = bg;
+		var bg:FlxSprite = new FlxSprite(slotsMachine.x, slotsMachine.y).makeGraphic(168, 286);
+		bg.x += 105 * 4.218;
+		bg.y = 67 * 4.218;
 		add(bg);
-		var bg:FlxSprite = new FlxSprite().makeGraphic(168, 286);
-		bg.screenCenter();
-		bg.x += (168 + 12);
+		bg2 = bg;
+		var bg:FlxSprite = new FlxSprite(slotsMachine.x, slotsMachine.y).makeGraphic(168, 286);
+		bg.x += 148 * 4.218;
+		bg.y = 67 * 4.218;
 		middle = bg.y;
+		bg3 = bg;
 		add(bg);
 		add(token);
 		add(amountText);
 		for (i in -1...1)
 		{
 			var attribute:FlxSprite = new FlxSprite().loadGraphic(attributeIcons[FlxG.random.int(0, attributeIcons.length - 1)]);
-			attribute.scale.set(6.4375, 6.4375);
+			attribute.setGraphicSize(168, 286);
 			attribute.updateHitbox();
+			attribute.scale.set(6.4375, 6.4375);
 			attribute.screenCenter();
-			attribute.x -= (168 + 12);
+			attribute.y = bg1.y;
+			attribute.x = bg1.x;
 			attribute.y += (286 * (i));
 			attributesRollGroup.add(attribute);
 		}
@@ -76,29 +91,27 @@ class SlotsSubState extends FlxSubState
 		for (i in -1...1)
 		{
 			var attribute:FlxSprite = new FlxSprite().loadGraphic(operationIcons[FlxG.random.int(0, operationIcons.length - 1)]);
-			attribute.scale.set(6.4375, 6.4375);
+			attribute.setGraphicSize(168, 286);
 			attribute.updateHitbox();
-			attribute.screenCenter();
+			attribute.scale.set(6.4375, 6.4375);
+			attribute.y = bg1.y;
+			attribute.x = bg2.x;
 			attribute.y += (286 * (i));
 			operationRollGroup.add(attribute);
 		}
 		add(operationRollGroup);
 		for (i in -1...1)
 		{
-			var attribute:FlxText = new FlxText(0, 0, 0, possibleAddNumbers[FlxG.random.int(0, possibleAddNumbers.length - 1)] + "", 110);
+			var attribute:FlxText = new FlxText(0, 0, 0, possibleAddNumbers[FlxG.random.int(0, possibleAddNumbers.length - 1)] + "", 50);
 			attribute.updateHitbox();
 			attribute.screenCenter();
-			attribute.x += (168 + 12);
+			attribute.y = bg1.y;
+			attribute.x = bg3.x;
 			attribute.y += (286 * (i));
 			attribute.color = FlxColor.BLACK;
 			amountRollGroup.add(attribute);
 		}
 		add(amountRollGroup);
-		var slotsMachine:FlxSprite = new FlxSprite(0, 0, AssetPaths.slots__png);
-		slotsMachine.loadGraphic(AssetPaths.slots__png, true, 256, 256);
-		slotsMachine.scale.set(4.21875, 4.21875);
-		slotsMachine.updateHitbox();
-		slotsMachine.screenCenter();
 		add(slotsMachine);
 		super.create();
 	}
@@ -131,26 +144,27 @@ class SlotsSubState extends FlxSubState
 		{
 			if (lockedInState >= 3)
 			{
-				if (text.y > middle + 151)
+				if (text.y > middle + ((bg1.height - 50) / 2) || text.y < middle - ((bg1.height - 50) / 2))
 				{
-					text.y = middle + 151 + 286;
+					text.y = middle + ((bg1.height - 50) / 2) + 286;
 				}
 				break;
 			}
 			text.screenCenter(X);
-			text.x += (168 + 40);
+			text.x = (bg3.width - text.width) / 2;
+			text.x += bg3.x;
 			if (lastY != -9999)
 			{
-				if (Math.abs(text.y - lastY) < 400)
+				if (Math.abs(text.y - lastY) < 286)
 				{
 					text.y = lastY + 286;
 				} // re-correct
 			}
 			lastY = text.y;
 			text.y += elapsed * 3050;
-			if (text.y >= middle + 151 && text.text == desiredIconThree)
+			if (text.y >= middle + ((bg1.height - 50) / 2) && text.text == desiredIconThree)
 			{
-				text.y = middle + 151;
+				text.y = middle + ((bg1.height - 50) / 2);
 				lockedInState = 3;
 			}
 			if (text.y >= (middle + 286))
@@ -171,7 +185,7 @@ class SlotsSubState extends FlxSubState
 		{
 			if (lockedInState >= 1)
 			{
-				if (sprite.y > middle)
+				if (sprite.y > middle || sprite.y < middle)
 				{
 					sprite.y = middle + 286;
 				}
@@ -179,7 +193,7 @@ class SlotsSubState extends FlxSubState
 			}
 			if (lastY != -9999)
 			{
-				if (Math.abs(sprite.y - lastY) < 400)
+				if (Math.abs(sprite.y - lastY) < 286)
 				{
 					sprite.y = lastY + 286;
 				} // re-correct
@@ -212,10 +226,12 @@ class SlotsSubState extends FlxSubState
 					}
 					desiredIconOne = iconName;
 					sprite.loadGraphic(iconName);
+					sprite.setGraphicSize(168, 286);
 				}
 				else
 				{
 					sprite.loadGraphic(attributeIcons[FlxG.random.int(0, attributeIcons.length - 1)]);
+					sprite.setGraphicSize(168, 286);
 				}
 			}
 		}
@@ -223,7 +239,7 @@ class SlotsSubState extends FlxSubState
 		{
 			if (lockedInState >= 2)
 			{
-				if (sprite.y > middle)
+				if (sprite.y > middle || sprite.y < middle)
 				{
 					sprite.y = middle + 286;
 				}
@@ -231,7 +247,7 @@ class SlotsSubState extends FlxSubState
 			}
 			if (lastY != -9999)
 			{
-				if (Math.abs(sprite.y - lastY) < 400)
+				if (Math.abs(sprite.y - lastY) < 286)
 				{
 					sprite.y = lastY + 286;
 				} // re-correct
@@ -260,10 +276,12 @@ class SlotsSubState extends FlxSubState
 					}
 					desiredIconTwo = iconName;
 					sprite.loadGraphic(iconName);
+					sprite.setGraphicSize(168, 286);
 				}
 				else
 				{
 					sprite.loadGraphic(operationIcons[FlxG.random.int(0, operationIcons.length - 1)]);
+					sprite.setGraphicSize(168, 286);
 				}
 			}
 		}
