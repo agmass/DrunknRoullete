@@ -12,7 +12,8 @@ import util.Projectile;
 
 class BulletProjectile extends Projectile
 {
-	public var dropped = false;
+	public var hitEntities = [];
+	public var dropTime = 0.25;
 
 	override public function new(x, y)
 	{
@@ -26,7 +27,6 @@ class BulletProjectile extends Projectile
 	override function onOverlapWithMap()
 	{
 		super.onOverlapWithMap();
-		dropped = true;
 	}
 
 	var hitEntity = false;
@@ -35,17 +35,17 @@ class BulletProjectile extends Projectile
 	{
 		if (entity == shooter)
 		{
-			if (dropped)
+			if (dropTime <= 0.0)
 			{
 				returnToShooter = true;
 			}
 			return;
 		}
-		if (dropped)
+		if (hitEntities.contains(entity.ID))
 		{
 			return;
 		}
-		dropped = true;
+		hitEntities.push(entity.ID);
 		entity.health -= 15 * shooter.attributes.get(Attribute.ATTACK_DAMAGE).getValue();
 		FlxG.camera.shake(0.001, 0.05);
 		hitEntity = true;
@@ -55,6 +55,7 @@ class BulletProjectile extends Projectile
 
 	override function update(elapsed:Float)
 	{
+		dropTime -= elapsed;
 		super.update(elapsed);
 	}
 

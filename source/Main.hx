@@ -6,6 +6,10 @@ import flixel.FlxSprite;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.input.gamepad.FlxGamepad;
 import flixel.util.FlxColor;
+import input.ControllerSource;
+import input.InputSource;
+import input.KeyboardSource;
+import input.control.Input;
 import nape.geom.Vec2;
 import nape.space.Space;
 import openfl.display.FPS;
@@ -57,6 +61,7 @@ class Main extends Sprite
 	public static var subtitles:Map<String, Float> = [];
 	public static var audioPanner:FlxSprite;
 	public static var activeGamepads:Array<FlxGamepad> = [];
+	public static var activeInputs:Array<InputSource> = [];
 	public static var kbmConnected = false;
 	public static var connectionsDirty = false;
 	public static var napeSpace:Space;
@@ -87,6 +92,10 @@ class Main extends Sprite
 
 	public static function detectConnections()
 	{
+		for (source in activeInputs)
+		{
+			source.update();
+		}
 		if (FlxG.keys.justPressed.O)
 			FlxG.fullscreen = !FlxG.fullscreen;
 		for (gamepad in FlxG.gamepads.getActiveGamepads())
@@ -94,13 +103,18 @@ class Main extends Sprite
 			if (!Main.activeGamepads.contains(gamepad))
 			{
 				Main.activeGamepads.push(gamepad);
+				activeInputs.push(new ControllerSource(gamepad));
 				connectionsDirty = true;
 			}
 		}
 		if (FlxG.keys.firstPressed() != -1 || FlxG.mouse.justPressed)
 		{
-			kbmConnected = true;
-			connectionsDirty = true;
+			if (!kbmConnected)
+			{
+				kbmConnected = true;
+				connectionsDirty = true;
+				activeInputs.push(new KeyboardSource());
+			}
 		}
 	}
 }

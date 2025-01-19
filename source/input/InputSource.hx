@@ -18,8 +18,7 @@ class InputSource {
 
     // Above variables aren't implemented yet, but could be used for making online modes and control options
 
-    public var translationKey:String = "none";
-
+	public var translationKey:String = "none";
     public var attackPressed = false;
     public var attackJustPressed = false;
 
@@ -37,6 +36,10 @@ class InputSource {
 
 	public var interactFirePressed = false;
 	public var interactJustPressed = false;
+
+	public var ui_accept = false;
+	public var ui_deny = false;
+	public var lastMovement = new FlxPoint();
 
     public function new() {}
 

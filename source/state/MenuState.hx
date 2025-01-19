@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.input.gamepad.FlxGamepadInputID;
+import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import util.Language;
@@ -13,6 +14,7 @@ class MenuState extends FlxState
 	var title:FlxText = new FlxText(0, 0, 0, "Drunk'n'Roullete", 64);
 	var play:FlxText = new FlxText(0, 0, 0, Language.get("button.start"), 32);
 	var options:FlxText = new FlxText(0, 0, 0, Language.get("button.options"), 32);
+	var connectedPlayers:FlxText = new FlxText(20, 20, 0, "No Players Connected", 16);
 
 	override function create()
 	{
@@ -22,6 +24,7 @@ class MenuState extends FlxState
 		title.y -= 128;
 		add(play);
 		add(options);
+		add(connectedPlayers);
 	}
 
 	var selection = 0;
@@ -30,28 +33,35 @@ class MenuState extends FlxState
 	{
 		Main.detectConnections();
 		var gamepadAccepted = false;
-		for (i in Main.activeGamepads)
+		if (Main.activeInputs.length == 0)
 		{
-			if (i.pressed.DPAD_DOWN || i.getYAxis(FlxGamepadInputID.LEFT_ANALOG_STICK) > 0.2 && i.analog.justMoved.LEFT_STICK)
+			connectedPlayers.text = "No Players Connected";
+		}
+		else
+		{
+			connectedPlayers.text = "Players Connected:\n";
+		}
+		var e = 0;
+		for (i in Main.activeInputs)
+		{
+			e++;
+			connectedPlayers.text += "\n\nPlayer " + e + " (" + Language.get(i.translationKey) + ")";
+			if (FlxMath.roundDecimal(i.getMovementVector().y, 1) != FlxMath.roundDecimal(i.lastMovement.y, 1))
 			{
-				selection += 1;
+				if (i.getMovementVector().y == 1)
+				{
+					selection += 1;
+				}
+				if (i.getMovementVector().y == -1)
+				{
+					selection -= 1;
+				}
 			}
-			if (i.pressed.DPAD_UP || i.getYAxis(FlxGamepadInputID.LEFT_ANALOG_STICK) < 0.2 && i.analog.justMoved.LEFT_STICK)
-			{
-				selection -= 1;
-			}
-			if (i.pressed.A)
+			i.lastMovement.y = i.getMovementVector().y;
+			if (i.ui_accept)
 			{
 				gamepadAccepted = true;
 			}
-		}
-		if (FlxG.keys.justPressed.UP)
-		{
-			selection -= 1;
-		}
-		if (FlxG.keys.justPressed.DOWN)
-		{
-			selection += 1;
 		}
 		if (selection <= -1)
 		{

@@ -16,7 +16,15 @@ class KeyboardSource extends InputSource {
     public var D:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.D,FlxKey.RIGHT], []);
 	public var interact:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.E], []);
 	public var backslot:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.F], []);
-    public var dash:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.SPACE, FlxKey.SHIFT], []);
+	public var accept:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.SPACE, FlxKey.ENTER], [FlxMouseButton.getByID(FlxMouseButtonID.LEFT)]);
+	public var deny:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.ESCAPE], []);
+	public var dash:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.SPACE, FlxKey.SHIFT], []);
+
+	override public function new()
+	{
+		super();
+		translationKey = "input.keyboard";
+	}
 
     override function update() {
         attackJustPressed = shoot.justPressed();
@@ -31,6 +39,8 @@ class KeyboardSource extends InputSource {
 		altFirePressed = alt_fire.pressed();
 		interactJustPressed = interact.justPressed();
 		interactFirePressed = interact.pressed();
+		ui_accept = accept.justPressed();
+		ui_deny = deny.justPressed();
         super.update();
     }
 

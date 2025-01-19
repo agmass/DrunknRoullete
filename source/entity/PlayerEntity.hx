@@ -91,7 +91,6 @@ class PlayerEntity extends HumanoidEntity
         // call update() for children here
 		// my ex-wife still wont let me see the kids -adi
 
-		input.update();
 		trail.update(elapsed);
 		if (input.backslotJustPressed)
 		{

@@ -4,6 +4,7 @@ import abilities.attributes.Attribute;
 import abilities.attributes.AttributeContainer;
 import abilities.attributes.AttributeOperation;
 import entity.PlayerEntity;
+import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxSubState;
@@ -11,6 +12,8 @@ import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import openfl.filters.ShaderFilter;
+import shader.AttributesSlotTextShader;
 
 class SlotsSubState extends FlxSubState
 {
@@ -19,6 +22,7 @@ class SlotsSubState extends FlxSubState
 	public var amountText:FlxText = new FlxText(0, 0, 0, "0", 24);
 	public var attributesRollGroup:FlxSpriteGroup = new FlxSpriteGroup();
 	public var operationRollGroup:FlxSpriteGroup = new FlxSpriteGroup();
+	public var cards:FlxSpriteGroup = new FlxSpriteGroup();
 	public var amountRollGroup:FlxTypedSpriteGroup<FlxText> = new FlxTypedSpriteGroup<FlxText>();
 
 	public var attributeIcons:Array<String> = [];
@@ -29,11 +33,23 @@ class SlotsSubState extends FlxSubState
 	public var bg1:FlxSprite;
 	public var bg2:FlxSprite;
 	public var bg3:FlxSprite;
+	public var gamblingCamera = new FlxCamera(0, 67 * 4.218, Math.round((43 * 4.218) * 3), 286);
+	public var foregroundgamblingCamera = new FlxCamera(0, 0, 0, 0);
 
+	var slotsMachine:FlxSprite = new FlxSprite(0, 0, AssetPaths.slots__png);
 	override public function new(player:PlayerEntity)
 	{
 		super();
 		p = player;
+	}
+
+	public function createCards()
+	{
+		cards.forEach((c) ->
+		{
+			c.destroy();
+		});
+		cards.clear();
 	}
 
 	override function create()
@@ -52,24 +68,36 @@ class SlotsSubState extends FlxSubState
 				operationIcons.push(i);
 			}
 		}
-		var slotsMachine:FlxSprite = new FlxSprite(0, 0, AssetPaths.slots__png);
+		FlxG.cameras.add(gamblingCamera, false);
+		FlxG.cameras.add(foregroundgamblingCamera, false);
+		foregroundgamblingCamera.bgColor.alpha = 0;
+		gamblingCamera.bgColor.alpha = 0;
 		slotsMachine.loadGraphic(AssetPaths.slots__png, true, 256, 256);
 		slotsMachine.scale.set(4.21875, 4.21875);
 		slotsMachine.updateHitbox();
 		slotsMachine.screenCenter();
-		var bg:FlxSprite = new FlxSprite(slotsMachine.x, slotsMachine.y).makeGraphic(168, 286);
-		bg.x += 62 * 4.218;
-		bg.y = 67 * 4.218;
+		slotsMachine.camera = foregroundgamblingCamera;
+		slotsMachine.shader = slotShader;
+		slotsMachine.animation.add("idle", [0]);
+		slotsMachine.animation.add("pull", [0, 1, 2, 3, 4, 5], 12, false);
+		slotsMachine.animation.add("pullBack", [5, 4, 3, 2, 1, 0], 12, false);
+		gamblingCamera.x = slotsMachine.x;
+		gamblingCamera.x += 62 * 4.218;
+		var bg:FlxSprite = new FlxSprite().makeGraphic(168, 286);
 		add(bg);
+		bg.color = FlxColor.fromRGB(221, 221, 221);
+		bg.camera = gamblingCamera;
 		bg1 = bg;
-		var bg:FlxSprite = new FlxSprite(slotsMachine.x, slotsMachine.y).makeGraphic(168, 286);
-		bg.x += 105 * 4.218;
-		bg.y = 67 * 4.218;
+		var bg:FlxSprite = new FlxSprite().makeGraphic(168, 286);
+		bg.x += 43 * 4.218;
+		bg.color = FlxColor.fromRGB(221, 221, 221);
+		bg.camera = gamblingCamera;
 		add(bg);
 		bg2 = bg;
-		var bg:FlxSprite = new FlxSprite(slotsMachine.x, slotsMachine.y).makeGraphic(168, 286);
-		bg.x += 148 * 4.218;
-		bg.y = 67 * 4.218;
+		var bg:FlxSprite = new FlxSprite().makeGraphic(168, 286);
+		bg.x += (43 * 4.218) * 2;
+		bg.color = FlxColor.fromRGB(221, 221, 221);
+		bg.camera = gamblingCamera;
 		middle = bg.y;
 		bg3 = bg;
 		add(bg);
@@ -80,38 +108,37 @@ class SlotsSubState extends FlxSubState
 			var attribute:FlxSprite = new FlxSprite().loadGraphic(attributeIcons[FlxG.random.int(0, attributeIcons.length - 1)]);
 			attribute.setGraphicSize(168, 286);
 			attribute.updateHitbox();
-			attribute.scale.set(6.4375, 6.4375);
-			attribute.screenCenter();
-			attribute.y = bg1.y;
-			attribute.x = bg1.x;
 			attribute.y += (286 * (i));
+			attribute.camera = gamblingCamera;
 			attributesRollGroup.add(attribute);
 		}
 		add(attributesRollGroup);
+		attributesRollGroup.camera = gamblingCamera;
 		for (i in -1...1)
 		{
 			var attribute:FlxSprite = new FlxSprite().loadGraphic(operationIcons[FlxG.random.int(0, operationIcons.length - 1)]);
 			attribute.setGraphicSize(168, 286);
 			attribute.updateHitbox();
-			attribute.scale.set(6.4375, 6.4375);
-			attribute.y = bg1.y;
 			attribute.x = bg2.x;
 			attribute.y += (286 * (i));
+			attribute.camera = gamblingCamera;
 			operationRollGroup.add(attribute);
 		}
 		add(operationRollGroup);
+		operationRollGroup.camera = gamblingCamera;
 		for (i in -1...1)
 		{
 			var attribute:FlxText = new FlxText(0, 0, 0, possibleAddNumbers[FlxG.random.int(0, possibleAddNumbers.length - 1)] + "", 50);
 			attribute.updateHitbox();
 			attribute.screenCenter();
-			attribute.y = bg1.y;
 			attribute.x = bg3.x;
 			attribute.y += (286 * (i));
 			attribute.color = FlxColor.BLACK;
+			attribute.camera = gamblingCamera;
 			amountRollGroup.add(attribute);
 		}
 		add(amountRollGroup);
+		amountRollGroup.camera = gamblingCamera;
 		add(slotsMachine);
 		super.create();
 	}
@@ -125,10 +152,36 @@ class SlotsSubState extends FlxSubState
 	public var desiredIconOne = "";
 	public var desiredIconTwo = "";
 	public var desiredIconThree = "";
+	public var slotShader = new AttributesSlotTextShader();
+
+	var shaderLag = 0.0;
+
+	override function destroy()
+	{
+		FlxG.cameras.remove(gamblingCamera);
+		FlxG.cameras.remove(foregroundgamblingCamera);
+		super.destroy();
+	}
 
 	override function update(elapsed:Float)
 	{
-		if (FlxG.keys.justPressed.ESCAPE)
+		Main.detectConnections();
+		shaderLag += elapsed;
+		if (shaderLag >= 0.1)
+		{
+			slotShader.elapsed.value = [slotShader.elapsed.value[0] + shaderLag];
+			shaderLag = 0;
+		}
+		var goBack = false;
+		var startRoll = false;
+		for (source in Main.activeInputs)
+		{
+			if (source.ui_accept)
+				startRoll = true;
+			if (source.ui_deny)
+				goBack = true;
+		}
+		if (goBack)
 		{
 			if (gambaTime >= 0)
 			{
@@ -144,9 +197,9 @@ class SlotsSubState extends FlxSubState
 		{
 			if (lockedInState >= 3)
 			{
-				if (text.y > middle + ((bg1.height - 50) / 2) || text.y < middle - ((bg1.height - 50) / 2))
+				if (text.y != (middle + ((bg1.height - 50) / 2)))
 				{
-					text.y = middle + ((bg1.height - 50) / 2) + 286;
+					text.y = middle - 286;
 				}
 				break;
 			}
@@ -294,13 +347,14 @@ class SlotsSubState extends FlxSubState
 		{
 			if (gambaTime >= 2.0)
 			{
+				slotsMachine.animation.play("pullBack");
 				gambaTime = -1;
 			}
 			gambaTime += elapsed;
 		}
 		else
 		{
-			if (FlxG.keys.justPressed.SPACE)
+			if (startRoll)
 			{
 				desiredIconOne = "";
 				desiredIconTwo = "";
@@ -314,6 +368,7 @@ class SlotsSubState extends FlxSubState
 
 	public function roll()
 	{
+		slotsMachine.animation.play("pull");
 		gambaTime = 0.0;
 		var lostOrWon = FlxG.random.bool(50);
 		var amount = 0.0;
@@ -355,8 +410,12 @@ class SlotsSubState extends FlxSubState
 		else
 		{
 			amount = [
-				10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 25.0, 25.0, 25.0, 25.0, 25.0, 50.0, 50.0, 50.0, 50.0, 100.0, 100.0, 100.0, 250.0, 250.0, 500.0
+				10.0, 10.0, 10.0, 10.0, 10.0, 25.0, 25.0, 25.0, 25.0, 25.0, 50.0, 50.0, 50.0, 50.0, 100.0, 100.0, 100.0, 250.0, 250.0, 500.0
 			][FlxG.random.int(0, 20)];
+			if (type.additionMultiplier <= 0.001 && amount <= 50)
+			{
+				amount = 100.0;
+			}
 			amount *= type.additionMultiplier;
 			if (type == Attribute.JUMP_COUNT)
 			{

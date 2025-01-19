@@ -56,6 +56,7 @@ class BasicProjectileShootingItem extends Equipment
 		shootyAnimation = 1.0;
 		var vel = new FlxPoint(bulletSpeed, 0).rotateByDegrees(angle - 90);
 		bullet.body.velocity = new Vec2(vel.x, vel.y);
+		bullet.body.rotate(bullet.body.position, (angle + 90) * FlxAngle.TO_RAD);
 		bullets.add(bullet);
 		bullet.angle = angle;
 		player.collideables.add(bullet);

@@ -154,7 +154,7 @@ class PlayState extends FlxState
 		add(gameHud);
 	}
 	var subtitles = new SubtitlesBox();
-	var takenGamepads = [];
+	var takenInputs = [];
 	var kmbConnected = false;
 
 	override public function update(elapsed:Float)
@@ -173,24 +173,16 @@ class PlayState extends FlxState
 		Main.detectConnections();
 		if (Main.connectionsDirty)
 		{
-			for (i in Main.activeGamepads)
+			for (i in Main.activeInputs)
 			{
-				if (!takenGamepads.contains(i))
+				if (!takenInputs.contains(i))
 				{
 					var player = new PlayerEntity(900, 20, "Player " + (playerLayer.length + 1));
-					player.input = new ControllerSource(i);
+					player.input = i;
 					playerLayer.add(player);
 					player.screenCenter();
-					takenGamepads.push(i);
+					takenInputs.push(i);
 				}
-			}
-			if (Main.kbmConnected && !kmbConnected)
-			{
-				kmbConnected = true;
-				var player = new PlayerEntity(900, 20, "Player " + (playerLayer.length + 1));
-				player.input = new KeyboardSource();
-				playerLayer.add(player);
-				player.screenCenter();
 			}
 		}
 		var pressedDebugSpawn = false;

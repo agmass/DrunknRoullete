@@ -5,6 +5,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.input.gamepad.FlxGamepadInputID;
+import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
@@ -88,26 +89,22 @@ class PauseSubState extends FlxSubState
 		if (!locked)
 		{
 			Main.detectConnections();
-			if (FlxG.keys.justPressed.UP)
-			{
-				selection -= 1;
-			}
-			if (FlxG.keys.justPressed.DOWN)
-			{
-				selection += 1;
-			}
 			var gamepadAccepted = false;
-			for (i in Main.activeGamepads)
+			for (i in Main.activeInputs)
 			{
-				if (i.pressed.DPAD_DOWN || i.getYAxis(FlxGamepadInputID.LEFT_ANALOG_STICK) > 0.2 && i.analog.justMoved.LEFT_STICK)
+				if (FlxMath.roundDecimal(i.getMovementVector().y, 1) != FlxMath.roundDecimal(i.lastMovement.y, 1))
 				{
-					selection += 1;
+					if (i.getMovementVector().y == 1)
+					{
+						selection += 1;
+					}
+					if (i.getMovementVector().y == -1)
+					{
+						selection -= 1;
+					}
 				}
-				if (i.pressed.DPAD_UP || i.getYAxis(FlxGamepadInputID.LEFT_ANALOG_STICK) < 0.2 && i.analog.justMoved.LEFT_STICK)
-				{
-					selection -= 1;
-				}
-				if (i.pressed.A)
+				i.lastMovement.y = i.getMovementVector().y;
+				if (i.ui_accept)
 				{
 					gamepadAccepted = true;
 				}
@@ -116,7 +113,7 @@ class PauseSubState extends FlxSubState
 			{
 				selection = 50;
 			}
-			if (selection >= 4)
+			if (selection >= 3)
 			{
 				selection = 0;
 			}

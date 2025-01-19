@@ -23,11 +23,14 @@ class ControllerSource extends InputSource {
 	public var backslot:ButtonControllerInput;
 	public var alt_fire:ButtonControllerInput;
 	public var interact:ButtonControllerInput;
+	public var accept:ButtonControllerInput;
+	public var deny:ButtonControllerInput;
     public var gamepad:FlxGamepad;
 
     public function new(gamepad:FlxGamepad) {
         super();
         this.gamepad = gamepad;
+		translationKey = gamepad.name;
         vertical = new AnalogControllerInput(gamepad,ControllerDirection.Y,[FlxGamepadInputID.LEFT_ANALOG_STICK],[FlxGamepadInputID.DPAD_DOWN],[FlxGamepadInputID.DPAD_UP]);
         horizontal = new AnalogControllerInput(gamepad,ControllerDirection.X,[FlxGamepadInputID.LEFT_ANALOG_STICK],[FlxGamepadInputID.DPAD_RIGHT],[FlxGamepadInputID.DPAD_LEFT]);
 		vertical_look = new AnalogControllerInput(gamepad, ControllerDirection.Y, [FlxGamepadInputID.RIGHT_ANALOG_STICK], []);
@@ -39,7 +42,10 @@ class ControllerSource extends InputSource {
         dash = new ButtonControllerInput(gamepad,[FlxGamepadInputID.B]);
 		backslot = new ButtonControllerInput(gamepad, [FlxGamepadInputID.Y]);
 		interact = new ButtonControllerInput(gamepad, [FlxGamepadInputID.X]);
+		accept = new ButtonControllerInput(gamepad, [FlxGamepadInputID.A]);
+		deny = new ButtonControllerInput(gamepad, [FlxGamepadInputID.B]);
     }
+
 
     override function update() {
         attackJustPressed = shoot.justPressed();
@@ -54,6 +60,8 @@ class ControllerSource extends InputSource {
 		altFirePressed = alt_fire.pressed();
 		interactJustPressed = interact.justPressed();
 		interactFirePressed = interact.pressed();
+		ui_deny = deny.pressed();
+		ui_accept = accept.pressed();
         super.update();
 	}
 	var lastView = 0.0;
@@ -70,5 +78,6 @@ class ControllerSource extends InputSource {
     override function getMovementVector():FlxPoint {
         return new FlxPoint(horizontal.value(), vertical.value());
     }
+
     
 }
