@@ -13,7 +13,9 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.addons.nape.FlxNapeSprite;
+import flixel.addons.plugin.screengrab.FlxScreenGrab;
 import flixel.effects.particles.FlxParticle;
+import flixel.graphics.frames.FlxFrame;
 import flixel.group.FlxSpriteGroup;
 import flixel.input.gamepad.mappings.SwitchProMapping;
 import flixel.math.FlxMath;
@@ -27,6 +29,13 @@ import objects.ImmovableFootstepChangingSprite;
 import objects.SlotMachine;
 import objects.SpriteToInteract;
 import objects.hitbox.Hitbox;
+import openfl.display.Bitmap;
+import openfl.display.BitmapData;
+import openfl.display.BlendMode;
+import openfl.filters.ShaderFilter;
+import openfl.geom.Point;
+import openfl.geom.Rectangle;
+import shader.MouthwashingFadeOutEffect;
 import substate.PauseSubState;
 import substate.SlotsSubState;
 import ui.InGameHUD;
@@ -59,7 +68,7 @@ class PlayState extends FlxState
 	public var mapLayer:FlxSpriteGroup = new FlxSpriteGroup();
 	public var playerLayer:FlxSpriteGroup = new FlxSpriteGroup();
 	public var enemyLayer:FlxSpriteGroup = new FlxSpriteGroup();
-	var gameCam:FlxCamera = new FlxCamera();
+	public var gameCam:FlxCamera = new FlxCamera();
 	var HUDCam:FlxCamera = new FlxCamera();
 
 	public var gameHud:InGameHUD = new InGameHUD();
@@ -115,9 +124,9 @@ class PlayState extends FlxState
 		enviornmentbg.updateHitbox();
 		enviornmentbg.animation.add("idle", frames, 2);
 		enviornmentbg.animation.play("idle");
-		add(subtitles);
-		subtitles.visible = false;
-		subtitles.camera = HUDCam;
+		add(Main.subtitlesBox);
+		Main.subtitlesBox.visible = false;
+		Main.subtitlesBox.camera = HUDCam;
 		// playerLayer.add(new PlayerEntity(900, 20, "Player 1"));
 		if (bgName == AssetPaths.winbig__png)
 		{
@@ -152,10 +161,26 @@ class PlayState extends FlxState
 		add(playerDebugText);
 		gameHud.camera = HUDCam;
 		add(gameHud);
+		if (bitmapData != null)
+		{
+			mouthwashFadeOut = new MouthwashingFadeOutEffect();
+			mouthwashFadeOut.level.value = [0.0];
+			oldSprite.makeGraphic(FlxG.width, FlxG.height);
+			oldSprite.graphic.bitmap = bitmapData;
+			oldSprite.shader = mouthwashFadeOut;
+			add(oldSprite);
+		}
 	}
-	var subtitles = new SubtitlesBox();
 	var takenInputs = [];
 	var kmbConnected = false;
+	public var mouthwashFadeOut:MouthwashingFadeOutEffect;
+
+	public var fadeIn = false;
+
+	var oldSprite:FlxSprite = new FlxSprite();
+
+	public static var bitmapData:BitmapData;
+
 
 	override public function update(elapsed:Float)
 	{
@@ -169,6 +194,35 @@ class PlayState extends FlxState
 		if (Main.napeSpace != null && elapsed > 0)
 		{
 			Main.napeSpace.step(elapsed);
+		}
+		if (mouthwashFadeOut != null && oldSprite.alive)
+		{
+			if (fadeIn)
+			{
+				if (mouthwashFadeOut.level.value[0] > 0.0)
+				{
+					mouthwashFadeOut.level.value[0] -= elapsed;
+				}
+				else
+				{
+					oldSprite.alive = false;
+					remove(oldSprite);
+					oldSprite.shader = null;
+				}
+			}
+			else
+			{
+				if (mouthwashFadeOut.level.value[0] < 1.0)
+				{
+					mouthwashFadeOut.level.value[0] += elapsed;
+				}
+				else
+				{
+					oldSprite.alive = false;
+					remove(oldSprite);
+					oldSprite.shader = null;
+				}
+			}
 		}
 		Main.detectConnections();
 		if (Main.connectionsDirty)
@@ -216,8 +270,11 @@ class PlayState extends FlxState
 		}
 		if (FlxG.keys.justPressed.K)
 		{
-			subtitles.visible = !subtitles.visible;
+			Main.subtitlesBox.visible = !Main.subtitlesBox.visible;
 		}
+		if (Main.subtitlesBox.visible && !members.contains(Main.subtitlesBox))
+			add(Main.subtitlesBox);
+			
 		FlxG.fixedTimestep = false;
 		FlxG.autoPause = false;
 		var showPlayerMarker = playerLayer.length > 1;

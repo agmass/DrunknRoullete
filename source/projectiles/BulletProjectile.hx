@@ -35,8 +35,9 @@ class BulletProjectile extends Projectile
 	{
 		if (entity == shooter)
 		{
-			if (dropTime <= 0.0)
+			if (dropTime <= 0.0 && !returnToShooter)
 			{
+				MultiSoundManager.playRandomSound(entity, "pickup_bullet", FlxG.random.float(0.9, 1.2));
 				returnToShooter = true;
 			}
 			return;
@@ -46,7 +47,7 @@ class BulletProjectile extends Projectile
 			return;
 		}
 		hitEntities.push(entity.ID);
-		entity.health -= 15 * shooter.attributes.get(Attribute.ATTACK_DAMAGE).getValue();
+		entity.damage(15, shooter);
 		FlxG.camera.shake(0.001, 0.05);
 		hitEntity = true;
 		entity.velocity = velocity.scaleNew(shooter.attributes.get(Attribute.ATTACK_KNOCKBACK).getValue()).scalePoint(new FlxPoint(3, 1.5));
@@ -55,6 +56,10 @@ class BulletProjectile extends Projectile
 
 	override function update(elapsed:Float)
 	{
+		if (!inWorldBounds())
+		{
+			returnToShooter = true;
+		}
 		dropTime -= elapsed;
 		super.update(elapsed);
 	}

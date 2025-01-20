@@ -18,6 +18,7 @@ import sound.FootstepManager;
 import state.MenuState;
 import util.EnviornmentsLoader;
 import util.Language;
+import util.SubtitlesBox;
 #if html5
 import js.Browser;
 #end
@@ -37,6 +38,9 @@ class Main extends Sprite
 		\"Footstep Sounds by Dryoma\"
 		https://dryoma.itch.io/footsteps-sounds
 
+		\"Snake's SECOND Authentic Gun Sounds Pack\"
+		https://f8studios.itch.io/snakes-second-authentic-gun-sounds-pack
+		
 		\"Empty Weapons (Sound effect)\" by BoostSound
 		https://www.youtube.com/watch?v=dBJUIYv52Xw
 
@@ -45,6 +49,10 @@ class Main extends Sprite
 
 		\"Glass Bottle Smash\" by Universfield
 		\"Glass Hit\" by Universfield
+		\"gun cocking sound\" by FreeSoundxx
+		\"Clank1\" by freesound_community
+		\"Rattle1\" by freesound_community
+		\"Mechanical1\" by freesound_community
 
 		All following sounds are by creators from Freesound.
 
@@ -55,9 +63,11 @@ class Main extends Sprite
 		# Silly Quotes
 
 		\"drunk soviet simulator\" - __REDACTED__
+		\"Cant believe how evil red guy is\" - smorrebrot
 	";
 
 	public static var FPS:FPS;
+	public static var subtitlesBox:SubtitlesBox;
 	public static var subtitles:Map<String, Float> = [];
 	public static var audioPanner:FlxSprite;
 	public static var activeGamepads:Array<FlxGamepad> = [];
@@ -88,6 +98,7 @@ class Main extends Sprite
 			event.preventDefault();
 		}, {capture: false, passive: false});
 		#end
+		subtitlesBox = new SubtitlesBox();
 	}
 
 	public static function detectConnections()

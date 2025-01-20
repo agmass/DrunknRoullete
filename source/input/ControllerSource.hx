@@ -79,5 +79,9 @@ class ControllerSource extends InputSource {
         return new FlxPoint(horizontal.value(), vertical.value());
     }
 
+	override function uiAcceptName():String
+	{
+		return accept.positiveKey[0].toString();
+	}
     
 }

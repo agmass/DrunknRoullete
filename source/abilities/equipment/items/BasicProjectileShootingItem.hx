@@ -59,18 +59,12 @@ class BasicProjectileShootingItem extends Equipment
 		bullet.body.rotate(bullet.body.position, (angle + 90) * FlxAngle.TO_RAD);
 		bullets.add(bullet);
 		bullet.angle = angle;
+		player.extraVelocity = vel.scaleNew(0.1).negate();
 		player.collideables.add(bullet);
-		if (player.isTouching(FLOOR))
-		{
-			var sound = FlxG.sound.play(AssetPaths.critswing__ogg);
-			sound.pitch = 1.8;
-			sound.volume = 0.45;
-			Main.subtitles.set(Language.get("subtitle.critical_swing"), 4);
-		}
-		else
-		{
-			MultiSoundManager.playRandomSound(player, "swing", 1.8, 0.45);
-		}
+		var sound = FlxG.sound.play(AssetPaths.critswing__ogg);
+		sound.pitch = 1.8;
+		sound.volume = 0.45;
+		MultiSoundManager.playRandomSound(player, "shoot", FlxG.random.float(0.9, 1.1), 1);
 		super.attack(player);
 	}
 

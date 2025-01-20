@@ -21,7 +21,7 @@ class Hitbox extends FlxSprite
 	{
 		if (victim == shooter)
 			return;
-		victim.health -= damage;
+		victim.damage(damage, shooter);
 		hitEntities.push(victim);
 	}
 }

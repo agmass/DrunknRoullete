@@ -54,8 +54,6 @@ class InputSource {
 		return 0;
 	}
 
-
-
 	public function toString():String
     {
         var string = "";
@@ -68,5 +66,9 @@ class InputSource {
         string += "\n      Movement: " + getMovementVector();
         return string;
     }
+	public function uiAcceptName():String
+	{
+		return "[Undefined]";
+	}
     
 }

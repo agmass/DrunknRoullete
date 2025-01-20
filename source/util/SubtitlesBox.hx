@@ -33,12 +33,22 @@ class SubtitlesBox extends FlxSprite
 		var usedTexts = [];
 		subtitleTexts.forEach((t) ->
 		{
+			usedTexts.push(t.text);
+		});
+		for (f in Main.subtitles.keys())
+		{
+			if (!usedTexts.contains(f))
+			{
+				subtitleTexts.add(new FlxText(0, 0, 0, f, 24));
+			}
+		}
+		subtitleTexts.forEach((t) ->
+		{
 			i++;
 			t.x = 20;
 			t.y = FlxG.height - ((20 * i) + curHeight);
 			t.y -= 80;
 			curHeight += t.height / 1.3;
-			usedTexts.push(t.text);
 			if (Main.subtitles.exists(t.text))
 			{
 				t.alpha = Main.subtitles.get(t.text) / 4;
@@ -48,13 +58,6 @@ class SubtitlesBox extends FlxSprite
 				subtitleTexts.remove(t);
 			}
 		});
-		for (f in Main.subtitles.keys())
-		{
-			if (!usedTexts.contains(f))
-			{
-				subtitleTexts.add(new FlxText(0, 0, 0, f, 24));
-			}
-		}
 		y = FlxG.height - ((20 * i) + curHeight);
 		y -= 60;
 		x = 20;
@@ -66,6 +69,7 @@ class SubtitlesBox extends FlxSprite
 	override function draw()
 	{
 		subtitleTexts.camera = camera;
+		alpha = 0.75;
 		super.draw();
 		subtitleTexts.draw();
 	}

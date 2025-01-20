@@ -87,6 +87,8 @@ class EquippedEntity extends Entity
 		if (ragdoll != null)
 		{
 			ragdoll.draw();
+			blood.draw();
+			floatingTexts.draw();
 			return;
 		}
 		if (holsteredWeapon != null)

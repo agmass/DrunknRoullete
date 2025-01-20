@@ -69,4 +69,8 @@ class KeyboardSource extends InputSource {
         return new FlxPoint(x,y);
     }
     
+	override function uiAcceptName():String
+	{
+		return accept.key[0].toString();
+	}
 }

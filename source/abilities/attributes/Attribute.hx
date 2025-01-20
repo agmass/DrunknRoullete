@@ -28,7 +28,6 @@ class Attribute {
 		SIZE_X,
 		DASH_SPEED,
 		JUMP_COUNT,
-		// ATTACK_KNOCKBACK,
 		CRIT_CHANCE,
 		REGENERATION 
 	];

@@ -50,16 +50,19 @@ class MenuState extends FlxState
 			{
 				if (i.getMovementVector().y == 1)
 				{
+					FlxG.sound.play(AssetPaths.menu_select__ogg);
 					selection += 1;
 				}
 				if (i.getMovementVector().y == -1)
 				{
+					FlxG.sound.play(AssetPaths.menu_select__ogg);
 					selection -= 1;
 				}
 			}
 			i.lastMovement.y = i.getMovementVector().y;
 			if (i.ui_accept)
 			{
+				FlxG.sound.play(AssetPaths.menu_accept__ogg);
 				gamepadAccepted = true;
 			}
 		}
@@ -78,12 +81,14 @@ class MenuState extends FlxState
 		options.color = FlxColor.WHITE;
 		options.scale.set(0.75, 0.75);
 		options.alpha = 0.75;
-		if (FlxG.mouse.overlaps(play))
+		if (FlxG.mouse.overlaps(play) && selection != 0)
 		{
+			FlxG.sound.play(AssetPaths.menu_select__ogg);
 			selection = 0;
 		}
-		if (FlxG.mouse.overlaps(options))
+		if (FlxG.mouse.overlaps(options) && selection != 1)
 		{
+			FlxG.sound.play(AssetPaths.menu_select__ogg);
 			selection = 1;
 		}
 		switch (selection)

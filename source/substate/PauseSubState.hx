@@ -82,6 +82,14 @@ class PauseSubState extends FlxSubState
 		{
 			locked = false;
 		});
+		add(Main.subtitlesBox);
+	}
+
+	override function destroy()
+	{
+		remove(Main.subtitlesBox);
+
+		super.destroy();
 	}
 
 	override public function update(elapsed:Float):Void
@@ -96,16 +104,19 @@ class PauseSubState extends FlxSubState
 				{
 					if (i.getMovementVector().y == 1)
 					{
+						FlxG.sound.play(AssetPaths.menu_select__ogg);
 						selection += 1;
 					}
 					if (i.getMovementVector().y == -1)
 					{
+						FlxG.sound.play(AssetPaths.menu_select__ogg);
 						selection -= 1;
 					}
 				}
 				i.lastMovement.y = i.getMovementVector().y;
 				if (i.ui_accept)
 				{
+					FlxG.sound.play(AssetPaths.menu_accept__ogg);
 					gamepadAccepted = true;
 				}
 			}
@@ -127,16 +138,19 @@ class PauseSubState extends FlxSubState
 			saves.color = FlxColor.GRAY;
 			saves.scale.set(0.75, 0.75);
 			saves.alpha = 0.75;
-			if (FlxG.mouse.overlaps(play))
+			if (FlxG.mouse.overlaps(play) && selection != 0)
 			{
+				FlxG.sound.play(AssetPaths.menu_select__ogg);
 				selection = 0;
 			}
-			if (FlxG.mouse.overlaps(menu))
+			if (FlxG.mouse.overlaps(menu) && selection != 1)
 			{
+				FlxG.sound.play(AssetPaths.menu_select__ogg);
 				selection = 1;
 			}
-			if (FlxG.mouse.overlaps(saves))
+			if (FlxG.mouse.overlaps(saves) && selection != 2)
 			{
+				FlxG.sound.play(AssetPaths.menu_select__ogg);
 				selection = 2;
 			}
 			switch (selection)
@@ -170,7 +184,6 @@ class PauseSubState extends FlxSubState
 		}
 		// persistentDraw = true;
 		// persistentUpdate = true;
-
 		super.update(elapsed);
 	}
 }

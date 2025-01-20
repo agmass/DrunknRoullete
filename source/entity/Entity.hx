@@ -9,6 +9,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.nape.FlxNapeSprite;
 import flixel.effects.particles.FlxEmitter;
+import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxAngle;
 import flixel.math.FlxMath;
 import flixel.sound.FlxSound;
@@ -17,6 +18,8 @@ import flixel.tweens.FlxTween;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
 import haxe.ds.HashMap;
+import openfl.display.BitmapData;
+import shader.FadingOut;
 import sound.FootstepManager;
 import util.Language;
 
@@ -36,6 +39,7 @@ class Entity extends FlxSprite {
 
 	public var healthBar:FlxBar = new FlxBar(20, 20, FlxBarFillDirection.LEFT_TO_RIGHT, 400, 40);
 	public var nametag:FlxText = new FlxText(0, 0, 0, "", 24);
+	public var floatingTexts:FlxSpriteGroup = new FlxSpriteGroup();
 
 	var lastHealth = 100.0;
 	public var bossHealthBar = false;
@@ -67,7 +71,37 @@ class Entity extends FlxSprite {
 		healthBar.createColoredFilledBar(FlxColor.RED, true, FlxColor.BLACK, 2);
     }
 
+	public function damage(amount:Float, attacker:Entity)
+	{
+		health -= amount * attacker.attributes.get(Attribute.ATTACK_DAMAGE).getValue();
+		if (attacker.attributes.exists(Attribute.CRIT_CHANCE))
+		{
+			if (FlxG.random.bool(attacker.attributes.get(Attribute.CRIT_CHANCE).getValue()))
+			{
+				health -= amount * 2;
+				spawnFloatingText("CRITICAL HIT!", FlxColor.GREEN, 24);
+			}
+		}
+	}
+
+	public function spawnFloatingText(text:String, color:FlxColor, size:Int = 18)
+	{
+		var txt = new FlxText(x + FlxG.random.int(0, Math.round(width)), y + FlxG.random.int(0, Math.round(height)), 0, text, size);
+		txt.color = color;
+		floatingTexts.add(txt);
+	}
+
     override function update(elapsed:Float) {
+		for (sprite in floatingTexts)
+		{
+			sprite.y -= elapsed * 100;
+			sprite.alpha -= elapsed;
+			if (sprite.alpha <= 0)
+			{
+				sprite.destroy();
+				floatingTexts.remove(sprite);
+			}
+		}
 		naturalRegeneration -= elapsed;
 		if (health <= 0 && ragdoll == null)
 		{
@@ -98,10 +132,6 @@ class Entity extends FlxSprite {
 			ragdoll.body.rotate(ragdoll.body.position, FlxG.random.float(-180, 180) * FlxAngle.TO_RAD);
 			ragdoll.body.velocity.setxy(FlxG.random.int(-400, 400), FlxG.random.int(-400, 400));
 			ragdoll.setBodyMaterial(0.05, 0.9, 1.6, 20, 1);
-			if (this is PlayerEntity)
-			{
-				FlxG.camera.fade(FlxColor.BLACK, 5, false);
-			}
 			FlxTween.tween(ragdoll, {alpha: 0}, 6);
 		}
 		if (ragdoll != null)
@@ -111,7 +141,9 @@ class Entity extends FlxSprite {
 			{
 				if (this is PlayerEntity)
 				{
-					FlxG.resetState();
+					PlayState.bitmapData = BitmapData.fromImage(FlxG.stage.window.readPixels());
+					PlayState.bitmapData.draw(camera.canvas, null, null, null, null, false);
+					FlxG.switchState(new PlayState());
 				}
 				kill();
 			}
@@ -122,6 +154,7 @@ class Entity extends FlxSprite {
 		blood.scale.set(scale.x, scale.y);
 		if (lastHealth > health)
 		{
+			spawnFloatingText(Math.round(health - lastHealth) + "", FlxColor.RED);
 			blood.start(true, 0, Math.ceil(lastHealth - health));
 			MultiSoundManager.playRandomSound(this, "hit");
 			naturalRegeneration = 5;
@@ -174,16 +207,18 @@ class Entity extends FlxSprite {
 
     public function createAttributes() {
 		attributes.set(Attribute.MAX_HEALTH, new Attribute(100));
-    }
-
+	}
     override function draw() {
 		if (ragdoll != null)
 		{
 			ragdoll.draw();
+			blood.draw();
+			floatingTexts.draw();
 			return;
 		}
         super.draw();
 		blood.draw();
+		floatingTexts.draw();
 		if (bossHealthBar)
 		{
 			healthBar.draw();

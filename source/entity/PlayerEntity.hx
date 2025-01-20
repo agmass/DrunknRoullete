@@ -91,7 +91,9 @@ class PlayerEntity extends HumanoidEntity
         // call update() for children here
 		// my ex-wife still wont let me see the kids -adi
 
-		trail.update(elapsed);
+		if (trail != null)
+			trail.update(elapsed);
+
 		if (input.backslotJustPressed)
 		{
 			var backslotWeapon = holsteredWeapon;
@@ -276,6 +278,12 @@ class PlayerEntity extends HumanoidEntity
 		}
     }
 
+	override function kill()
+	{
+		trail.destroy();
+		super.kill();
+	}
+
 
 	public function squash(grounded, elapsed:Float)
 	{
@@ -321,6 +329,7 @@ class PlayerEntity extends HumanoidEntity
 					FlxMath.lerp(scale.y, SCALE_Y * 1.15, elapsed * (Math.abs(velocity.y) / 100)));
 			}
 		}
+		trail.visible = trailFadeOut.alphaFade.value[0] < 0.0;
 		if (Math.abs(dashMovement.x) + Math.abs(dashMovement.y) < 30)
 		{
 			trailFadeOut.alphaFade.value[0] -= elapsed * 3;
@@ -362,7 +371,8 @@ class PlayerEntity extends HumanoidEntity
             playerMarker.color = playerMarkerColor;
             playerMarker.draw();
         }
-		trail.draw();
+		if (trail != null)
+			trail.draw();
 		super.draw();
 		healthBar.draw();
     }

@@ -12,8 +12,11 @@ import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import input.KeyboardSource;
 import openfl.filters.ShaderFilter;
 import shader.AttributesSlotTextShader;
+import sound.FootstepManager.MultiSoundManager;
+import ui.Card;
 
 class SlotsSubState extends FlxSubState
 {
@@ -22,13 +25,14 @@ class SlotsSubState extends FlxSubState
 	public var amountText:FlxText = new FlxText(0, 0, 0, "0", 24);
 	public var attributesRollGroup:FlxSpriteGroup = new FlxSpriteGroup();
 	public var operationRollGroup:FlxSpriteGroup = new FlxSpriteGroup();
-	public var cards:FlxSpriteGroup = new FlxSpriteGroup();
+	public var cards:FlxTypedSpriteGroup<Card> = new FlxTypedSpriteGroup<Card>();
 	public var amountRollGroup:FlxTypedSpriteGroup<FlxText> = new FlxTypedSpriteGroup<FlxText>();
 
 	public var attributeIcons:Array<String> = [];
 	public var operationIcons:Array<String> = [];
 	public var possibleAddNumbers = [10, 25, 50, 100, 250, 500];
 	public var middle = 0.0;
+	public var playerReminder:FlxText = new FlxText(0, 0, 0, "Player: Player 0\nPress [A] to use!", 32);
 
 	public var bg1:FlxSprite;
 	public var bg2:FlxSprite;
@@ -50,6 +54,11 @@ class SlotsSubState extends FlxSubState
 			c.destroy();
 		});
 		cards.clear();
+		for (key => value in p.attributes)
+		{
+			if (Attribute.attributesList.contains(key)) // only add attributes that we can actually change in-game, eg; dont add unused attributes or size_y
+				cards.add(new Card(key, p));
+		}
 	}
 
 	override function create()
@@ -140,6 +149,14 @@ class SlotsSubState extends FlxSubState
 		add(amountRollGroup);
 		amountRollGroup.camera = gamblingCamera;
 		add(slotsMachine);
+		createCards();
+		add(cards);
+		playerReminder.camera = foregroundgamblingCamera;
+		playerReminder.x = slotsMachine.x + (4.21875 * 34);
+		playerReminder.y = slotsMachine.y + (4.21875 * 173);
+		playerReminder.color = FlxColor.BLACK;
+		add(playerReminder);
+		add(Main.subtitlesBox);
 		super.create();
 	}
 
@@ -155,9 +172,11 @@ class SlotsSubState extends FlxSubState
 	public var slotShader = new AttributesSlotTextShader();
 
 	var shaderLag = 0.0;
+	public var selectedCard = 0;
 
 	override function destroy()
 	{
+		remove(Main.subtitlesBox);
 		FlxG.cameras.remove(gamblingCamera);
 		FlxG.cameras.remove(foregroundgamblingCamera);
 		super.destroy();
@@ -174,12 +193,38 @@ class SlotsSubState extends FlxSubState
 		}
 		var goBack = false;
 		var startRoll = false;
-		for (source in Main.activeInputs)
+		if (FlxG.state is PlayState)
 		{
-			if (source.ui_accept)
-				startRoll = true;
-			if (source.ui_deny)
-				goBack = true;
+			var ps:PlayState = cast(FlxG.state);
+			ps.playerLayer.forEachOfType(PlayerEntity, (pe) ->
+			{
+				if (pe.input.ui_accept)
+				{
+					if (gambaTime < 0 && p != pe)
+					{
+						p = pe;
+						createCards();
+					}
+					startRoll = true;
+				}
+			});
+			for (source in Main.activeInputs)
+			{
+				if (source.ui_deny)
+					goBack = true;
+			}
+		}
+		else
+		{
+			// What the fuck?!?!? Shit is going to break!! Whatever
+
+			for (source in Main.activeInputs)
+			{
+				if (source.ui_accept)
+					startRoll = true;
+				if (source.ui_deny)
+					goBack = true;
+			}
 		}
 		if (goBack)
 		{
@@ -192,48 +237,51 @@ class SlotsSubState extends FlxSubState
 				close();
 			}
 		}
-		var lastY = -9999.0;
-		for (text in amountRollGroup)
+		var finalSelected = null;
+		var i = -(cards.length / 2);
+		for (card in cards)
 		{
-			if (lockedInState >= 3)
-			{
-				if (text.y != (middle + ((bg1.height - 50) / 2)))
-				{
-					text.y = middle - 286;
-				}
-				break;
-			}
-			text.screenCenter(X);
-			text.x = (bg3.width - text.width) / 2;
-			text.x += bg3.x;
-			if (lastY != -9999)
-			{
-				if (Math.abs(text.y - lastY) < 286)
-				{
-					text.y = lastY + 286;
-				} // re-correct
-			}
-			lastY = text.y;
-			text.y += elapsed * 3050;
-			if (text.y >= middle + ((bg1.height - 50) / 2) && text.text == desiredIconThree)
-			{
-				text.y = middle + ((bg1.height - 50) / 2);
-				lockedInState = 3;
-			}
-			if (text.y >= (middle + 286))
-			{
-				text.y = middle - 286;
-				if (gambaTime >= 1.8)
-				{
-					text.text = finalAmount + "";
-					desiredIconThree = text.text;
-				}
-				else
-				{
-					text.text = possibleAddNumbers[FlxG.random.int(0, possibleAddNumbers.length - 1)] + "";
-				}
-			}
+			card.screenCenter(Y);
+			card.x = -85;
+			card.y += (i * 80);
+			i++;
+			card.selected = false;
+			p.attributes.get(card.attributeType).refreshAndGetValue();
+			if (FlxG.mouse.overlaps(card))
+				finalSelected = card;
 		}
+		if (!(p.input is KeyboardSource))
+		{
+			if (selectedCard > cards.length - 1)
+			{
+				selectedCard = 0;
+			}
+			if (selectedCard < 0)
+			{
+				selectedCard = cards.length - 1;
+			}
+			if (cards.length > 0)
+			{
+				finalSelected = cards.members[selectedCard];
+			}
+			if (FlxMath.roundDecimal(p.input.getMovementVector().y, 1) != FlxMath.roundDecimal(p.input.lastMovement.y, 1))
+			{
+				if (p.input.getMovementVector().y == 1)
+				{
+					selectedCard += 1;
+				}
+				if (p.input.getMovementVector().y == -1)
+				{
+					selectedCard -= 1;
+				}
+			}
+			p.input.lastMovement.y = p.input.getMovementVector().y;
+		}
+		if (finalSelected != null)
+		{
+			finalSelected.selected = true;
+		}
+		var lastY = -9999.0;
 		for (sprite in attributesRollGroup)
 		{
 			if (lockedInState >= 1)
@@ -255,6 +303,7 @@ class SlotsSubState extends FlxSubState
 			sprite.y += elapsed * 3050;
 			if (sprite.y >= middle && sprite.graphic.key == desiredIconOne)
 			{
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", FlxG.random.float(0.9, 1.1), 1);
 				sprite.y = middle;
 				lockedInState = 1;
 			}
@@ -309,6 +358,7 @@ class SlotsSubState extends FlxSubState
 			sprite.y += elapsed * 3050;
 			if (sprite.y >= middle && sprite.graphic.key == desiredIconTwo)
 			{
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", FlxG.random.float(0.9, 1.1), 1);
 				sprite.y = middle;
 				lockedInState = 2;
 			}
@@ -338,6 +388,48 @@ class SlotsSubState extends FlxSubState
 				}
 			}
 		}
+		for (text in amountRollGroup)
+		{
+			if (lockedInState >= 3)
+			{
+				if (text.y != (middle + ((bg1.height - 50) / 2)))
+				{
+					text.y = middle - 286;
+				}
+				break;
+			}
+			text.screenCenter(X);
+			text.x = (bg3.width - text.width) / 2;
+			text.x += bg3.x;
+			if (lastY != -9999)
+			{
+				if (Math.abs(text.y - lastY) < 286)
+				{
+					text.y = lastY + 286;
+				} // re-correct
+			}
+			lastY = text.y;
+			text.y += elapsed * 3050;
+			if (text.y >= middle + ((bg1.height - 50) / 2) && text.text == desiredIconThree)
+			{
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", FlxG.random.float(0.9, 1.1), 1);
+				text.y = middle + ((bg1.height - 50) / 2);
+				lockedInState = 3;
+			}
+			if (text.y >= (middle + 286))
+			{
+				text.y = middle - 286;
+				if (gambaTime >= 1.8)
+				{
+					text.text = Math.abs(finalAmount) + "";
+					desiredIconThree = text.text;
+				}
+				else
+				{
+					text.text = possibleAddNumbers[FlxG.random.int(0, possibleAddNumbers.length - 1)] + "";
+				}
+			}
+		}
 		token.x = 20;
 		token.y = 20;
 		token.scale.set(2, 2);
@@ -347,6 +439,7 @@ class SlotsSubState extends FlxSubState
 		{
 			if (gambaTime >= 2.0)
 			{
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "lever_pull", FlxG.random.float(0.9, 1.1), 1);
 				slotsMachine.animation.play("pullBack");
 				gambaTime = -1;
 			}
@@ -360,9 +453,12 @@ class SlotsSubState extends FlxSubState
 				desiredIconTwo = "";
 				desiredIconThree = "";
 				lockedInState = 0;
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "lever_pull", FlxG.random.float(0.9, 1.1), 1);
 				roll();
 			}
 		}
+		playerReminder.text = "Player: " + p.entityName + "\nPress " + p.input.uiAcceptName() + " to use!";
+
 		super.update(elapsed);
 	}
 
@@ -411,7 +507,7 @@ class SlotsSubState extends FlxSubState
 		{
 			amount = [
 				10.0, 10.0, 10.0, 10.0, 10.0, 25.0, 25.0, 25.0, 25.0, 25.0, 50.0, 50.0, 50.0, 50.0, 100.0, 100.0, 100.0, 250.0, 250.0, 500.0
-			][FlxG.random.int(0, 20)];
+			][FlxG.random.int(0, 19)];
 			if (type.additionMultiplier <= 0.001 && amount <= 50)
 			{
 				amount = 100.0;
@@ -430,9 +526,10 @@ class SlotsSubState extends FlxSubState
 
 		if (!p.attributes.exists(type))
 		{
-			p.attributes.set(type, new Attribute(0));
-			p.attributes.get(type).addOperation(new AttributeContainer(ADD, type.minBound));
+			p.attributes.set(type, new Attribute(type.minBound));
 			p.attributes.get(type).min = type.minBound;
+			p.attributes.get(type).max = type.maxBound;
+			createCards();
 		}
 		p.attributes.get(type).addOperation(new AttributeContainer(operation, amount));
 		if (type == Attribute.SIZE_X)

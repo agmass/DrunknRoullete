@@ -52,7 +52,7 @@ class BottleProjectile extends Projectile
 		{
 			return;
 		}
-		entity.health -= 20 * shooter.attributes.get(Attribute.ATTACK_DAMAGE).getValue();
+		entity.damage(25, shooter);
 		broken = true;
 		FlxG.camera.shake(0.0025, 0.2);
 		hitEntity = true;
