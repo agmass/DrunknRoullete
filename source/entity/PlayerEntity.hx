@@ -40,6 +40,7 @@ class PlayerEntity extends HumanoidEntity
 
 	public var crouchAttribute_speed:AttributeContainer = new AttributeContainer(MULTIPLY, 0.5);
 	public var HITBOX_X = 38;
+	public var tokens = 0;
 	public var HITBOX_Y = 68;
 
 	public var GRAPHIC_X = 64;
@@ -278,11 +279,6 @@ class PlayerEntity extends HumanoidEntity
 		}
     }
 
-	override function kill()
-	{
-		trail.destroy();
-		super.kill();
-	}
 
 
 	public function squash(grounded, elapsed:Float)
@@ -329,7 +325,7 @@ class PlayerEntity extends HumanoidEntity
 					FlxMath.lerp(scale.y, SCALE_Y * 1.15, elapsed * (Math.abs(velocity.y) / 100)));
 			}
 		}
-		trail.visible = trailFadeOut.alphaFade.value[0] < 0.0;
+		trail.visible = trailFadeOut.alphaFade.value[0] > 0.0;
 		if (Math.abs(dashMovement.x) + Math.abs(dashMovement.y) < 30)
 		{
 			trailFadeOut.alphaFade.value[0] -= elapsed * 3;

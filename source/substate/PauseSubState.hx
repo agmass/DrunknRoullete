@@ -10,6 +10,7 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import state.MenuState;
+import state.TransitionableState;
 import util.Language;
 
 class PauseSubState extends FlxSubState
@@ -33,6 +34,7 @@ class PauseSubState extends FlxSubState
 		sprite.makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		sprite.alpha = 0;
 		FlxTween.tween(sprite, {alpha: 0.5}, 0.25);
+		sprite.camera = uicam;
 		add(sprite);
 		super.create();
 		title = new FlxText(0, 0, 0, "Drunk'n'Roullete", 32);
@@ -169,6 +171,7 @@ class PauseSubState extends FlxSubState
 					menu.alpha = 1;
 					if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
 					{
+						TransitionableState.screengrab();
 						FlxG.switchState(new MenuState());
 					}
 				case 2:

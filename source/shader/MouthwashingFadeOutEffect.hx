@@ -19,8 +19,8 @@ class MouthwashingFadeOutEffect extends FlxShader
 void main()
 {
 	vec4 color = flixel_texture2D(bitmap, openfl_TextureCoordv);
-	if (color.r >= level && color.g >= level && color.b >= level) {
-    	gl_FragColor = vec4(color.r*(1.0-level),color.g*(1.0-level),color.b*(1.0-level),color.a*(1.0-level));
+	if (color.r <= level && color.g <= level && color.b <= level) {
+    	gl_FragColor = vec4(color.r*level,color.g*level,color.b*level,color.a*level);
 	}
 		
 }

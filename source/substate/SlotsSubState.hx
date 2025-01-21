@@ -11,7 +11,10 @@ import flixel.FlxSubState;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import flixel.util.FlxTimer;
 import input.KeyboardSource;
 import openfl.filters.ShaderFilter;
 import shader.AttributesSlotTextShader;
@@ -184,6 +187,7 @@ class SlotsSubState extends FlxSubState
 
 	override function update(elapsed:Float)
 	{
+		gamblingCamera.y = foregroundgamblingCamera.y + 67 * 4.218;
 		Main.detectConnections();
 		shaderLag += elapsed;
 		if (shaderLag >= 0.1)
@@ -435,6 +439,7 @@ class SlotsSubState extends FlxSubState
 		token.scale.set(2, 2);
 		amountText.x = 45;
 		amountText.y = 15;
+		amountText.text = p.tokens + "";
 		if (gambaTime >= 0.0)
 		{
 			if (gambaTime >= 2.0)
@@ -453,6 +458,18 @@ class SlotsSubState extends FlxSubState
 				desiredIconTwo = "";
 				desiredIconThree = "";
 				lockedInState = 0;
+				FlxTween.tween(foregroundgamblingCamera, {y: -90, angle: -3}, 0.2, {
+					ease: FlxEase.quadInOut,
+					onComplete: (t) ->
+					{
+						new FlxTimer().start(0.1, (tt) ->
+						{
+							FlxTween.tween(foregroundgamblingCamera, {y: 0, angle: 0}, 0.25, {
+								ease: FlxEase.quartInOut
+							});
+						});
+					}
+				});
 				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "lever_pull", FlxG.random.float(0.9, 1.1), 1);
 				roll();
 			}

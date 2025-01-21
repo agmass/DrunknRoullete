@@ -21,6 +21,7 @@ import haxe.ds.HashMap;
 import openfl.display.BitmapData;
 import shader.FadingOut;
 import sound.FootstepManager;
+import state.TransitionableState;
 import util.Language;
 
 class Entity extends FlxSprite {
@@ -113,13 +114,14 @@ class Entity extends FlxSprite {
 					if (rewards.tokens > 0)
 					{
 						var b = rewards.tokens;
-					}
-					if (rewards.healPlayers)
-					{
-						ps.playerLayer.forEachOfType(PlayerEntity, (pe) ->
+						ps.playerLayer.forEachOfType(PlayerEntity, (p) ->
 						{
-							pe.health = pe.attributes.get(Attribute.MAX_HEALTH).getValue();
+							p.tokens += b;
 						});
+					}
+					if (rewards.opensElevator)
+					{
+						ps.elevator.interactable = true;
 					}
 				}
 			}
@@ -141,8 +143,6 @@ class Entity extends FlxSprite {
 			{
 				if (this is PlayerEntity)
 				{
-					PlayState.bitmapData = BitmapData.fromImage(FlxG.stage.window.readPixels());
-					PlayState.bitmapData.draw(camera.canvas, null, null, null, null, false);
 					FlxG.switchState(new PlayState());
 				}
 				kill();

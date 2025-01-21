@@ -3,11 +3,11 @@ package entity.bosses;
 class Rewards
 {
 	public var tokens:Int;
-	public var healPlayers:Bool;
+	public var opensElevator:Bool;
 
-	public function new(tokens, healPlayers)
+	public function new(tokens, opensElevator)
 	{
 		this.tokens = tokens;
-		this.healPlayers = healPlayers;
+		this.opensElevator = opensElevator;
 	}
 }

@@ -11,7 +11,7 @@ class EnviornmentsLoader
     {
         for (i in AssetPaths.allFiles)
         {
-            if (StringTools.startsWith(i, "assets/images/enviorments/"))
+			if (StringTools.startsWith(i, "assets/images/enviorments/") && !StringTools.startsWith(i, "assets/images/enviorments/_"))
             {
                 if (!enviornments.contains(i))
                 {

@@ -20,9 +20,6 @@ import sound.FootstepManager.MultiSoundManager;
 import util.Language;
 import util.Projectile;
 
-/*
- * Should be expanded by other classes to specify stats and graphics, or custom behaviour
- */
 class BasicProjectileShootingItem extends Equipment
 {
 
@@ -36,6 +33,19 @@ class BasicProjectileShootingItem extends Equipment
 		super(entity);
 		weaponSpeed = 0.5;
 		loadGraphic(AssetPaths.gun__png);
+	}
+
+	var burst = 5;
+	var burstCool = 0.1;
+
+	override function alt_fire(player:EquippedEntity)
+	{
+		if (burst == 5)
+		{
+			burst = -4;
+			burstCool = 0;
+		}
+		super.alt_fire(player);
 	}
 
 	override function attack(player:EquippedEntity)
@@ -64,12 +74,28 @@ class BasicProjectileShootingItem extends Equipment
 		var sound = FlxG.sound.play(AssetPaths.critswing__ogg);
 		sound.pitch = 1.8;
 		sound.volume = 0.45;
+		FlxG.camera.shake(0.002, 0.1);
 		MultiSoundManager.playRandomSound(player, "shoot", FlxG.random.float(0.9, 1.1), 1);
 		super.attack(player);
 	}
 
 	override function update(elapsed:Float)
 	{
+		if (bullets.length >= maxBullets)
+		{
+			burst = 5;
+		}
+		if (burst != 5)
+		{
+			burstCool -= elapsed;
+			if (burstCool <= 0)
+			{
+				burstCool = 0.1;
+				angle = angle + burst + FlxG.random.float(-15, 15);
+				attack(wielder);
+				burst++;
+			}
+		}
 		shootyAnimation -= elapsed * (shootyAnimation * 6);
 		for (projectile in bullets)
 		{

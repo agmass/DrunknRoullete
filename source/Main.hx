@@ -18,6 +18,7 @@ import sound.FootstepManager;
 import state.MenuState;
 import util.EnviornmentsLoader;
 import util.Language;
+import util.Run;
 import util.SubtitlesBox;
 #if html5
 import js.Browser;
@@ -75,6 +76,7 @@ class Main extends Sprite
 	public static var kbmConnected = false;
 	public static var connectionsDirty = false;
 	public static var napeSpace:Space;
+	public static var run:Run;
 
 	public function new()
 	{

@@ -1,5 +1,6 @@
 package objects;
 
+import entity.PlayerEntity;
 import flixel.FlxSprite;
 
 class SpriteToInteract extends FlxSprite
@@ -21,6 +22,8 @@ class SpriteToInteract extends FlxSprite
 		tooltipSprite.x = getGraphicMidpoint().x - (tooltipSprite.width / 2);
 		tooltipSprite.y = getGraphicBounds().y - tooltipSprite.height - 20;
 	}
+
+	public function interact(p:PlayerEntity) {}
 
 	override function draw()
 	{

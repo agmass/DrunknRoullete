@@ -7,9 +7,10 @@ import flixel.input.gamepad.FlxGamepadInputID;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import openfl.display.BitmapData;
 import util.Language;
 
-class MenuState extends FlxState
+class MenuState extends TransitionableState
 {
 	var title:FlxText = new FlxText(0, 0, 0, "Drunk'n'Roullete", 64);
 	var play:FlxText = new FlxText(0, 0, 0, Language.get("button.start"), 32);
@@ -18,13 +19,14 @@ class MenuState extends FlxState
 
 	override function create()
 	{
-		super.create();
+		Main.run = null;
 		title.screenCenter();
 		add(title);
 		title.y -= 128;
 		add(play);
 		add(options);
 		add(connectedPlayers);
+		super.create();
 	}
 
 	var selection = 0;
@@ -99,7 +101,7 @@ class MenuState extends FlxState
 				play.alpha = 1;
 				if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
 				{
-					FlxG.switchState(new PlayState());
+					FlxG.switchState(new MidState());
 				}
 			case 1:
 				options.color = FlxColor.YELLOW;

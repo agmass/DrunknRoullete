@@ -20,10 +20,15 @@ import flixel.group.FlxSpriteGroup;
 import flixel.input.gamepad.mappings.SwitchProMapping;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import flixel.util.FlxTimer;
 import input.ControllerSource;
 import input.KeyboardSource;
+import js.lib.Reflect;
 import nape.geom.Vec2;
+import objects.Elevator;
 import objects.FootstepChangingSprite;
 import objects.ImmovableFootstepChangingSprite;
 import objects.SlotMachine;
@@ -35,16 +40,17 @@ import openfl.display.BlendMode;
 import openfl.filters.ShaderFilter;
 import openfl.geom.Point;
 import openfl.geom.Rectangle;
-import shader.MouthwashingFadeOutEffect;
+import state.TransitionableState;
 import substate.PauseSubState;
 import substate.SlotsSubState;
 import ui.InGameHUD;
 import util.EnviornmentsLoader;
 import util.Language;
 import util.Projectile;
+import util.Run;
 import util.SubtitlesBox;
 
-class PlayState extends FlxState
+class PlayState extends TransitionableState
 {
 
 	var playerMarkerColors = [
@@ -70,18 +76,62 @@ class PlayState extends FlxState
 	public var enemyLayer:FlxSpriteGroup = new FlxSpriteGroup();
 	public var gameCam:FlxCamera = new FlxCamera();
 	var HUDCam:FlxCamera = new FlxCamera();
+	public var elevator:Elevator = new Elevator(0, 0);
 
 	public var gameHud:InGameHUD = new InGameHUD();
 
 	override function destroy()
 	{
+		saveToRun();
 		Main.napeSpace.clear();
 		super.destroy();
 	}
 
 	override public function create()
 	{
-		super.create();
+		elevator.screenCenter();
+		elevator.y = 952 - 256;
+		interactable.add(elevator);
+		if (Main.run == null)
+		{
+			Main.run = new Run();
+		}
+		else
+		{
+			Main.run.roomsTraveled++;
+			if (Main.run.players.length > 0)
+			{
+				elevator.y = -999;
+				FlxTween.tween(elevator, {y: 951 - 256}, 2, {
+					ease: FlxEase.sineOut,
+					onComplete: (tween) ->
+					{
+						playerLayer.forEachDead((p) ->
+						{
+							new FlxTimer().start(1, (t) ->
+							{
+								new FlxTimer().start(2, (t) ->
+								{
+									elevator.animation.play("closed");
+								});
+								p.revive();
+								elevator.animation.play("open");
+								p.y = (elevator.y + elevator.height) - p.height;
+								p.x = elevator.getMidpoint().x - (p.width / 2);
+								elevator.interactable = true;
+							});
+						});
+					}
+				});
+				for (player in Main.run.players)
+				{
+					playerLayer.add(player);
+					player.screenCenter();
+					takenInputs.push(player.input);
+					player.kill();
+				}
+			}
+		}
 		Main.audioPanner = new FlxSprite(FlxG.width / 2, FlxG.height / 2);
 		Main.audioPanner.makeGraphic(1, 1, FlxColor.TRANSPARENT);
 		FlxG.cameras.reset(gameCam);
@@ -108,14 +158,15 @@ class PlayState extends FlxState
 		mapLayerFront.add(wall2);
 		var enviornment = new FlxSprite(0, 0);
 		var bgName = EnviornmentsLoader.enviornments[FlxG.random.int(0, EnviornmentsLoader.enviornments.length - 1)];
-		enviornment.loadGraphic(bgName, true, 1280, 720);
-		enviornment.setGraphicSize(1920, 1080);
-		enviornment.updateHitbox();
+		enviornment.loadGraphic(bgName);
 		var frames = [];
-		for (i in 0...Math.floor(enviornment.width / 1280) + 1)
+		for (i in 0...Math.ceil(enviornment.width / 1280))
 		{
 			frames.push(i);
 		}
+		enviornment.loadGraphic(bgName, true, 1280, 720);
+		enviornment.setGraphicSize(1920, 1080);
+		enviornment.updateHitbox();
 		enviornment.animation.add("idle", frames, 2);
 		enviornment.animation.play("idle");
 		var enviornmentbg = new FlxSprite(0, 0);
@@ -128,6 +179,16 @@ class PlayState extends FlxState
 		Main.subtitlesBox.visible = false;
 		Main.subtitlesBox.camera = HUDCam;
 		// playerLayer.add(new PlayerEntity(900, 20, "Player 1"));
+		if (bgName == AssetPaths._city__png)
+		{
+			ground.footstepSoundName = "wood";
+			var slotMachine = new SlotMachine(FlxG.random.int(300, 1200), ground.y - 264);
+			slotMachine.loadGraphic(AssetPaths.slot_machine__png);
+			slotMachine.immovable = true;
+			slotMachine.offset.y = 12;
+			interactable.add(slotMachine);
+			slotMachine.setSize(72, 132);
+		}
 		if (bgName == AssetPaths.winbig__png)
 		{
 			ground.footstepSoundName = "carpet";
@@ -139,12 +200,6 @@ class PlayState extends FlxState
 			table.immovable = true;
 					mapLayerBehind.add(table); */
 		}
-		var slotMachine = new SlotMachine(FlxG.random.int(300, 1200), ground.y - 264);
-		slotMachine.loadGraphic(AssetPaths.slot_machine__png);
-		slotMachine.immovable = true;
-		slotMachine.offset.y = 12;
-		slotMachine.setSize(72, 132);
-		interactable.add(slotMachine);
 		mapLayer.add(mapLayerBehind);
 		mapLayer.add(mapLayerFront);
 
@@ -161,25 +216,10 @@ class PlayState extends FlxState
 		add(playerDebugText);
 		gameHud.camera = HUDCam;
 		add(gameHud);
-		if (bitmapData != null)
-		{
-			mouthwashFadeOut = new MouthwashingFadeOutEffect();
-			mouthwashFadeOut.level.value = [0.0];
-			oldSprite.makeGraphic(FlxG.width, FlxG.height);
-			oldSprite.graphic.bitmap = bitmapData;
-			oldSprite.shader = mouthwashFadeOut;
-			add(oldSprite);
-		}
+		super.create();
 	}
 	var takenInputs = [];
 	var kmbConnected = false;
-	public var mouthwashFadeOut:MouthwashingFadeOutEffect;
-
-	public var fadeIn = false;
-
-	var oldSprite:FlxSprite = new FlxSprite();
-
-	public static var bitmapData:BitmapData;
 
 
 	override public function update(elapsed:Float)
@@ -194,35 +234,6 @@ class PlayState extends FlxState
 		if (Main.napeSpace != null && elapsed > 0)
 		{
 			Main.napeSpace.step(elapsed);
-		}
-		if (mouthwashFadeOut != null && oldSprite.alive)
-		{
-			if (fadeIn)
-			{
-				if (mouthwashFadeOut.level.value[0] > 0.0)
-				{
-					mouthwashFadeOut.level.value[0] -= elapsed;
-				}
-				else
-				{
-					oldSprite.alive = false;
-					remove(oldSprite);
-					oldSprite.shader = null;
-				}
-			}
-			else
-			{
-				if (mouthwashFadeOut.level.value[0] < 1.0)
-				{
-					mouthwashFadeOut.level.value[0] += elapsed;
-				}
-				else
-				{
-					oldSprite.alive = false;
-					remove(oldSprite);
-					oldSprite.shader = null;
-				}
-			}
 		}
 		Main.detectConnections();
 		if (Main.connectionsDirty)
@@ -249,7 +260,7 @@ class PlayState extends FlxState
 			}
 		}
 
-		#if FLX_DEBUG
+		/*#if FLX_DEBUG
 			if (FlxG.keys.justPressed.G)
 			{
 				FlxG.vcr.startRecording(false);
@@ -259,7 +270,7 @@ class PlayState extends FlxState
 					var recording = FlxG.vcr.stopRecording();
 					FlxG.vcr.loadReplay(recording);
 				}
-		#end
+			#end */
 		if (FlxG.keys.justPressed.I || pressedDebugSpawn)
 		{
 			enemyLayer.add(new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2));
@@ -386,23 +397,18 @@ class PlayState extends FlxState
 				var tempState:PauseSubState = new PauseSubState();
 				openSubState(tempState);
 			}
-			var isInteractingWithSlots = false;
 			FlxG.overlap(p, interactable, (a, b) ->
 			{
 				if (b is SpriteToInteract)
 				{
 					var sti = cast(b, SpriteToInteract);
 					sti.showTip = true;
-					if (b is SlotMachine)
+					if (p.input.interactJustPressed)
 					{
-						isInteractingWithSlots = true;
+						sti.interact(p);
 					}
 				}
 			});
-			if (p.input.interactJustPressed && isInteractingWithSlots)
-			{
-				openSubState(new SlotsSubState(p));
-			}
 			if (p.playerMarkerColor == FlxColor.TRANSPARENT)
 			{
 				p.playerMarkerColor = playerMarkerColors[0];
@@ -432,5 +438,20 @@ class PlayState extends FlxState
 		{
 			player.steppingOn = cast(wall, FootstepChangingSprite).footstepSoundName;
 		}
+	}
+	public function saveToRun()
+	{
+		var newPlayerList = [];
+		playerLayer.forEachOfType(PlayerEntity, (p) ->
+		{
+			var copiedPlayer:PlayerEntity = new PlayerEntity(0, 0, p.entityName);
+			copiedPlayer.attributes = p.attributes;
+			copiedPlayer.health = p.attributes.get(Attribute.MAX_HEALTH).getValue();
+			copiedPlayer.input = p.input;
+			copiedPlayer.handWeapon = Type.createInstance(Type.getClass(p.handWeapon), [copiedPlayer]);
+			copiedPlayer.holsteredWeapon = Type.createInstance(Type.getClass(p.holsteredWeapon), [copiedPlayer]);
+			newPlayerList.push(copiedPlayer);
+		});
+		Main.run.players = newPlayerList;
 	}
 }
