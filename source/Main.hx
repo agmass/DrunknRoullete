@@ -54,6 +54,7 @@ class Main extends Sprite
 		\"Clank1\" by freesound_community
 		\"Rattle1\" by freesound_community
 		\"Mechanical1\" by freesound_community
+		\"Hit Flesh 02\" by u_xjrmmgxfru
 
 		All following sounds are by creators from Freesound.
 
@@ -94,11 +95,34 @@ class Main extends Sprite
 		MultiSoundManager.footstepVolume.set("wood", 0.75);
 		addChild(new FlxGame(0, 0, MenuState));
 		#if html5
+		var link = Browser.document.createLinkElement();
+		link.href = "assets/data/styles.css";
+		link.type = "text/css";
+		link.rel = "stylesheet";
+		link.media = "screen,print";
+		Browser.document.head.appendChild(link);
 		FlxG.stage.showDefaultContextMenu = false;
 		Browser.document.addEventListener("mousedown", (event) ->
 		{
 			event.preventDefault();
 		}, {capture: false, passive: false});
+		Browser.document.addEventListener('keydown', function(event)
+		{
+			if (event.key == "Enter")
+			{
+				if (Browser.document.getElementById("cutscene") != null)
+				{
+					Browser.document.getElementById("openfl-content").hidden = false;
+					Browser.document.getElementById("cutscene").remove();
+					Browser.document.getElementById("cutsceneNotice").remove();
+					playingVideo = false;
+					for (camera in FlxG.cameras.list)
+					{
+						camera.fade(FlxColor.BLACK, 0.5, true);
+					}
+				}
+			}
+		});
 		#end
 		subtitlesBox = new SubtitlesBox();
 	}
@@ -130,4 +154,53 @@ class Main extends Sprite
 			}
 		}
 	}
+	public static var playingVideo = false;
+
+	#if html5
+	public static function playVideo(url)
+	{
+		// taken from the flopped game site-2d i made like a year ago
+
+		if (!playingVideo)
+		{
+			playingVideo = true;
+			var fallenKingdom = Browser.document.createVideoElement();
+			fallenKingdom.autoplay = true;
+			fallenKingdom.setAttribute("disablePictureInPicture", "true");
+			fallenKingdom.width = 1920;
+			fallenKingdom.id = "cutscene";
+			fallenKingdom.height = 1080;
+			fallenKingdom.style.position = "absolute";
+			fallenKingdom.src = url;
+			Browser.document.body.appendChild(fallenKingdom);
+			var notice = Browser.document.createElement("h1");
+			notice.style.color = "red";
+			notice.className = "notice";
+			notice.id = "cutsceneNotice";
+			notice.style.zIndex = "99";
+			Browser.document.body.appendChild(notice);
+			Browser.document.getElementById("openfl-content").hidden = true;
+			fallenKingdom.addEventListener("ended", (e) ->
+			{
+				Browser.document.getElementById("openfl-content").hidden = false;
+				Browser.document.body.removeChild(fallenKingdom);
+				fallenKingdom.remove();
+				Browser.document.body.removeChild(notice);
+				notice.remove();
+				playingVideo = false;
+
+				for (camera in FlxG.cameras.list)
+				{
+					camera.fade(FlxColor.BLACK, 0.5, true);
+				}
+			});
+			fallenKingdom.play();
+		}
+	}
+	#else
+	public static function playVideo(url)
+	{
+		trace("Cannot play video on Non-html5 target");
+	}
+	#end
 }

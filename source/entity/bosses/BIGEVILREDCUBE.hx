@@ -6,9 +6,12 @@ import abilities.attributes.AttributeOperation;
 import abilities.equipment.items.BasicProjectileShootingItem;
 import abilities.equipment.items.SwordItem;
 import flixel.FlxG;
+import flixel.addons.nape.FlxNapeSprite;
+import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
+import sound.FootstepManager.MultiSoundManager;
 import util.Language;
 
 class BIGEVILREDCUBE extends HumanoidEntity
@@ -16,14 +19,17 @@ class BIGEVILREDCUBE extends HumanoidEntity
 	var behaviourState = 0;
 	var lives = 1;
 	var downtime = 1.0;
+	var bits:FlxTypedSpriteGroup<FlxNapeSprite> = new FlxTypedSpriteGroup();
 
 	override public function new(x, y)
 	{
 		super(x, y);
-		loadGraphic(AssetPaths.evilmf__png);
+		loadGraphic(AssetPaths.retirement__png, true, 24, 32);
 		typeTranslationKey = "evil_cube";
 		entityName = Language.get("entity.evil_cube");
 		bossHealthBar = true;
+		animation.add("state0", [0]);
+		animation.add("state1", [1]);
 		handWeapon = new SwordItem(this);
 		rewards = new Rewards(FlxG.random.int(3, 6), true);
 		health = attributes.get(Attribute.MAX_HEALTH).getValue();
@@ -44,6 +50,14 @@ class BIGEVILREDCUBE extends HumanoidEntity
 
 	override function update(elapsed:Float)
 	{
+		if (behaviourState == 0)
+		{
+			animation.play("state0");
+		}
+		else
+		{
+			animation.play("state1");
+		}
 		if (behaviourState == 1 && health == attributes.get(Attribute.MAX_HEALTH).getValue())
 		{
 			lives = 2;
@@ -66,6 +80,22 @@ class BIGEVILREDCUBE extends HumanoidEntity
 					handWeapon = backslotWeapon;
 					switchingAnimation = 0.5;
 					health = attributes.get(Attribute.MAX_HEALTH).getValue() / 2;
+					for (i in 0...3)
+					{
+						var bit = new FlxNapeSprite(x, y, false, true);
+						bit.loadGraphic(AssetPaths.retirement_bits__png, true, 11, 13);
+						bit.animation.add("a", [i]);
+						bit.animation.play("a");
+						bit.scale.set(3, 3);
+						bit.updateHitbox();
+						bit.createRectangularBody(33, 13 * 3);
+						bit.body.velocity.setxy(FlxG.random.float(-800, 800), FlxG.random.float(-800, 800));
+						bit.body.rotate(bit.body.position, FlxG.random.float(-180, 180));
+						bit.body.space = Main.napeSpace;
+						bit.setBodyMaterial(0.5, 0.4, 0.7, 0.2, 1);
+						bits.add(bit);
+						MultiSoundManager.playRandomSound(this, "flesh", 1, 1);
+					}
 				}
 				else
 				{
@@ -191,6 +221,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 				}
 			}
 		}
+		bits.update(elapsed);
 		super.update(elapsed);
 		if (validGroundPound)
 		{
@@ -210,4 +241,9 @@ class BIGEVILREDCUBE extends HumanoidEntity
 
 	}
 	var wantsToGoDown = false;
+	override function draw()
+	{
+		bits.draw();
+		super.draw();
+	}
 }

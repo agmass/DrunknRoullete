@@ -16,7 +16,7 @@ class AttributesSlotTextShader extends FlxShader
 void main()
 {
 	vec4 color = flixel_texture2D(bitmap, openfl_TextureCoordv);
-	if (color.r >= 0.04 && color.g >= 1.0 && color.b == 0.0) {
+	if (color.g >= 1.0) {
     	gl_FragColor = vec4(openfl_TextureCoordv.y+abs(sin(elapsed+mod(openfl_TextureCoordv.x,modulo))),mod(openfl_TextureCoordv.x,modulo)+abs(sin(elapsed+openfl_TextureCoordv.y)),0.0,color.a);
 	} else {
         gl_FragColor = vec4(color.r,color.g,color.b,color.a);

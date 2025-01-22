@@ -8,6 +8,7 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import objects.Elevator;
+import shader.AttributesSlotTextShader;
 import ui.ElevatorButton;
 import util.Language;
 
@@ -31,13 +32,15 @@ class MidState extends TransitionableState
 		add(card);
 		add(text);
 		add(description);
-		text.color = FlxColor.BLACK;
+		text.color = FlxColor.fromRGB(0, 255, 0);
 		description.color = FlxColor.BLACK;
 		card.scale.set(1.5, 1.5);
 		card.updateHitbox();
 		bg.scale.set(2, 2);
 		bg.updateHitbox();
 		super.create();
+		shader.modulo.value[0] = 3;
+		text.shader = shader;
 	}
 
 	var s = 0.0;
@@ -45,10 +48,12 @@ class MidState extends TransitionableState
 	var originalAngle = 0.0;
 	var selection = 0;
 	var breath = 1.0;
+	var shader = new AttributesSlotTextShader();
 
 
 	override function update(elapsed:Float)
 	{   
+		shader.elapsed.value[0] += elapsed;
 		if (Main.run.nextBoss == null || Main.run.nextBoss.ragdoll != null || !Main.run.nextBoss.alive)
 		{
 			Main.run.nextBoss = new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2);
@@ -132,6 +137,11 @@ class MidState extends TransitionableState
 				gambleButton.animation.play("p");
 				text.text = Language.get("area.gamblezone");
 				description.text = Language.get("area.gamblezone.description");
+				description.applyMarkup(description.text, [
+					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.GRAY, false, true), "|"),
+					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.RED, false, false, FlxColor.RED.getDarkened(0.5), false), "`"),
+					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.BLUE, false, false, FlxColor.YELLOW.getDarkened(0.5), false), "@")
+				]);
 				if (gamepadAccepted)
 				{
 					TransitionableState.screengrab();
@@ -142,8 +152,16 @@ class MidState extends TransitionableState
 				continueButton.animation.play("p");
 				text.text = Language.get("entity." + Main.run.nextBoss.typeTranslationKey);
 				description.text = Language.get("entity." + Main.run.nextBoss.typeTranslationKey + ".description")
-					+ "\n\nHealth: "
-					+ Main.run.nextBoss.attributes.get(Attribute.MAX_HEALTH).refreshAndGetValue();
+					+ "\n\n`Health: "
+					+ Main.run.nextBoss.attributes.get(Attribute.MAX_HEALTH).refreshAndGetValue()
+					+ "`\n@Level "
+					+ (Main.run.roomsTraveled + 1)
+					+ " boss@";
+				description.applyMarkup(description.text, [
+					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.GRAY, false, true), "|"),
+					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.RED, false, false, FlxColor.RED.getDarkened(0.5), false), "`"),
+					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.BLUE, false, false, FlxColor.YELLOW.getDarkened(0.5), false), "@")
+				]);
 				if (gamepadAccepted)
 				{
 					TransitionableState.screengrab();

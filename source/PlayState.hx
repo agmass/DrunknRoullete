@@ -513,8 +513,10 @@ class PlayState extends TransitionableState
 			copiedPlayer.attributes = p.attributes;
 			copiedPlayer.health = p.attributes.get(Attribute.MAX_HEALTH).getValue();
 			copiedPlayer.input = p.input;
-			copiedPlayer.handWeapon = Type.createInstance(Type.getClass(p.handWeapon), [copiedPlayer]);
-			copiedPlayer.holsteredWeapon = Type.createInstance(Type.getClass(p.holsteredWeapon), [copiedPlayer]);
+			if (p.handWeapon != null)
+				copiedPlayer.handWeapon = Type.createInstance(Type.getClass(p.handWeapon), [copiedPlayer]);
+			if (p.holsteredWeapon != null)
+				copiedPlayer.holsteredWeapon = Type.createInstance(Type.getClass(p.holsteredWeapon), [copiedPlayer]);
 			newPlayerList.push(copiedPlayer);
 		});
 		Main.run.players = newPlayerList;

@@ -33,6 +33,10 @@ class MenuState extends TransitionableState
 
 	override function update(elapsed:Float)
 	{
+		if (FlxG.keys.pressed.ONE && FlxG.keys.pressed.TWO && FlxG.keys.pressed.FOUR)
+		{
+			Main.playVideo(AssetPaths.unknowncaller__mp4);
+		}
 		Main.detectConnections();
 		var gamepadAccepted = false;
 		if (Main.activeInputs.length == 0)
