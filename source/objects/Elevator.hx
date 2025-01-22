@@ -2,12 +2,15 @@ package objects;
 
 import entity.PlayerEntity;
 import flixel.FlxG;
+import flixel.text.FlxText;
 import openfl.display.BitmapData;
 import state.MidState;
+import util.Language;
 
 class Elevator extends SpriteToInteract
 {
 	public var interactable = false;
+	public var errorTip:FlxText = new FlxText(0, 0, 0, "", 19);
 
 	override public function new(x, y)
 	{
@@ -36,7 +39,24 @@ class Elevator extends SpriteToInteract
 				}
 			}
 			tooltipSprite.alpha = 0;
+		} 
+		if (showTip)
+		{
+			errorTip.alpha += elapsed * 3;
 		}
+		else
+		{
+			errorTip.alpha -= elapsed * 3;
+		}
+		errorTip.x = getGraphicMidpoint().x - (errorTip.width / 2);
+		errorTip.y = getGraphicBounds().y - errorTip.height - 20;
+	}
+
+	override function draw()
+	{
+		super.draw();
+		if (!interactable)
+			errorTip.draw();
 	}
 
 	var smallPause = -9999999999.0;
@@ -47,6 +67,8 @@ class Elevator extends SpriteToInteract
 		{
 			interactable = false;
 			animation.play("closed");
+			var ps:PlayState = cast(FlxG.state);
+			ps.playersSpawned = false;
 			p.kill();
 			smallPause = 0.4;
 			super.interact(p);

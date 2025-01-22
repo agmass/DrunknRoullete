@@ -61,7 +61,8 @@ class ControllerSource extends InputSource {
 		interactJustPressed = interact.justPressed();
 		interactFirePressed = interact.pressed();
 		ui_deny = deny.pressed();
-		ui_accept = accept.pressed();
+		ui_accept = accept.justPressed();
+		ui_hold_accept = accept.pressed();
         super.update();
 	}
 	var lastView = 0.0;

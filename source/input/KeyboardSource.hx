@@ -40,6 +40,7 @@ class KeyboardSource extends InputSource {
 		interactJustPressed = interact.justPressed();
 		interactFirePressed = interact.pressed();
 		ui_accept = accept.justPressed();
+		ui_hold_accept = accept.pressed();
 		ui_deny = deny.justPressed();
         super.update();
     }

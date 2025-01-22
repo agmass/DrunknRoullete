@@ -141,10 +141,6 @@ class Entity extends FlxSprite {
 			ragdoll.update(elapsed);
 			if (ragdoll.alpha == 0)
 			{
-				if (this is PlayerEntity)
-				{
-					FlxG.switchState(new PlayState());
-				}
 				kill();
 			}
 			return;

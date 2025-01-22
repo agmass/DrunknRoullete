@@ -27,5 +27,8 @@
     "pause.play": "Resume",
     "pause.menu": "Back to Menu",
     "button.options": "Options",
-    "button.start": "Play"
+    "button.start": "Play",
+
+    "hint.slotMachine": "Player: %1\nPress %2 to use!",
+    "hint.weaponRequired": "Get a weapon at the Wheel Of Fortune!"
 }

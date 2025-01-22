@@ -101,7 +101,7 @@ class MenuState extends TransitionableState
 				play.alpha = 1;
 				if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
 				{
-					FlxG.switchState(new MidState());
+					FlxG.switchState(new PlayState());
 				}
 			case 1:
 				options.color = FlxColor.YELLOW;

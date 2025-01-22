@@ -63,7 +63,7 @@ class PlayerEntity extends HumanoidEntity
 		manuallyUpdateSize = true;
 		typeTranslationKey = "player";
 		entityName = username;
-		holsteredWeapon = new BasicProjectileShootingItem(this);
+		// holsteredWeapon = new BasicProjectileShootingItem(this);
     }
 
     override function createAttributes() {
@@ -354,7 +354,8 @@ class PlayerEntity extends HumanoidEntity
 
 		healthBar.scale.set(0.25, 0.25);
 		healthBar.updateHitbox();
-        if (showPlayerMarker) {
+		if (showPlayerMarker && alive)
+		{
 			playerMarker.x = getMidpoint().x - (14 / 2);
 			if (healthBar.alpha > 0)
 			{
@@ -370,6 +371,7 @@ class PlayerEntity extends HumanoidEntity
 		if (trail != null)
 			trail.draw();
 		super.draw();
-		healthBar.draw();
+		if (alive)
+			healthBar.draw();
     }
 }

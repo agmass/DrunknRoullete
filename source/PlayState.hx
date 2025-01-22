@@ -33,6 +33,7 @@ import objects.FootstepChangingSprite;
 import objects.ImmovableFootstepChangingSprite;
 import objects.SlotMachine;
 import objects.SpriteToInteract;
+import objects.WheelOfFortune;
 import objects.hitbox.Hitbox;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
@@ -40,6 +41,8 @@ import openfl.display.BlendMode;
 import openfl.filters.ShaderFilter;
 import openfl.geom.Point;
 import openfl.geom.Rectangle;
+import shader.AttributesSlotTextShader;
+import state.MenuState;
 import state.TransitionableState;
 import substate.PauseSubState;
 import substate.SlotsSubState;
@@ -76,9 +79,13 @@ class PlayState extends TransitionableState
 	public var enemyLayer:FlxSpriteGroup = new FlxSpriteGroup();
 	public var gameCam:FlxCamera = new FlxCamera();
 	var HUDCam:FlxCamera = new FlxCamera();
+	public var playersSpawned = false;
 	public var elevator:Elevator = new Elevator(0, 0);
 
 	public var gameHud:InGameHUD = new InGameHUD();
+	public static var forcedBg = null;
+
+	var slotsShader = new AttributesSlotTextShader();
 
 	override function destroy()
 	{
@@ -86,15 +93,18 @@ class PlayState extends TransitionableState
 		Main.napeSpace.clear();
 		super.destroy();
 	}
+	var bgName = "";
 
 	override public function create()
 	{
 		elevator.screenCenter();
-		elevator.y = 952 - 256;
+		elevator.y = 952 - 250;
 		interactable.add(elevator);
 		if (Main.run == null)
 		{
 			Main.run = new Run();
+			forcedBg = AssetPaths._city__png;
+			playersSpawned = true;
 		}
 		else
 		{
@@ -102,13 +112,13 @@ class PlayState extends TransitionableState
 			if (Main.run.players.length > 0)
 			{
 				elevator.y = -999;
-				FlxTween.tween(elevator, {y: 951 - 256}, 2, {
+				FlxTween.tween(elevator, {y: 951 - 256}, 1.5, {
 					ease: FlxEase.sineOut,
 					onComplete: (tween) ->
 					{
 						playerLayer.forEachDead((p) ->
 						{
-							new FlxTimer().start(1, (t) ->
+							new FlxTimer().start(0.5, (t) ->
 							{
 								new FlxTimer().start(2, (t) ->
 								{
@@ -119,6 +129,7 @@ class PlayState extends TransitionableState
 								p.y = (elevator.y + elevator.height) - p.height;
 								p.x = elevator.getMidpoint().x - (p.width / 2);
 								elevator.interactable = true;
+								playersSpawned = true;
 							});
 						});
 					}
@@ -157,7 +168,12 @@ class PlayState extends TransitionableState
 		wall2.immovable = true;
 		mapLayerFront.add(wall2);
 		var enviornment = new FlxSprite(0, 0);
-		var bgName = EnviornmentsLoader.enviornments[FlxG.random.int(0, EnviornmentsLoader.enviornments.length - 1)];
+		bgName = EnviornmentsLoader.enviornments[FlxG.random.int(0, EnviornmentsLoader.enviornments.length - 1)];
+		if (forcedBg != null)
+		{
+			bgName = forcedBg;
+			forcedBg = null;
+		}
 		enviornment.loadGraphic(bgName);
 		var frames = [];
 		for (i in 0...Math.ceil(enviornment.width / 1280))
@@ -179,15 +195,42 @@ class PlayState extends TransitionableState
 		Main.subtitlesBox.visible = false;
 		Main.subtitlesBox.camera = HUDCam;
 		// playerLayer.add(new PlayerEntity(900, 20, "Player 1"));
+		slotsShader.modulo.value = [9999.99];
 		if (bgName == AssetPaths._city__png)
 		{
 			ground.footstepSoundName = "wood";
-			var slotMachine = new SlotMachine(FlxG.random.int(300, 1200), ground.y - 264);
+			elevator.x += 512;
+			var slotMachine = new SlotMachine(160 * 1.5, ground.y - (264 - 12));
 			slotMachine.loadGraphic(AssetPaths.slot_machine__png);
 			slotMachine.immovable = true;
 			slotMachine.offset.y = 12;
 			interactable.add(slotMachine);
 			slotMachine.setSize(72, 132);
+			var slotMachine = new SlotMachine(255 * 1.5, ground.y - (264 - 12));
+			slotMachine.loadGraphic(AssetPaths.slot_machine__png);
+			slotMachine.immovable = true;
+			slotMachine.offset.y = 12;
+			interactable.add(slotMachine);
+			slotMachine.setSize(72, 132);
+			var slotMachine = new SlotMachine(352 * 1.5, ground.y - (264 - 12));
+			slotMachine.loadGraphic(AssetPaths.slot_machine__png);
+			slotMachine.immovable = true;
+			slotMachine.offset.y = 12;
+			interactable.add(slotMachine);
+			slotMachine.setSize(72, 132);
+			var slotMachine = new SlotMachine(448 * 1.5, ground.y - (264 - 12));
+			slotMachine.loadGraphic(AssetPaths.slot_machine__png);
+			slotMachine.immovable = true;
+			slotMachine.offset.y = 12;
+			interactable.add(slotMachine);
+			slotMachine.setSize(72, 132);
+			var wheel = new WheelOfFortune(583 * 1.5, ground.y - (246 * 1.5));
+			wheel.loadGraphic(AssetPaths.weapon_wheel__png);
+			wheel.scale.set(2, 2);
+			wheel.updateHitbox();
+			wheel.immovable = true;
+			wheel.shader = slotsShader;
+			interactable.add(wheel);
 		}
 		if (bgName == AssetPaths.winbig__png)
 		{
@@ -224,6 +267,7 @@ class PlayState extends TransitionableState
 
 	override public function update(elapsed:Float)
 	{
+		slotsShader.elapsed.value[0] += elapsed;
 		for (sprite in interactable)
 		{
 			if (sprite is SpriteToInteract)
@@ -347,6 +391,7 @@ class PlayState extends TransitionableState
 				});
 			}
 		});
+		var alivePlayers = 0;
 		playerLayer.forEachOfType(PlayerEntity, (p) ->
 		{
 			FlxG.collide(p.hitboxes, mapLayer, (c:Hitbox, e) ->
@@ -365,6 +410,20 @@ class PlayState extends TransitionableState
 			{
 				c.onOverlapWithMap();
 			});
+			if (bgName == AssetPaths._city__png && p.alive)
+			{
+				if (p.handWeapon != null || p.holsteredWeapon != null)
+				{
+					elevator.interactable = true;
+				}
+				else
+				{
+					elevator.errorTip.text = Language.get("hint.weaponRequired");
+				}
+			}
+
+			if (p.alive)
+				alivePlayers++;
 			p.healthBar.camera = HUDCam;
 			FlxG.collide(mapLayer, p.blood, (m, p2) ->
 			{
@@ -417,6 +476,10 @@ class PlayState extends TransitionableState
 			p.showPlayerMarker = showPlayerMarker;
 			playerDebugText.text += p.toString() + "\n\n";
 		});
+		if (alivePlayers <= 0 && playersSpawned)
+		{
+			FlxG.switchState(new MenuState());
+		}
 		noEpilepsy -= elapsed;
 		if (gambaTime != -1)
 			gambaTime += elapsed;

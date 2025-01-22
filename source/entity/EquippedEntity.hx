@@ -24,7 +24,7 @@ class EquippedEntity extends Entity
 	override public function new(x, y)
 	{
 		super(x, y);
-		handWeapon = new SwordItem(this);
+		// handWeapon = new SwordItem(this);
 	}
 	override function createAttributes()
 	{

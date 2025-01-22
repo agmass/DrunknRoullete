@@ -20,6 +20,7 @@ import openfl.filters.ShaderFilter;
 import shader.AttributesSlotTextShader;
 import sound.FootstepManager.MultiSoundManager;
 import ui.Card;
+import util.Language;
 
 class SlotsSubState extends FlxSubState
 {
@@ -188,6 +189,7 @@ class SlotsSubState extends FlxSubState
 	override function update(elapsed:Float)
 	{
 		gamblingCamera.y = foregroundgamblingCamera.y + 67 * 4.218;
+		gamblingCamera.angle = foregroundgamblingCamera.angle;
 		Main.detectConnections();
 		shaderLag += elapsed;
 		if (shaderLag >= 0.1)
@@ -202,7 +204,7 @@ class SlotsSubState extends FlxSubState
 			var ps:PlayState = cast(FlxG.state);
 			ps.playerLayer.forEachOfType(PlayerEntity, (pe) ->
 			{
-				if (pe.input.ui_accept)
+				if (pe.input.ui_hold_accept)
 				{
 					if (gambaTime < 0 && p != pe)
 					{
@@ -224,7 +226,7 @@ class SlotsSubState extends FlxSubState
 
 			for (source in Main.activeInputs)
 			{
-				if (source.ui_accept)
+				if (source.ui_hold_accept)
 					startRoll = true;
 				if (source.ui_deny)
 					goBack = true;
@@ -232,14 +234,8 @@ class SlotsSubState extends FlxSubState
 		}
 		if (goBack)
 		{
-			if (gambaTime >= 0)
-			{
-				gambaTime = 1.8;
-			}
-			else
-			{
-				close();
-			}
+			FlxG.timeScale = 1;
+			close();
 		}
 		var finalSelected = null;
 		var i = -(cards.length / 2);
@@ -440,6 +436,14 @@ class SlotsSubState extends FlxSubState
 		amountText.x = 45;
 		amountText.y = 15;
 		amountText.text = p.tokens + "";
+		if (startRoll)
+		{
+			FlxG.timeScale = 1.4;
+		}
+		else
+		{
+			FlxG.timeScale = 1;
+		}
 		if (gambaTime >= 0.0)
 		{
 			if (gambaTime >= 2.0)
@@ -458,15 +462,22 @@ class SlotsSubState extends FlxSubState
 				desiredIconTwo = "";
 				desiredIconThree = "";
 				lockedInState = 0;
-				FlxTween.tween(foregroundgamblingCamera, {y: -90, angle: -3}, 0.2, {
-					ease: FlxEase.quadInOut,
+				foregroundgamblingCamera.shake(0.015, 0.1);
+				FlxTween.tween(foregroundgamblingCamera, {y: -45, angle: -3}, 0.1, {
+					ease: FlxEase.quadIn,
 					onComplete: (t) ->
 					{
-						new FlxTimer().start(0.1, (tt) ->
-						{
-							FlxTween.tween(foregroundgamblingCamera, {y: 0, angle: 0}, 0.25, {
-								ease: FlxEase.quartInOut
-							});
+						FlxTween.tween(foregroundgamblingCamera, {y: -90, angle: 2}, 0.1, {
+							ease: FlxEase.quadOut,
+							onComplete: (t) ->
+							{
+								new FlxTimer().start(0.05, (tt) ->
+								{
+									FlxTween.tween(foregroundgamblingCamera, {y: 0, angle: 0}, 0.25, {
+										ease: FlxEase.quartOut
+									});
+								});
+							}
 						});
 					}
 				});
@@ -474,7 +485,7 @@ class SlotsSubState extends FlxSubState
 				roll();
 			}
 		}
-		playerReminder.text = "Player: " + p.entityName + "\nPress " + p.input.uiAcceptName() + " to use!";
+		playerReminder.text = StringTools.replace(StringTools.replace(Language.get("hint.slotMachine"), "%1", p.entityName), "%2", p.input.uiAcceptName());
 
 		super.update(elapsed);
 	}

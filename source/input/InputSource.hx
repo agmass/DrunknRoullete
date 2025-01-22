@@ -38,6 +38,7 @@ class InputSource {
 	public var interactJustPressed = false;
 
 	public var ui_accept = false;
+	public var ui_hold_accept = false;
 	public var ui_deny = false;
 	public var lastMovement = new FlxPoint();
 

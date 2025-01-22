@@ -3,6 +3,8 @@ package entity.bosses;
 import abilities.attributes.Attribute;
 import abilities.attributes.AttributeContainer;
 import abilities.attributes.AttributeOperation;
+import abilities.equipment.items.BasicProjectileShootingItem;
+import abilities.equipment.items.SwordItem;
 import flixel.FlxG;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
@@ -21,6 +23,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		typeTranslationKey = "evil_cube";
 		entityName = "Evil Red Guy";
 		bossHealthBar = true;
+		handWeapon = new SwordItem(this);
 		rewards = new Rewards(FlxG.random.int(3, 6), true);
 		health = attributes.get(Attribute.MAX_HEALTH).getValue();
 	}
