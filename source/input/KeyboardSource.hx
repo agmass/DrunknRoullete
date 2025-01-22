@@ -17,7 +17,7 @@ class KeyboardSource extends InputSource {
 	public var interact:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.E], []);
 	public var backslot:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.F], []);
 	public var accept:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.SPACE, FlxKey.ENTER], [FlxMouseButton.getByID(FlxMouseButtonID.LEFT)]);
-	public var deny:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.ESCAPE], []);
+	public var deny:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.ESCAPE, FlxKey.B], []);
 	public var dash:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.SPACE, FlxKey.SHIFT], []);
 
 	override public function new()
