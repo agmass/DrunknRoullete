@@ -98,6 +98,7 @@ class PlayState extends TransitionableState
 	override public function create()
 	{
 		elevator.screenCenter();
+		elevator.x -= 512;
 		elevator.y = 952 - 250;
 		interactable.add(elevator);
 		if (Main.run == null)
@@ -108,9 +109,15 @@ class PlayState extends TransitionableState
 		}
 		else
 		{
-			Main.run.roomsTraveled++;
 			if (Main.run.players.length > 0)
 			{
+				if (Main.run.nextBoss != null && forcedBg == null)
+				{
+					Main.run.nextBoss.x = elevator.x + 1024;
+					Main.run.nextBoss.y = 400;
+					enemyLayer.add(Main.run.nextBoss);
+					Main.run.roomsTraveled++;
+				}
 				elevator.y = -999;
 				FlxTween.tween(elevator, {y: 951 - 256}, 1.5, {
 					ease: FlxEase.sineOut,
@@ -128,7 +135,6 @@ class PlayState extends TransitionableState
 								elevator.animation.play("open");
 								p.y = (elevator.y + elevator.height) - p.height;
 								p.x = elevator.getMidpoint().x - (p.width / 2);
-								elevator.interactable = true;
 								playersSpawned = true;
 							});
 						});
@@ -199,7 +205,7 @@ class PlayState extends TransitionableState
 		if (bgName == AssetPaths._city__png)
 		{
 			ground.footstepSoundName = "wood";
-			elevator.x += 512;
+			elevator.x += 1024;
 			var slotMachine = new SlotMachine(160 * 1.5, ground.y - (264 - 12));
 			slotMachine.loadGraphic(AssetPaths.slot_machine__png);
 			slotMachine.immovable = true;
@@ -315,10 +321,6 @@ class PlayState extends TransitionableState
 					FlxG.vcr.loadReplay(recording);
 				}
 			#end */
-		if (FlxG.keys.justPressed.I || pressedDebugSpawn)
-		{
-			enemyLayer.add(new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2));
-		}
 		if (FlxG.keys.justPressed.THREE)
 		{
 			playerDebugText.visible = !playerDebugText.visible;

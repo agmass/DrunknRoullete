@@ -9,6 +9,7 @@ import flixel.FlxG;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
+import util.Language;
 
 class BIGEVILREDCUBE extends HumanoidEntity
 {
@@ -21,7 +22,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		super(x, y);
 		loadGraphic(AssetPaths.evilmf__png);
 		typeTranslationKey = "evil_cube";
-		entityName = "Evil Red Guy";
+		entityName = Language.get("entity.evil_cube");
 		bossHealthBar = true;
 		handWeapon = new SwordItem(this);
 		rewards = new Rewards(FlxG.random.int(3, 6), true);
@@ -34,8 +35,8 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		attributes.set(Attribute.SIZE_X, new Attribute(6, true));
 		attributes.set(Attribute.SIZE_Y, new Attribute(6, true));
 		attributes.set(Attribute.ATTACK_SPEED, new Attribute(3.5 + FlxG.random.float(-0.5, 0.5), true));
-		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(100 + FlxG.random.int(-10, 100), true));
-		attributes.set(Attribute.MAX_HEALTH, new Attribute(200 + FlxG.random.int(-10, 100), true));
+		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(100 + FlxG.random.int(10 * (Main.run.roomsTraveled - 1), 10 * Main.run.roomsTraveled), true));
+		attributes.set(Attribute.MAX_HEALTH, new Attribute(200 + FlxG.random.int(10 * (Main.run.roomsTraveled - 1), 10 * Main.run.roomsTraveled), true));
 	}
 
 	var downscale = new AttributeContainer(AttributeOperation.MULTIPLY, 0.5);
@@ -43,6 +44,11 @@ class BIGEVILREDCUBE extends HumanoidEntity
 
 	override function update(elapsed:Float)
 	{
+		if (behaviourState == 1 && health == attributes.get(Attribute.MAX_HEALTH).getValue())
+		{
+			lives = 2;
+			health = 0;
+		}
 		if (health <= 0)
 		{
 			if (lives > 0)
@@ -52,7 +58,6 @@ class BIGEVILREDCUBE extends HumanoidEntity
 				{
 					attributes.get(Attribute.SIZE_X).addOperation(downscale);
 					attributes.get(Attribute.SIZE_Y).addOperation(downscale);
-					attributes.get(Attribute.MAX_HEALTH).addOperation(downscale);
 					attributes.get(Attribute.ATTACK_SPEED).addOperation(downscale);
 					attributes.get(Attribute.MOVEMENT_SPEED).addOperation(upscale);
 					behaviourState = 1;
@@ -60,12 +65,12 @@ class BIGEVILREDCUBE extends HumanoidEntity
 					holsteredWeapon = handWeapon;
 					handWeapon = backslotWeapon;
 					switchingAnimation = 0.5;
+					health = attributes.get(Attribute.MAX_HEALTH).getValue() / 2;
 				}
 				else
 				{
 					attributes.get(Attribute.SIZE_X).removeOperation(downscale);
 					attributes.get(Attribute.SIZE_Y).removeOperation(downscale);
-					attributes.get(Attribute.MAX_HEALTH).removeOperation(downscale);
 					attributes.get(Attribute.ATTACK_SPEED).removeOperation(downscale);
 					attributes.get(Attribute.MOVEMENT_SPEED).removeOperation(upscale);
 					behaviourState = 0;
@@ -73,8 +78,8 @@ class BIGEVILREDCUBE extends HumanoidEntity
 					holsteredWeapon = handWeapon;
 					handWeapon = backslotWeapon;
 					switchingAnimation = 0.5;
+					health = attributes.get(Attribute.MAX_HEALTH).getValue();
 				}
-				health = attributes.get(Attribute.MAX_HEALTH).getValue();
 			}
 		}
 		var SPEED = attributes.get(Attribute.MOVEMENT_SPEED).getValue();
@@ -163,6 +168,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		var validGroundPound = false;
 		if (behaviourState == 1 && downtime < 0)
 		{
+			health += elapsed * 8;
 			if (closest != null)
 			{
 				flipX = closest.x < x;

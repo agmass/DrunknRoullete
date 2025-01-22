@@ -134,7 +134,7 @@ class Entity extends FlxSprite {
 			ragdoll.body.rotate(ragdoll.body.position, FlxG.random.float(-180, 180) * FlxAngle.TO_RAD);
 			ragdoll.body.velocity.setxy(FlxG.random.int(-400, 400), FlxG.random.int(-400, 400));
 			ragdoll.setBodyMaterial(0.05, 0.9, 1.6, 20, 1);
-			FlxTween.tween(ragdoll, {alpha: 0}, 6);
+			FlxTween.tween(ragdoll, {alpha: 0}, 3);
 		}
 		if (ragdoll != null)
 		{

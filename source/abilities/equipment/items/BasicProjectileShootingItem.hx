@@ -90,8 +90,8 @@ class BasicProjectileShootingItem extends Equipment
 			burstCool -= elapsed;
 			if (burstCool <= 0)
 			{
-				burstCool = 0.1;
-				angle = angle + burst + FlxG.random.float(-15, 15);
+				burstCool = 0.025;
+				angle = angle + burst + FlxG.random.float(-30, 30);
 				attack(wielder);
 				burst++;
 			}
