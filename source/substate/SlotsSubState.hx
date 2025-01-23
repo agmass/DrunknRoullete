@@ -26,7 +26,7 @@ class SlotsSubState extends FlxSubState
 {
 	public var p:PlayerEntity;
 	public var token:FlxSprite = new FlxSprite(0, 0, AssetPaths.token__png);
-	public var amountText:FlxText = new FlxText(0, 0, 0, "0", 24);
+	public var amountText:FlxText = new FlxText(0, 0, 0, "0", 24 * 3);
 	public var attributesRollGroup:FlxSpriteGroup = new FlxSpriteGroup();
 	public var operationRollGroup:FlxSpriteGroup = new FlxSpriteGroup();
 	public var cards:FlxTypedSpriteGroup<Card> = new FlxTypedSpriteGroup<Card>();
@@ -114,8 +114,6 @@ class SlotsSubState extends FlxSubState
 		middle = bg.y;
 		bg3 = bg;
 		add(bg);
-		add(token);
-		add(amountText);
 		for (i in -1...1)
 		{
 			var attribute:FlxSprite = new FlxSprite().loadGraphic(attributeIcons[FlxG.random.int(0, attributeIcons.length - 1)]);
@@ -156,11 +154,16 @@ class SlotsSubState extends FlxSubState
 		createCards();
 		add(cards);
 		playerReminder.camera = foregroundgamblingCamera;
+		token.camera = foregroundgamblingCamera;
+		amountText.camera = foregroundgamblingCamera;
 		playerReminder.x = slotsMachine.x + (4.21875 * 34);
 		playerReminder.y = slotsMachine.y + (4.21875 * 173);
 		playerReminder.color = FlxColor.BLACK;
+		amountText.color = FlxColor.BLACK;
 		add(playerReminder);
 		add(Main.subtitlesBox);
+		add(token);
+		add(amountText);
 		super.create();
 	}
 
@@ -180,6 +183,7 @@ class SlotsSubState extends FlxSubState
 
 	override function destroy()
 	{
+		FlxTween.cancelTweensOf(amountText);
 		remove(Main.subtitlesBox);
 		FlxG.cameras.remove(gamblingCamera);
 		FlxG.cameras.remove(foregroundgamblingCamera);
@@ -430,11 +434,12 @@ class SlotsSubState extends FlxSubState
 				}
 			}
 		}
-		token.x = 20;
-		token.y = 20;
-		token.scale.set(2, 2);
-		amountText.x = 45;
-		amountText.y = 15;
+		token.x = playerReminder.x;
+		token.y = playerReminder.getGraphicBounds().bottom + 20;
+		token.scale.set(5, 5);
+		token.updateHitbox();
+		amountText.x = playerReminder.x + token.width + 10;
+		amountText.y = token.y;
 		amountText.text = p.tokens + "";
 		if (startRoll)
 		{
@@ -458,31 +463,40 @@ class SlotsSubState extends FlxSubState
 		{
 			if (startRoll)
 			{
-				desiredIconOne = "";
-				desiredIconTwo = "";
-				desiredIconThree = "";
-				lockedInState = 0;
-				foregroundgamblingCamera.shake(0.015, 0.1);
-				FlxTween.tween(foregroundgamblingCamera, {y: -45, angle: -3}, 0.1, {
-					ease: FlxEase.quadIn,
-					onComplete: (t) ->
-					{
-						FlxTween.tween(foregroundgamblingCamera, {y: -90, angle: 2}, 0.1, {
-							ease: FlxEase.quadOut,
-							onComplete: (t) ->
-							{
-								new FlxTimer().start(0.05, (tt) ->
+				if (p.tokens > 0)
+				{
+					p.tokens--;
+					desiredIconOne = "";
+					desiredIconTwo = "";
+					desiredIconThree = "";
+					lockedInState = 0;
+					foregroundgamblingCamera.shake(0.015, 0.1);
+					FlxTween.tween(foregroundgamblingCamera, {y: -45, angle: -3}, 0.1, {
+						ease: FlxEase.quadIn,
+						onComplete: (t) ->
+						{
+							FlxTween.tween(foregroundgamblingCamera, {y: -90, angle: 2}, 0.1, {
+								ease: FlxEase.quadOut,
+								onComplete: (t) ->
 								{
-									FlxTween.tween(foregroundgamblingCamera, {y: 0, angle: 0}, 0.25, {
-										ease: FlxEase.quartOut
+									new FlxTimer().start(0.05, (tt) ->
+									{
+										FlxTween.tween(foregroundgamblingCamera, {y: 0, angle: 0}, 0.25, {
+											ease: FlxEase.quartOut
+										});
 									});
-								});
-							}
-						});
-					}
-				});
-				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "lever_pull", FlxG.random.float(0.9, 1.1), 1);
-				roll();
+								}
+							});
+						}
+					});
+					MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "lever_pull", FlxG.random.float(0.9, 1.1), 1);
+					roll();
+				}
+				else
+				{
+					amountText.color = FlxColor.RED;
+					FlxTween.color(amountText, 0.65, FlxColor.RED, FlxColor.BLACK, {ease: FlxEase.sineOut});
+				}
 			}
 		}
 		playerReminder.text = StringTools.replace(StringTools.replace(Language.get("hint.slotMachine"), "%1", p.entityName), "%2", p.input.uiAcceptName());

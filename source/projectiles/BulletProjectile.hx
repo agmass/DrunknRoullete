@@ -47,7 +47,7 @@ class BulletProjectile extends Projectile
 			return;
 		}
 		hitEntities.push(entity.ID);
-		entity.damage(15, shooter);
+		entity.damage(12, shooter);
 		FlxG.camera.shake(0.001, 0.05);
 		hitEntity = true;
 		entity.velocity = velocity.scaleNew(shooter.attributes.get(Attribute.ATTACK_KNOCKBACK).getValue()).scalePoint(new FlxPoint(3, 1.5));
