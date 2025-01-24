@@ -26,6 +26,7 @@ class BulletProjectile extends Projectile
 
 	override function onOverlapWithMap()
 	{
+		dropTime -= 0.5;
 		super.onOverlapWithMap();
 	}
 
@@ -46,6 +47,10 @@ class BulletProjectile extends Projectile
 		{
 			return;
 		}
+		if (dropTime <= -3.5)
+		{
+			return;
+		}
 		hitEntities.push(entity.ID);
 		entity.damage(12, shooter);
 		FlxG.camera.shake(0.001, 0.05);
@@ -53,6 +58,7 @@ class BulletProjectile extends Projectile
 		entity.velocity = velocity.scaleNew(shooter.attributes.get(Attribute.ATTACK_KNOCKBACK).getValue()).scalePoint(new FlxPoint(3, 1.5));
 		super.onOverlapWithEntity(entity);
 	}
+
 
 	override function update(elapsed:Float)
 	{

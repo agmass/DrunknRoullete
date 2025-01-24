@@ -25,6 +25,7 @@ class ControllerSource extends InputSource {
 	public var interact:ButtonControllerInput;
 	public var accept:ButtonControllerInput;
 	public var deny:ButtonControllerInput;
+	public var menu:ButtonControllerInput;
     public var gamepad:FlxGamepad;
 
     public function new(gamepad:FlxGamepad) {
@@ -44,6 +45,7 @@ class ControllerSource extends InputSource {
 		interact = new ButtonControllerInput(gamepad, [FlxGamepadInputID.X]);
 		accept = new ButtonControllerInput(gamepad, [FlxGamepadInputID.A]);
 		deny = new ButtonControllerInput(gamepad, [FlxGamepadInputID.B]);
+		menu = new ButtonControllerInput(gamepad, [FlxGamepadInputID.START]);
     }
 
 
@@ -63,6 +65,7 @@ class ControllerSource extends InputSource {
 		ui_deny = deny.pressed();
 		ui_accept = accept.justPressed();
 		ui_hold_accept = accept.pressed();
+		ui_menu = menu.justPressed();
         super.update();
 	}
 	var lastView = 0.0;

@@ -266,7 +266,10 @@ class PlayerEntity extends HumanoidEntity
 			dashMovement.y = FlxMath.lerp(dashMovement.y, 0, elapsed * 3);
 		}
 
-		healthBar.alpha -= elapsed * 0.35;
+		if (!bossHealthBar)
+		{
+			healthBar.alpha -= elapsed * 0.35;
+		}
 		// health bar
 
 
@@ -349,11 +352,14 @@ class PlayerEntity extends HumanoidEntity
     var playerMarker:FlxSprite = new FlxSprite(0,0,AssetPaths.player_marker__png);
 
     override function draw() {
-		healthBar.x = getMidpoint().x - (healthBar.width / 2);
-		healthBar.y = getGraphicBounds().y - 12;
+		if (!bossHealthBar)
+		{
+			healthBar.x = getMidpoint().x - (healthBar.width / 2);
+			healthBar.y = getGraphicBounds().y - 12;
 
-		healthBar.scale.set(0.25, 0.25);
-		healthBar.updateHitbox();
+			healthBar.scale.set(0.25, 0.25);
+			healthBar.updateHitbox();
+		}
 		if (showPlayerMarker && alive)
 		{
 			playerMarker.x = getMidpoint().x - (14 / 2);

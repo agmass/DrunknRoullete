@@ -111,17 +111,20 @@ class Entity extends FlxSprite {
 				if (rewards != null)
 				{
 					var ps:PlayState = cast(FlxG.state);
+					if (rewards.opensElevator)
+					{
+						Main.run.combo++;
+						ps.elevator.interactable = true;
+					}
 					if (rewards.tokens > 0)
 					{
 						var b = rewards.tokens;
+						ps.originalTokens = b;
+						ps.tokensTime = 0.75;
 						ps.playerLayer.forEachOfType(PlayerEntity, (p) ->
 						{
-							p.tokens += b;
+							p.tokens += b * Main.run.combo;
 						});
-					}
-					if (rewards.opensElevator)
-					{
-						ps.elevator.interactable = true;
 					}
 				}
 			}

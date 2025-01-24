@@ -19,6 +19,7 @@ class KeyboardSource extends InputSource {
 	public var accept:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.SPACE, FlxKey.ENTER], [FlxMouseButton.getByID(FlxMouseButtonID.LEFT)]);
 	public var deny:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.ESCAPE, FlxKey.B], []);
 	public var dash:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.SPACE, FlxKey.SHIFT], []);
+	public var menu:KeyOrMouseInput = new KeyOrMouseInput([FlxKey.ESCAPE], []);
 
 	override public function new()
 	{
@@ -42,6 +43,7 @@ class KeyboardSource extends InputSource {
 		ui_accept = accept.justPressed();
 		ui_hold_accept = accept.pressed();
 		ui_deny = deny.justPressed();
+		ui_menu = menu.justPressed();
         super.update();
     }
 

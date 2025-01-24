@@ -45,6 +45,9 @@ class Main extends Sprite
 		\"Empty Weapons (Sound effect)\" by BoostSound
 		https://www.youtube.com/watch?v=dBJUIYv52Xw
 
+		\"Spin Prize Wheel Sound Effects All Sounds\" by All Sounds
+		https://www.youtube.com/watch?v=FvGBTtaV-6U
+
 
 		All following sounds are by creators from Pixabay.
 
@@ -82,6 +85,7 @@ class Main extends Sprite
 	public function new()
 	{
 		super();
+		FlxG.save.bind("brj2025");
 		trace(attribution);
 		FPS = new FPS(0, 20, FlxColor.WHITE);
 		addChild(FPS);
@@ -132,6 +136,10 @@ class Main extends Sprite
 		for (source in activeInputs)
 		{
 			source.update();
+			if (FlxG.save.data.disableKeyboard && source is KeyboardSource)
+			{
+				activeInputs.remove(source);
+			}
 		}
 		if (FlxG.keys.justPressed.O)
 			FlxG.fullscreen = !FlxG.fullscreen;
@@ -148,6 +156,8 @@ class Main extends Sprite
 		{
 			if (!kbmConnected)
 			{
+				if (FlxG.save.data.disableKeyboard)
+					return;
 				kbmConnected = true;
 				connectionsDirty = true;
 				activeInputs.push(new KeyboardSource());

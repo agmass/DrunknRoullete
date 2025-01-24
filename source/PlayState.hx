@@ -42,6 +42,8 @@ import openfl.filters.ShaderFilter;
 import openfl.geom.Point;
 import openfl.geom.Rectangle;
 import shader.AttributesSlotTextShader;
+import shader.ChromaticShader;
+import sound.FootstepManager.MultiSoundManager;
 import state.MenuState;
 import state.TransitionableState;
 import substate.PauseSubState;
@@ -86,9 +88,11 @@ class PlayState extends TransitionableState
 	public static var forcedBg = null;
 
 	var slotsShader = new AttributesSlotTextShader();
+	var tokensText:FlxText = new FlxText(0, 0, 0, "0 TOKENS", 64);
 
 	override function destroy()
 	{
+		remove(Main.subtitlesBox);
 		saveToRun();
 		Main.napeSpace.clear();
 		super.destroy();
@@ -97,9 +101,12 @@ class PlayState extends TransitionableState
 
 	override public function create()
 	{
+		FlxG.save.bind("brj2025");
 		elevator.screenCenter();
 		elevator.x -= 512;
-		elevator.y = 952 - 250;
+		elevator.y = 535 * 1.5;
+		elevator.scale.set(1.5, 1.5);
+		elevator.updateHitbox();
 		interactable.add(elevator);
 		if (Main.run == null)
 		{
@@ -118,28 +125,6 @@ class PlayState extends TransitionableState
 					enemyLayer.add(Main.run.nextBoss);
 					Main.run.roomsTraveled++;
 				}
-				elevator.y = -999;
-				FlxTween.tween(elevator, {y: 951 - 256}, 1.5, {
-					ease: FlxEase.sineOut,
-					onComplete: (tween) ->
-					{
-						playerLayer.forEachDead((p) ->
-						{
-							new FlxTimer().start(0.5, (t) ->
-							{
-								new FlxTimer().start(2, (t) ->
-								{
-									elevator.animation.play("closed");
-								});
-								p.revive();
-								elevator.animation.play("open");
-								p.y = (elevator.y + elevator.height) - p.height;
-								p.x = elevator.getMidpoint().x - (p.width / 2);
-								playersSpawned = true;
-							});
-						});
-					}
-				});
 				for (player in Main.run.players)
 				{
 					playerLayer.add(player);
@@ -147,6 +132,28 @@ class PlayState extends TransitionableState
 					takenInputs.push(player.input);
 					player.kill();
 				}
+				playerLayer.forEachOfType(PlayerEntity, (p) ->
+				{
+					if (p.alive)
+						return;
+					new FlxTimer().start(1.5, (t) ->
+					{
+						new FlxTimer().start(2, (t) ->
+						{
+							elevator.animation.play("closed");
+						});
+						p.revive();
+						if (bgName == AssetPaths._city__png)
+						{
+							Main.run.combo = 0;
+							p.health = p.attributes.get(Attribute.MAX_HEALTH).getValue();
+						}
+						elevator.animation.play("open");
+						p.y = (elevator.y + elevator.height) - p.height;
+						p.x = elevator.getMidpoint().x - (p.width / 2);
+						playersSpawned = true;
+					});
+				});
 			}
 		}
 		Main.audioPanner = new FlxSprite(FlxG.width / 2, FlxG.height / 2);
@@ -205,39 +212,36 @@ class PlayState extends TransitionableState
 		if (bgName == AssetPaths._city__png)
 		{
 			ground.footstepSoundName = "wood";
-			elevator.x += 1024;
-			var slotMachine = new SlotMachine(160 * 1.5, ground.y - (264 - 12));
+			elevator.x = 939 * 1.5;
+			var slotMachine = new SlotMachine(160 * 1.5, 546 * 1.5);
 			slotMachine.loadGraphic(AssetPaths.slot_machine__png);
 			slotMachine.immovable = true;
-			slotMachine.offset.y = 12;
 			interactable.add(slotMachine);
-			slotMachine.setSize(72, 132);
-			var slotMachine = new SlotMachine(255 * 1.5, ground.y - (264 - 12));
+			if (!FlxG.save.data.shadersDisabled)
+				slotMachine.shader = slotsShader;
+			var slotMachine = new SlotMachine(255 * 1.5, 546 * 1.5);
 			slotMachine.loadGraphic(AssetPaths.slot_machine__png);
 			slotMachine.immovable = true;
-			slotMachine.offset.y = 12;
 			interactable.add(slotMachine);
-			slotMachine.setSize(72, 132);
-			var slotMachine = new SlotMachine(352 * 1.5, ground.y - (264 - 12));
+			if (!FlxG.save.data.shadersDisabled)
+				slotMachine.shader = slotsShader;
+			var slotMachine = new SlotMachine(352 * 1.5, 546 * 1.5);
 			slotMachine.loadGraphic(AssetPaths.slot_machine__png);
 			slotMachine.immovable = true;
-			slotMachine.offset.y = 12;
 			interactable.add(slotMachine);
-			slotMachine.setSize(72, 132);
-			var slotMachine = new SlotMachine(448 * 1.5, ground.y - (264 - 12));
-			slotMachine.loadGraphic(AssetPaths.slot_machine__png);
-			slotMachine.immovable = true;
-			slotMachine.offset.y = 12;
-			interactable.add(slotMachine);
-			slotMachine.setSize(72, 132);
+			if (!FlxG.save.data.shadersDisabled)
+				slotMachine.shader = slotsShader;
 			var wheel = new WheelOfFortune(583 * 1.5, ground.y - (246 * 1.5));
 			wheel.loadGraphic(AssetPaths.weapon_wheel__png);
 			wheel.scale.set(2, 2);
 			wheel.updateHitbox();
 			wheel.immovable = true;
+			if (!FlxG.save.data.shadersDisabled)
 			wheel.shader = slotsShader;
 			interactable.add(wheel);
 		}
+		if (!FlxG.save.data.shadersDisabled)
+			gameCam.filters = [new ShaderFilter(chrome)];
 		if (bgName == AssetPaths.winbig__png)
 		{
 			ground.footstepSoundName = "carpet";
@@ -265,14 +269,79 @@ class PlayState extends TransitionableState
 		add(playerDebugText);
 		gameHud.camera = HUDCam;
 		add(gameHud);
+		tokensText.camera = HUDCam;
+		add(tokensText);
 		super.create();
 	}
 	var takenInputs = [];
+	var oldChrome = 0.00001;
 	var kmbConnected = false;
 
+	public var tokensTime = 0.0;
+	public var originalTokens = 0.0;
+
+	var chrome = new ChromaticShader();
+	var chromeLerp = 0.0;
+
+	override function closeSubState()
+	{
+		if (FlxG.save.data.shadersDisabled)
+		{
+			gameCam.filters = [];
+			forEachOfType(FlxSprite, (b) ->
+			{
+				b.shader = null;
+			}, true);
+		}
+
+		super.closeSubState();
+	}
+
+	var tokensState = 0;
 
 	override public function update(elapsed:Float)
 	{
+		if (tokensTime > 0)
+		{
+			FlxG.timeScale = 0.2;
+			tokensText.visible = true;
+			tokensText.color = FlxColor.CYAN;
+			tokensText.screenCenter();
+			if (tokensTime == 0.75)
+			{
+				tokensState = 0;
+				tokensText.text = originalTokens + " TOKENS";
+				HUDCam.shake(0.0015, 0.1);
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "coin", 0.8);
+			}
+			if (tokensTime <= 0.5 && tokensState == 0)
+			{
+				if (Main.run.combo == 0)
+				{
+					tokensTime = -0.1;
+				}
+				else
+				{
+					tokensText.text = "COMBO x" + Main.run.combo;
+					tokensState = 1;
+					HUDCam.shake(0.0015, 0.1);
+					MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "coin", 1);
+				}
+			}
+			if (tokensTime <= 0.25 && tokensState == 1)
+			{
+				tokensText.text = (originalTokens * Main.run.combo) + " TOKENS";
+				tokensState = 2;
+				HUDCam.shake(0.0015, 0.1);
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "coin", 1.2);
+			}
+			tokensTime -= elapsed;
+		}
+		else
+		{
+			tokensText.visible = false;
+			FlxG.timeScale = 1;
+		}
 		slotsShader.elapsed.value[0] += elapsed;
 		for (sprite in interactable)
 		{
@@ -325,10 +394,7 @@ class PlayState extends TransitionableState
 		{
 			playerDebugText.visible = !playerDebugText.visible;
 		}
-		if (FlxG.keys.justPressed.K)
-		{
-			Main.subtitlesBox.visible = !Main.subtitlesBox.visible;
-		}
+		Main.subtitlesBox.visible = FlxG.save.data.subtitles;
 		if (Main.subtitlesBox.visible && !members.contains(Main.subtitlesBox))
 			add(Main.subtitlesBox);
 			
@@ -366,6 +432,22 @@ class PlayState extends TransitionableState
 		});
 		enemyLayer.forEachOfType(EquippedEntity, (p) ->
 		{
+			FlxG.collide(p.hitboxes, mapLayer, (c:Hitbox, e) ->
+			{
+				c.onHitWall();
+			});
+			FlxG.overlap(p.collideables, enemyLayer, (c:Projectile, e:Entity) ->
+			{
+				c.onOverlapWithEntity(e);
+			});
+			FlxG.overlap(p.collideables, playerLayer, (c:Projectile, e:Entity) ->
+			{
+				c.onOverlapWithEntity(e);
+			});
+			FlxG.overlap(p.collideables, mapLayer, (c:Projectile, e:Entity) ->
+			{
+				c.onOverlapWithMap();
+			});
 			FlxG.collide(mapLayer, p.blood, (m, p2) ->
 			{
 				if (p2 is FlxParticle)
@@ -394,8 +476,11 @@ class PlayState extends TransitionableState
 			}
 		});
 		var alivePlayers = 0;
+		var playerHealth = 0.0;
 		playerLayer.forEachOfType(PlayerEntity, (p) ->
 		{
+			if (p.alive)
+				playerHealth = p.health;
 			FlxG.collide(p.hitboxes, mapLayer, (c:Hitbox, e) ->
 			{
 				c.onHitWall();
@@ -406,6 +491,8 @@ class PlayState extends TransitionableState
 			});
 			FlxG.overlap(p.collideables, playerLayer, (c:Projectile, e:Entity) ->
 			{
+				if (!FlxG.save.data.friendlyFire && e != p)
+					return;
 				c.onOverlapWithEntity(e);
 			});
 			FlxG.overlap(p.collideables, mapLayer, (c:Projectile, e:Entity) ->
@@ -443,6 +530,8 @@ class PlayState extends TransitionableState
 					{
 						if (h is Hitbox)
 						{
+							if (!FlxG.save.data.friendlyFire && e != p && e is PlayerEntity)
+								return;
 							var e2:Entity = cast(e);
 							var hitbox:Hitbox = cast(h);
 							if (!hitbox.hitEntities.contains(e2))
@@ -453,7 +542,7 @@ class PlayState extends TransitionableState
 					}
 				});
 			}
-			if (FlxG.keys.justPressed.ESCAPE)
+			if (p.input.ui_menu)
 			{
 				var tempState:PauseSubState = new PauseSubState();
 				openSubState(tempState);
@@ -478,6 +567,16 @@ class PlayState extends TransitionableState
 			p.showPlayerMarker = showPlayerMarker;
 			playerDebugText.text += p.toString() + "\n\n";
 		});
+		if (alivePlayers == 1 && playerHealth <= 50)
+		{
+			chromeLerp += elapsed;
+			if (chromeLerp > 1)
+			{
+				chromeLerp = 0;
+			}
+			chrome.setChrome(FlxMath.lerp(oldChrome, 0.05 / playerHealth, chromeLerp));
+			oldChrome = FlxMath.lerp(oldChrome, 0.05 / playerHealth, chromeLerp);
+		}
 		if (alivePlayers <= 0 && playersSpawned)
 		{
 			FlxG.switchState(new MenuState());
@@ -509,9 +608,13 @@ class PlayState extends TransitionableState
 		var newPlayerList = [];
 		playerLayer.forEachOfType(PlayerEntity, (p) ->
 		{
+			if (!Main.activeInputs.contains(p.input))
+			{
+				return;
+			}
 			var copiedPlayer:PlayerEntity = new PlayerEntity(0, 0, p.entityName);
 			copiedPlayer.attributes = p.attributes;
-			copiedPlayer.health = p.attributes.get(Attribute.MAX_HEALTH).getValue();
+			copiedPlayer.health = p.health;
 			copiedPlayer.input = p.input;
 			copiedPlayer.tokens = p.tokens;
 			if (p.handWeapon != null)

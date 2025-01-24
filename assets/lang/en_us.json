@@ -14,8 +14,11 @@
     "attribute.player.jump_count": "Jump Count",
     "attribute.player.crit_chance": "Critical Hit Chance",
     "entity.player": "Player Entity",
+    "entity.player.description": "It's... you?",
     "entity.evil_cube": "Retirement Monolith",
     "entity.evil_cube.description": "A monolith of retired grandparents mindlessly pressing away at slots. When killed once, will become smaller and attempt to @ground pound@ instead of attack.",
+    "entity.robot": "PLAYER-3000",
+    "entity.robot.description": "A digital copy of yourself, designed for maximum effeciency combat against intruders in all the same ways they; you; would attack.",
     "entity.basic": "Unregistered Entity",
 
     "subtitle.footsteps": "Footsteps",
@@ -25,6 +28,12 @@
     "subtitle.swing": "Bottle Swooshing",
     "subtitle.dash": "Dash",
     "subtitle.out_of_ammo": "Gun Out Of Ammo",
+    "subtitle.flesh": "Blood Spill",
+    "subtitle.wheel": "Wheel Spin",
+    "subtitle.shoot": "Bullet Shoot",
+    "subtitle.pickup_bullet": "Gun Reload",
+    "subtitle.lever_pull": "Lever Pull",
+    "subtitle.slots_hit": "Slots Hit",
 
     "pause.play": "Resume",
     "pause.menu": "Back to Menu",
@@ -34,5 +43,5 @@
     "hint.slotMachine": "Player: %1\nPress %2 to use!",
     "hint.weaponRequired": "Get a weapon at the Wheel Of Fortune!",
     "area.gamblezone": "The GambleZone",
-    "area.gamblezone.description": "Gamble away all your earned @tokens@ for new @weapons@ and @attributes@!\n\n|*The GambleZone is not responsible for potential health loss, newly created handicaps, enlargement, the breaking of kneecaps, etc.|"
+    "area.gamblezone.description": "`Return here to heal to full health, but will remove your combo!`\nGamble away all your earned @tokens@ for new @weapons@ and @attributes@!\n\n|*The GambleZone is not responsible for potential health loss, newly created handicaps, enlargement, the breaking of kneecaps, etc.|"
 }

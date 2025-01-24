@@ -15,9 +15,9 @@ class Elevator extends SpriteToInteract
 	override public function new(x, y)
 	{
 		super(x, y);
-		loadGraphic(AssetPaths.elevator__png, true, 256, 256);
-		animation.add("open", [0]);
-		animation.add("closed", [1]);
+		loadGraphic(AssetPaths.elevator__png, true, 83, 103);
+		animation.add("open", [1]);
+		animation.add("closed", [0]);
 		animation.play("closed");
 	}
 

@@ -137,7 +137,7 @@ class PauseSubState extends FlxSubState
 			menu.color = FlxColor.WHITE;
 			menu.scale.set(0.75, 0.75);
 			menu.alpha = 0.75;
-			saves.color = FlxColor.GRAY;
+			saves.color = FlxColor.WHITE;
 			saves.scale.set(0.75, 0.75);
 			saves.alpha = 0.75;
 			if (FlxG.mouse.overlaps(play) && selection != 0)
@@ -175,13 +175,13 @@ class PauseSubState extends FlxSubState
 						FlxG.switchState(new MenuState());
 					}
 				case 2:
-					// saves.color = FlxColor.YELLOW;
+					saves.color = FlxColor.YELLOW;
 					saves.scale.set(1.25, 1.25);
 					saves.alpha = 1;
 					if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
 					{
-						// var tempState:OptionsSubState = new OptionsSubState();
-						// openSubState(tempState);
+						var tempState:SettingsSubState = new SettingsSubState();
+						openSubState(tempState);
 					}
 			}
 		}

@@ -2,6 +2,7 @@ package state;
 
 import abilities.attributes.Attribute;
 import entity.bosses.BIGEVILREDCUBE;
+import entity.bosses.RobotBoss;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxMath;
@@ -20,18 +21,24 @@ class MidState extends TransitionableState
 	public var continueButton:ElevatorButton = new ElevatorButton(0);
 	var card:FlxSprite = new FlxSprite(0, 0, AssetPaths.attribute_bg__png);
 	var text:FlxText = new FlxText(0, 0, 0, "", 24);
+	var combo:FlxText = new FlxText(0, 0, 0, "COMBO x0", 32);
 	var description:FlxText = new FlxText(0, 0, 240 * 1.5, "", 13);
 
 	override function create()
 	{
-		elevator.screenCenter();
+		FlxG.save.bind("brj2025");
 		add(elevator);
+		elevator.screenCenter();
+		elevator.scale.set(2.485436893, 2.485436893);
+		elevator.updateHitbox();
+		elevator.screenCenter();
 		add(bg);
 		add(gambleButton);
 		add(continueButton);
 		add(card);
 		add(text);
 		add(description);
+		add(combo);
 		text.color = FlxColor.fromRGB(0, 255, 0);
 		description.color = FlxColor.BLACK;
 		card.scale.set(1.5, 1.5);
@@ -40,7 +47,14 @@ class MidState extends TransitionableState
 		bg.updateHitbox();
 		super.create();
 		shader.modulo.value[0] = 3;
-		text.shader = shader;
+		if (!FlxG.save.data.shadersDisabled)
+		{
+			text.shader = shader;
+		}
+		else
+		{
+			text.color = FlxColor.BLACK;
+		}
 	}
 
 	var s = 0.0;
@@ -56,7 +70,10 @@ class MidState extends TransitionableState
 		shader.elapsed.value[0] += elapsed;
 		if (Main.run.nextBoss == null || Main.run.nextBoss.ragdoll != null || !Main.run.nextBoss.alive)
 		{
-			Main.run.nextBoss = new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2);
+			Main.run.nextBoss = [
+				new RobotBoss(FlxG.width / 2, FlxG.height / 2),
+				new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2)
+			][FlxG.random.int(0, 1)];
 		}
 		Main.detectConnections();
 		var gamepadAccepted = false;
@@ -86,6 +103,9 @@ class MidState extends TransitionableState
 		bg.y = elevator.y - 128;
 		card.x = elevator.x + (card.width + 120);
 		card.y = elevator.y;
+		combo.y = elevator.getGraphicBounds().bottom + 20;
+		combo.screenCenter(X);
+		combo.text = "COMBO x" + Main.run.combo; 
 		gambleButton.x = bg.getGraphicMidpoint().x - (gambleButton.width / 2);
 		gambleButton.y = (bg.getGraphicMidpoint().y - (gambleButton.height / 2)) - 100;
 		continueButton.x = bg.getGraphicMidpoint().x - (continueButton.width / 2);
@@ -99,6 +119,7 @@ class MidState extends TransitionableState
 			breath = 0;
 			targetAngle = FlxG.random.float(-8, 8);
 			originalAngle = elevator.angle;
+
 		}
 		if (FlxG.keys.justPressed.P)
 		{

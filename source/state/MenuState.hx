@@ -8,6 +8,7 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import openfl.display.BitmapData;
+import substate.SettingsSubState;
 import util.Language;
 
 class MenuState extends TransitionableState
@@ -19,6 +20,7 @@ class MenuState extends TransitionableState
 
 	override function create()
 	{
+		FlxG.save.bind("brj2025");
 		Main.run = null;
 		title.screenCenter();
 		add(title);
@@ -113,7 +115,8 @@ class MenuState extends TransitionableState
 				options.alpha = 1;
 				if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
 				{
-					// FlxG.switchState(new MenuState());
+					var tempState:SettingsSubState = new SettingsSubState();
+					openSubState(tempState);
 				}
 		}
 

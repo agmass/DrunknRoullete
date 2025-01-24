@@ -11,7 +11,7 @@ class SweepHitbox extends Hitbox
 	override public function new(x, y, size)
 	{
 		super(x, y);
-		damage = 10;
+		damage = 15;
 		loadGraphic(AssetPaths.sweep__png, true, 32, 8);
 		scale.set(4 + size, 4 + size);
 		updateHitbox();

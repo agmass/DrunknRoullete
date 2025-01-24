@@ -12,8 +12,6 @@ class WheelOfFortune extends SpriteToInteract
 	override function interact(p:PlayerEntity)
 	{
 		super.interact(p);
-		FlxG.state.openSubState(new WheelSubState());
-		p.handWeapon = new SwordItem(p);
-		p.holsteredWeapon = new BasicProjectileShootingItem(p);
+		FlxG.state.openSubState(new WheelSubState(p));
 	}
 }

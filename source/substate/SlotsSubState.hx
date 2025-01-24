@@ -90,7 +90,9 @@ class SlotsSubState extends FlxSubState
 		slotsMachine.updateHitbox();
 		slotsMachine.screenCenter();
 		slotsMachine.camera = foregroundgamblingCamera;
-		slotsMachine.shader = slotShader;
+		FlxG.save.bind("brj2025");
+		if (!FlxG.save.data.shadersDisabled)
+			slotsMachine.shader = slotShader;
 		slotsMachine.animation.add("idle", [0]);
 		slotsMachine.animation.add("pull", [0, 1, 2, 3, 4, 5], 12, false);
 		slotsMachine.animation.add("pullBack", [5, 4, 3, 2, 1, 0], 12, false);
@@ -164,6 +166,9 @@ class SlotsSubState extends FlxSubState
 		add(Main.subtitlesBox);
 		add(token);
 		add(amountText);
+		var idiotProofing:FlxSprite = new FlxSprite(FlxG.width - 200, FlxG.height - 100, AssetPaths.exittip__png);
+		idiotProofing.scale.set(2, 2);
+		add(idiotProofing);
 		super.create();
 	}
 
@@ -183,6 +188,7 @@ class SlotsSubState extends FlxSubState
 
 	override function destroy()
 	{
+		FlxG.timeScale = 1;
 		FlxTween.cancelTweensOf(amountText);
 		remove(Main.subtitlesBox);
 		FlxG.cameras.remove(gamblingCamera);
@@ -238,8 +244,11 @@ class SlotsSubState extends FlxSubState
 		}
 		if (goBack)
 		{
-			FlxG.timeScale = 1;
-			close();
+			if (gambaTime < 0)
+			{
+				FlxG.timeScale = 1;
+				close();
+			}
 		}
 		var finalSelected = null;
 		var i = -(cards.length / 2);
