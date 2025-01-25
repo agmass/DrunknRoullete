@@ -5,6 +5,7 @@ import abilities.attributes.AttributeContainer;
 import abilities.attributes.AttributeOperation;
 import abilities.equipment.Equipment;
 import abilities.equipment.items.BasicProjectileShootingItem;
+import abilities.equipment.items.Gamblevolver;
 import abilities.equipment.items.SwordItem;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSprite;
@@ -29,8 +30,8 @@ class RobotBoss extends PlayerEntity
 		color = FlxColor.GRAY;
 		input = modifiable;
 		rewards = new Rewards(FlxG.random.int(5, 6), true);
-		var array:Array<Class<Equipment>> = [SwordItem, BasicProjectileShootingItem];
-		handWeapon = Type.createInstance(array[FlxG.random.int(0, 1)], [this]);
+		var array:Array<Class<Equipment>> = [SwordItem, BasicProjectileShootingItem, Gamblevolver];
+		handWeapon = Type.createInstance(array[FlxG.random.int(0, 2)], [this]);
 		typeTranslationKey = "robot";
 		bossHealthBar = true;
 	}
@@ -128,7 +129,7 @@ class RobotBoss extends PlayerEntity
 					}
 					else
 					{
-						timeUntilAttack = handWeapon.weaponSpeed * attributes.get(Attribute.ATTACK_SPEED).getValue();
+						timeUntilAttack = (handWeapon.weaponSpeed * attributes.get(Attribute.ATTACK_SPEED).getValue()) + 0.6;
 						handWeapon.attack(this);
 					}
 				}

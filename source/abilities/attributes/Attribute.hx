@@ -5,10 +5,10 @@ import haxe.ds.HashMap;
 class Attribute {
 
 	public static var MOVEMENT_SPEED:AttributeType = new AttributeType("movement_speed", 1, 150, 1200);
-	public static var ATTACK_DAMAGE:AttributeType = new AttributeType("attack_damage", 0.01, 0.75, 3.5);
+	public static var ATTACK_DAMAGE:AttributeType = new AttributeType("attack_damage", 0.01, 0.75, 2);
 	public static var ATTACK_KNOCKBACK:AttributeType = new AttributeType("attack_knockback", 0.01, 0.4, 5);
 	public static var JUMP_HEIGHT:AttributeType = new AttributeType("jump_height", 0.5, 50);
-	public static var MAX_HEALTH:AttributeType = new AttributeType("health", 1, 25);
+	public static var MAX_HEALTH:AttributeType = new AttributeType("health", 1, 45);
 
 	public static var SIZE_X:AttributeType = new AttributeType("size_x", 0.001, 0.45, 2);
 	public static var SIZE_Y:AttributeType = new AttributeType("size_y", 0.001, 0.45, 2);
@@ -37,6 +37,7 @@ class Attribute {
     private var value = 0.0;
 	public var bypassLimits = false;
     public var modifiers:Array<AttributeContainer> = new Array();
+	public var temporaryModifiers:Map<AttributeContainer, Float> = new Map();
 
 	public var min = 0.0;
 	public var max = 0.0;
@@ -95,6 +96,25 @@ class Attribute {
 			refreshAndGetValue();
 		}
     }
+
+	public function addTemporaryOperation(container:AttributeContainer, time:Float)
+	{
+		temporaryModifiers.set(container, time);
+		addOperation(container);
+	}
+
+	public function update(elapsed:Float)
+	{
+		for (a => f in temporaryModifiers)
+		{
+			temporaryModifiers.set(a, f - elapsed);
+			if (f - elapsed < 0)
+			{
+				removeOperation(a);
+				temporaryModifiers.remove(a);
+			}
+		}
+	}
 
     public function getValue():Float {
         return value;

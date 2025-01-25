@@ -76,7 +76,6 @@ class SwordItem extends Equipment
 		player.extraVelocity = lastSwing.scaleNew(1.2).negateNew();
 		swordSweep.y += -add.y;
 		swordSweep.velocity = new FlxPoint(300, 0).rotateByDegrees(angle - 90);
-		swordSweep.damage *= player.attributes.get(Attribute.ATTACK_DAMAGE).getValue();
 		if (player.isTouching(FLOOR))
 		{
 			var sound = FlxG.sound.play(AssetPaths.critswing__ogg);

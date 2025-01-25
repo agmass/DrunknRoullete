@@ -2,6 +2,7 @@ package substate;
 
 import abilities.equipment.Equipment;
 import abilities.equipment.items.BasicProjectileShootingItem;
+import abilities.equipment.items.Gamblevolver;
 import abilities.equipment.items.SwordItem;
 import entity.PlayerEntity;
 import flixel.FlxG;
@@ -51,11 +52,11 @@ class WheelSubState extends FlxSubState {
 		add(playerReminder);
 		add(token);
 		add(amountText);
-		weaponMap.set(0, BasicProjectileShootingItem);
+		weaponMap.set(0, Gamblevolver);
 		weaponMap.set(45, SwordItem);
 		weaponMap.set(45 + 45, BasicProjectileShootingItem);
 		weaponMap.set(45 + 45 + 45, SwordItem);
-		weaponMap.set(45 + 45 + 45 + 45, BasicProjectileShootingItem);
+		weaponMap.set(45 + 45 + 45 + 45, Gamblevolver);
 		weaponMap.set(45 + 45 + 45 + 45 + 45, SwordItem);
 		weaponMap.set(45 + 45 + 45 + 45 + 45 + 45, BasicProjectileShootingItem);
 		weaponMap.set(45 + 45 + 45 + 45 + 45 + 45 + 45, SwordItem);

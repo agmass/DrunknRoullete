@@ -18,15 +18,15 @@ import nape.geom.Vec2;
 import objects.hitbox.SweepHitbox;
 import projectiles.BottleProjectile;
 import projectiles.BulletProjectile;
+import projectiles.CursedBulletProjectile;
 import sound.FootstepManager.MultiSoundManager;
 import util.Language;
 import util.Projectile;
 
-class BasicProjectileShootingItem extends Equipment
+class Gamblevolver extends Equipment
 {
-
-	public var bulletSpeed = 1200;
-	public var maxBullets = 8;
+	public var bulletSpeed = 2400;
+	public var maxBullets = 6;
 	public var shootyAnimation = 0.0;
 	public var bullets:FlxTypedSpriteGroup<BulletProjectile> = new FlxTypedSpriteGroup();
 
@@ -34,19 +34,11 @@ class BasicProjectileShootingItem extends Equipment
 	{
 		super(entity);
 		weaponSpeed = 0.25;
-		loadGraphic(AssetPaths.gun__png);
+		loadGraphic(AssetPaths.revolver__png);
 	}
-
-	var burst = 5;
-	var burstCool = 0.1;
 
 	override function alt_fire(player:EquippedEntity)
 	{
-		if (burst == 5)
-		{
-			burst = -4;
-			burstCool = 0;
-		}
 		super.alt_fire(player);
 	}
 
@@ -58,6 +50,10 @@ class BasicProjectileShootingItem extends Equipment
 			return;
 		}
 		var bullet = new BulletProjectile(player.getMidpoint().x, player.getMidpoint().y);
+		if (FlxG.random.bool(20))
+		{
+			bullet = new CursedBulletProjectile(player.getMidpoint().x, player.getMidpoint().y);
+		}
 		bullet.shooter = player;
 		bullet.y -= (bullet.height / 2);
 		if (flipX)
@@ -77,27 +73,12 @@ class BasicProjectileShootingItem extends Equipment
 		sound.pitch = 1.8;
 		sound.volume = 0.45;
 		FlxG.camera.shake(0.002, 0.1);
-		MultiSoundManager.playRandomSound(player, "shoot", FlxG.random.float(0.9, 1.1), 1);
+		MultiSoundManager.playRandomSound(player, "shoot", FlxG.random.float(0.5, 0.7), 1);
 		super.attack(player);
 	}
 
 	override function update(elapsed:Float)
 	{
-		if (bullets.length >= maxBullets)
-		{
-			burst = 5;
-		}
-		if (burst != 5)
-		{
-			burstCool -= elapsed;
-			if (burstCool <= 0)
-			{
-				burstCool = 0.025;
-				angle = angle + burst + FlxG.random.float(-30, 30);
-				attack(wielder);
-				burst++;
-			}
-		}
 		shootyAnimation -= elapsed * (shootyAnimation * 6);
 		for (projectile in bullets)
 		{
@@ -129,5 +110,4 @@ class BasicProjectileShootingItem extends Equipment
 		bullets.draw();
 		super.draw();
 	}
-
 }

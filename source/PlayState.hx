@@ -3,6 +3,7 @@ package;
 import abilities.attributes.Attribute;
 import abilities.attributes.AttributeContainer;
 import abilities.attributes.AttributeOperation;
+import abilities.equipment.items.Gamblevolver;
 import entity.Entity;
 import entity.EquippedEntity;
 import entity.PlayerEntity;
@@ -566,6 +567,8 @@ class PlayState extends TransitionableState
 				p.playerMarkerColor = playerMarkerColors[0];
 				playerMarkerColors.splice(0,1);
 			}
+			if (FlxG.keys.justPressed.THREE)
+				p.handWeapon = new Gamblevolver(p);
 			p.showPlayerMarker = showPlayerMarker;
 			if (FlxG.save.data.playerInfoShown)
 				playerDebugText.text += p.toString() + "\n\n";

@@ -193,6 +193,7 @@ class Entity extends FlxSprite {
 
 		for (key => value in attributes)
 		{
+			value.update(elapsed);
 			value.max = key.maxBound;
 			value.min = key.minBound;
 
