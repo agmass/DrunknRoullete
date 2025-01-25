@@ -3,6 +3,7 @@ package entity.bosses;
 import abilities.attributes.Attribute;
 import flixel.FlxG;
 import flixel.group.FlxSpriteGroup;
+import util.Language;
 
 class RatKingBoss extends HumanoidEntity
 {
@@ -12,11 +13,12 @@ class RatKingBoss extends HumanoidEntity
 	{
 		super(x, y);
 		loadGraphic(AssetPaths.rat__png);
-		typeTranslationKey = "rat";
 		bossHealthBar = true;
 		originalSpriteSizeX = 64;
 		originalSpriteSizeY = 64;
+		typeTranslationKey = "rat";
 		rewards = new Rewards(FlxG.random.int(6, 9), true);
+		entityName = Language.get("entity." + typeTranslationKey);
 	}
 
 	override function createAttributes()
@@ -24,7 +26,7 @@ class RatKingBoss extends HumanoidEntity
 		super.createAttributes();
 		attributes.set(Attribute.SIZE_X, new Attribute(6, true));
 		attributes.set(Attribute.SIZE_Y, new Attribute(6, true));
-		attributes.set(Attribute.MAX_HEALTH, new Attribute(600, true));
+		attributes.set(Attribute.MAX_HEALTH, new Attribute(600 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
 	}
 
 	var damageUntilStateSwitch = 100;
@@ -34,22 +36,41 @@ class RatKingBoss extends HumanoidEntity
 
 	override function update(elapsed:Float)
 	{
+		for (entity in children)
+		{
+			if (entity.alive)
+			{
+				if (!entity.isOnScreen())
+				{
+					entity.velocity.y = -1250;
+					entity.x = FlxG.random.int(500, 1000);
+					entity.y = FlxG.height - 100;
+					entity.acceleration.y = 900;
+					entity.maxVelocity.y = 900;
+				}
+			}
+		}
 		randomRatBirth -= elapsed;
 		if (randomRatBirth < 0)
 		{
-			if (behaviourState == 0)
+			if (behaviourState == 0)	
 			{
-				randomRatBirth = FlxG.random.float(0.6, 2.4);
+				randomRatBirth = FlxG.random.float(2, 2.4);
 				for (i in 0...FlxG.random.int(1, 3))
 				{
-					children.add(new SmallRatEntity(getMidpoint().x, getMidpoint().y));
+					if (FlxG.state is PlayState)
+					{
+						var ps:PlayState = cast(FlxG.state);
+						var rat = new SmallRatEntity(getMidpoint().x, getMidpoint().y);
+						ps.enemyLayer.add(rat);
+						children.add(rat);
+					}
 				}
 			}
 		}
 		if (lastHealth > health)
 		{
 			damageUntilStateSwitch += Math.round(health - lastHealth);
-			trace(damageUntilStateSwitch);
 		}
 		if (damageUntilStateSwitch <= 0 && behaviourState == 0)
 		{
@@ -63,25 +84,19 @@ class RatKingBoss extends HumanoidEntity
 		{
 			acceleration.y = acceleration.y * (1 + elapsed);
 			maxVelocity.y = acceleration.y;
-			if (!isOnScreen())
-			{
-				FlxG.camera.shake(0.025, 0.1);
-				behaviourState = 0;
-				velocity.y = -1250;
-				x = FlxG.random.int(300, 1600);
-				y = FlxG.height - 100;
-				acceleration.y = 900;
-				maxVelocity.y = 900;
-				noclip = false;
-			}
 		}
-		children.update(elapsed);
+		if (!isOnScreen())
+		{
+			FlxG.camera.shake(0.025, 0.1);
+			behaviourState = 0;
+			velocity.y = -1250;
+			x = FlxG.random.int(500, 1000);
+			y = FlxG.height - 100;
+			acceleration.y = 900;
+			maxVelocity.y = 900;
+			noclip = false;
+		}
 		super.update(elapsed);
 	}
 
-	override function draw()
-	{
-		super.draw();
-		children.draw();
-	}
 }

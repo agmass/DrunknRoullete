@@ -38,10 +38,13 @@ class RobotBoss extends PlayerEntity
 	override function createAttributes()
 	{
 		super.createAttributes();
-		attributes.set(Attribute.ATTACK_SPEED, new Attribute(1 + FlxG.random.float(0.1, 0.5), true));
-		attributes.set(Attribute.DASH_SPEED, new Attribute(250, true));
+		attributes.set(Attribute.ATTACK_SPEED,
+			new Attribute(1 + FlxG.random.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
+		attributes.set(Attribute.DASH_SPEED, new Attribute(250 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * (Main.run.roomsTraveled)), true));
 		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(450 + FlxG.random.int(5 * (Main.run.roomsTraveled - 1), 5 * Main.run.roomsTraveled), true));
-		attributes.set(Attribute.MAX_HEALTH, new Attribute(125 + FlxG.random.int(10 * (Main.run.roomsTraveled - 1), 20 * Main.run.roomsTraveled), true));
+		attributes.set(Attribute.MAX_HEALTH, new Attribute(125 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
+		attributes.set(Attribute.ATTACK_DAMAGE,
+			new Attribute(1.0 + FlxG.random.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
 	}
 
 	var downscale = new AttributeContainer(AttributeOperation.MULTIPLY, 0.5);
@@ -143,7 +146,6 @@ class RobotBoss extends PlayerEntity
 					modifiable.jumpJustPressed = true;
 				if (modifiable.movement.y < -0.5)
 					modifiable.jumpPressed = true;
-				trace(modifiable.movement);
 			}
 		}
 		if (holsteredWeapon != null)

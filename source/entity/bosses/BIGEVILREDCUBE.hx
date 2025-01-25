@@ -40,9 +40,12 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		super.createAttributes();
 		attributes.set(Attribute.SIZE_X, new Attribute(6, true));
 		attributes.set(Attribute.SIZE_Y, new Attribute(6, true));
-		attributes.set(Attribute.ATTACK_SPEED, new Attribute(3.5 + FlxG.random.float(-0.5, 0.5), true));
-		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(100 + FlxG.random.int(10 * (Main.run.roomsTraveled - 1), 10 * Main.run.roomsTraveled), true));
-		attributes.set(Attribute.MAX_HEALTH, new Attribute(200 + FlxG.random.int(10 * (Main.run.roomsTraveled - 1), 10 * Main.run.roomsTraveled), true));
+		attributes.set(Attribute.ATTACK_SPEED,
+			new Attribute(3.5 + FlxG.random.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
+		attributes.set(Attribute.ATTACK_DAMAGE,
+			new Attribute(1.0 + FlxG.random.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
+		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(100 + FlxG.random.int(20 * (Main.run.roomsTraveled - 1), 20 * Main.run.roomsTraveled), true));
+		attributes.set(Attribute.MAX_HEALTH, new Attribute(200 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
 	}
 
 	var downscale = new AttributeContainer(AttributeOperation.MULTIPLY, 0.5);

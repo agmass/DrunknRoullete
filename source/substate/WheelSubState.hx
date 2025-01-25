@@ -80,8 +80,6 @@ class WheelSubState extends FlxSubState {
         if (wheel.angle >= nextAngleSwitch) {
 			portion = Math.round((wheel.angle) / 45) * 45;
 			nextAngleSwitch = portion + 45;
-			trace(nextAngleSwitch);
-			trace(wheel.angle);
 			point.angle = -11;
 			MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "wheel", FlxG.random.float(0.9, 1.1), 0.6);
 			FlxTween.tween(point, {angle: 0}, 0.25, {ease: FlxEase.sineOut});

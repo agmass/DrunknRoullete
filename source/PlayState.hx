@@ -219,12 +219,11 @@ class PlayState extends TransitionableState
 		{
 			ground.footstepSoundName = "wood";
 			elevator.x = 939 * 1.5;
-			var slotMachine = new SlotMachine(160 * 1.5, 546 * 1.5);
-			slotMachine.loadGraphic(AssetPaths.slot_machine__png);
+			var slotMachine = new FlxSprite(160 * 1.5, 546 * 1.5);
+			slotMachine.loadGraphic(AssetPaths.broken_slot_machine__png);
 			slotMachine.immovable = true;
-			interactable.add(slotMachine);
-			if (!FlxG.save.data.shadersDisabled)
-				slotMachine.shader = slotsShader;
+			slotMachine.allowCollisions = NONE;
+			mapLayerBehind.add(slotMachine);
 			var slotMachine = new SlotMachine(255 * 1.5, 546 * 1.5);
 			slotMachine.loadGraphic(AssetPaths.slot_machine__png);
 			slotMachine.immovable = true;
@@ -232,11 +231,10 @@ class PlayState extends TransitionableState
 			if (!FlxG.save.data.shadersDisabled)
 				slotMachine.shader = slotsShader;
 			var slotMachine = new SlotMachine(352 * 1.5, 546 * 1.5);
-			slotMachine.loadGraphic(AssetPaths.slot_machine__png);
+			slotMachine.loadGraphic(AssetPaths.broken_slot_machine__png);
 			slotMachine.immovable = true;
-			interactable.add(slotMachine);
-			if (!FlxG.save.data.shadersDisabled)
-				slotMachine.shader = slotsShader;
+			slotMachine.allowCollisions = NONE;
+			mapLayerBehind.add(slotMachine);
 			var wheel = new WheelOfFortune(583 * 1.5, ground.y - (246 * 1.5));
 			wheel.loadGraphic(AssetPaths.weapon_wheel__png);
 			wheel.scale.set(2, 2);

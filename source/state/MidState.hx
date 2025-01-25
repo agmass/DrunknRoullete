@@ -73,8 +73,9 @@ class MidState extends TransitionableState
 		{
 			Main.run.nextBoss = [
 				new RobotBoss(FlxG.width / 2, FlxG.height / 2),
-				new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2)
-			][FlxG.random.int(0, 1)];
+				new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2),
+				new RatKingBoss(0, 0)
+			][FlxG.random.int(0, 2)];
 		}
 		Main.detectConnections();
 		var gamepadAccepted = false;

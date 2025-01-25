@@ -10,8 +10,7 @@ class SmallRatEntity extends HumanoidEntity
 	{
 		super(x, y);
 		loadGraphic(AssetPaths.rat__png);
-		typeTranslationKey = "rat";
-		bossHealthBar = true;
+		typeTranslationKey = "small_rat";
 		originalSpriteSizeX = 64;
 		originalSpriteSizeY = 64;
 	}
@@ -24,6 +23,8 @@ class SmallRatEntity extends HumanoidEntity
 		attributes.set(Attribute.SIZE_Y, new Attribute(size, true));
 		attributes.set(Attribute.CRIT_CHANCE, new Attribute(5, true));
 		attributes.set(Attribute.MAX_HEALTH, new Attribute(10 + FlxG.random.int(10 * Main.run.roomsTraveled, 10 * Main.run.roomsTraveled), true));
+		attributes.set(Attribute.ATTACK_DAMAGE,
+			new Attribute(1.0 + FlxG.random.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
 		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(400 + FlxG.random.int(10 * Main.run.roomsTraveled, 10 * Main.run.roomsTraveled), true));
 	}
 
@@ -54,7 +55,7 @@ class SmallRatEntity extends HumanoidEntity
 				1) * (attributes.get(Attribute.MOVEMENT_SPEED).getValue() * 3));
 			if (!overlappedLastFrame && FlxG.overlap(this, closest))
 			{
-				closest.damage(2, this);
+				closest.damage(1, this);
 			}
 			overlappedLastFrame = FlxG.overlap(this, closest);
 		}

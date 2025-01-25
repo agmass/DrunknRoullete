@@ -10,6 +10,7 @@ import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
+import flixel.sound.FlxSound;
 import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
@@ -41,8 +42,9 @@ class SlotsSubState extends FlxSubState
 	public var bg1:FlxSprite;
 	public var bg2:FlxSprite;
 	public var bg3:FlxSprite;
-	public var gamblingCamera = new FlxCamera(0, 67 * 4.218, Math.round((43 * 4.218) * 3), 286);
+	public var gamblingCamera = new FlxCamera(0, 67 * 4.218, Math.round((43 * 4.218) * 3), 287);
 	public var foregroundgamblingCamera = new FlxCamera(0, 0, 0, 0);
+	var rumblingSound:FlxSound = new FlxSound();
 
 	var slotsMachine:FlxSprite = new FlxSprite(0, 0, AssetPaths.slots__png);
 	override public function new(player:PlayerEntity)
@@ -98,18 +100,18 @@ class SlotsSubState extends FlxSubState
 		slotsMachine.animation.add("pullBack", [5, 4, 3, 2, 1, 0], 12, false);
 		gamblingCamera.x = slotsMachine.x;
 		gamblingCamera.x += 62 * 4.218;
-		var bg:FlxSprite = new FlxSprite().makeGraphic(168, 286);
+		var bg:FlxSprite = new FlxSprite().makeGraphic(170, 296);
 		add(bg);
 		bg.color = FlxColor.fromRGB(221, 221, 221);
 		bg.camera = gamblingCamera;
 		bg1 = bg;
-		var bg:FlxSprite = new FlxSprite().makeGraphic(168, 286);
+		var bg:FlxSprite = new FlxSprite().makeGraphic(170, 296);
 		bg.x += 43 * 4.218;
 		bg.color = FlxColor.fromRGB(221, 221, 221);
 		bg.camera = gamblingCamera;
 		add(bg);
 		bg2 = bg;
-		var bg:FlxSprite = new FlxSprite().makeGraphic(168, 286);
+		var bg:FlxSprite = new FlxSprite().makeGraphic(170, 296);
 		bg.x += (43 * 4.218) * 2;
 		bg.color = FlxColor.fromRGB(221, 221, 221);
 		bg.camera = gamblingCamera;
@@ -169,6 +171,7 @@ class SlotsSubState extends FlxSubState
 		var idiotProofing:FlxSprite = new FlxSprite(FlxG.width - 200, FlxG.height - 100, AssetPaths.exittip__png);
 		idiotProofing.scale.set(2, 2);
 		add(idiotProofing);
+		rumblingSound.loadEmbedded(AssetPaths.rumbling__ogg);
 		super.create();
 	}
 
@@ -185,6 +188,7 @@ class SlotsSubState extends FlxSubState
 
 	var shaderLag = 0.0;
 	public var selectedCard = 0;
+	var holdTime = 0.0;
 
 	override function destroy()
 	{
@@ -452,11 +456,28 @@ class SlotsSubState extends FlxSubState
 		amountText.text = p.tokens + "";
 		if (startRoll)
 		{
-			FlxG.timeScale = 1.4;
+			if (p.tokens > 7)
+			{
+				holdTime += elapsed / 10;
+				if (holdTime > 6 - 1.4)
+				{
+					holdTime = 6 - 1.4;
+					rumblingSound.play(false);
+					rumblingSound.looped = true;
+				}
+			}
+			else
+			{
+				rumblingSound.stop();
+				holdTime = 0;
+			}
+			FlxG.timeScale = 1.4 + holdTime;
 		}
 		else
 		{
+			rumblingSound.stop();
 			FlxG.timeScale = 1;
+			holdTime = 0;
 		}
 		if (gambaTime >= 0.0)
 		{

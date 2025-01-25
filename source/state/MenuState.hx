@@ -52,14 +52,8 @@ class MenuState extends TransitionableState
 		}
 		Main.detectConnections();
 		var gamepadAccepted = false;
-		if (Main.activeInputs.length == 0)
-		{
-			connectedPlayers.text = "No Players Connected";
-		}
-		else
-		{
-			connectedPlayers.text = "Players Connected:\n";
-		}
+		connectedPlayers.text = #if html5 Language.get("menu.itchWarning") + "\n" + #end
+		Language.get("menu.controllerWarning");
 		var e = 0;
 		for (i in Main.activeInputs)
 		{

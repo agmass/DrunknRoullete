@@ -35,6 +35,7 @@ class Elevator extends SpriteToInteract
 				smallPause -= elapsed;
 				if (smallPause <= 0)
 				{
+					FlxG.timeScale = 1;
 					FlxG.switchState(new MidState());
 				}
 			}

@@ -18,6 +18,8 @@ import flixel.tweens.FlxTween;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
 import haxe.ds.HashMap;
+import haxe.xml.Check.Attrib;
+import nape.geom.Vec2;
 import openfl.display.BitmapData;
 import shader.FadingOut;
 import sound.FootstepManager;
@@ -94,6 +96,13 @@ class Entity extends FlxSprite {
 	}
 
     override function update(elapsed:Float) {
+		if (lastHealth > health && ragdoll == null)
+		{
+			spawnFloatingText(Math.round(health - lastHealth) + "", FlxColor.RED);
+			blood.start(true, 0, Math.ceil(lastHealth - health));
+			MultiSoundManager.playRandomSound(this, "hit");
+			naturalRegeneration = 5;
+		}
 		for (sprite in floatingTexts)
 		{
 			sprite.y -= elapsed * 100;
@@ -102,6 +111,22 @@ class Entity extends FlxSprite {
 			{
 				sprite.destroy();
 				floatingTexts.remove(sprite);
+			}
+		}
+		if (attributes.exists(Attribute.ATTACK_SPEED))
+		{
+			if (attributes.get(Attribute.ATTACK_SPEED).getValue() <= 0)
+			{
+				attributes.get(Attribute.ATTACK_SPEED).min = 0.0001;
+				attributes.get(Attribute.ATTACK_SPEED).bypassLimits = false;
+			}
+		}
+		if (attributes.exists(Attribute.ATTACK_DAMAGE))
+		{
+			if (attributes.get(Attribute.ATTACK_DAMAGE).getValue() <= 0)
+			{
+				attributes.get(Attribute.ATTACK_DAMAGE).min = 0.0001;
+				attributes.get(Attribute.ATTACK_DAMAGE).bypassLimits = false;
 			}
 		}
 		naturalRegeneration -= elapsed;
@@ -132,7 +157,7 @@ class Entity extends FlxSprite {
 			ragdoll = new FlxNapeSprite(x, y, null, false, true);
 			ragdoll.loadGraphicFromSprite(this);
 			ragdoll.scale.set(scale.x, scale.y);
-			ragdoll.createRectangularBody();
+			ragdoll.createRectangularBody(frameHeight * scale.x, frameHeight * scale.y);
 			allowCollisions = NONE;
 			ragdoll.body.space = Main.napeSpace;
 			ragdoll.body.rotate(ragdoll.body.position, FlxG.random.float(-180, 180) * FlxAngle.TO_RAD);
@@ -146,6 +171,7 @@ class Entity extends FlxSprite {
 			ragdoll.update(elapsed);
 			if (ragdoll.alpha == 0)
 			{
+				ragdoll.body.position.set(new Vec2(-100, -100));
 				kill();
 			}
 			return;
@@ -153,13 +179,6 @@ class Entity extends FlxSprite {
 		blood.x = getGraphicMidpoint().x;
 		blood.y = getGraphicMidpoint().y;
 		blood.scale.set(scale.x, scale.y);
-		if (lastHealth > health)
-		{
-			spawnFloatingText(Math.round(health - lastHealth) + "", FlxColor.RED);
-			blood.start(true, 0, Math.ceil(lastHealth - health));
-			MultiSoundManager.playRandomSound(this, "hit");
-			naturalRegeneration = 5;
-		}
 		lastHealth = health;
 		if (attributes.exists(Attribute.REGENERATION))
 		{

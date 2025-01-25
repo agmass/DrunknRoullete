@@ -105,7 +105,6 @@ class PlayerEntity extends HumanoidEntity
 
 		if (handWeapon != null)
 		{
-			handWeapon.equipped = true;
 			if (input.attackPressed)
 			{
 				if (timeUntilAttack <= 0)
