@@ -26,6 +26,12 @@ class MenuState extends TransitionableState
 	{
 		FlxG.save.bind("brj2025");
 		Main.run = null;
+		if (FlxG.save.data.seenIntro)
+		{
+			var casnio = new FlxSprite(0, 0, AssetPaths.casniobackground__png);
+			casnio.alpha = 0.2;
+			add(casnio);
+		}
 		title.screenCenter();
 		add(title);
 		title.y -= 128;

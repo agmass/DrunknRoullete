@@ -26,7 +26,6 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import input.ControllerSource;
 import input.KeyboardSource;
-import js.lib.Reflect;
 import nape.geom.Vec2;
 import objects.Elevator;
 import objects.FootstepChangingSprite;
