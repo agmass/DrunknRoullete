@@ -101,6 +101,12 @@ class PlayState extends TransitionableState
 
 	override public function create()
 	{
+		if (Main.activeInputs.length == 0)
+		{
+			Main.kbmConnected = true;
+			Main.connectionsDirty = true;
+			Main.activeInputs.push(new KeyboardSource());
+		}
 		FlxG.save.bind("brj2025");
 		elevator.screenCenter();
 		elevator.x -= 512;
@@ -390,10 +396,7 @@ class PlayState extends TransitionableState
 					FlxG.vcr.loadReplay(recording);
 				}
 			#end */
-		if (FlxG.keys.justPressed.THREE)
-		{
-			playerDebugText.visible = !playerDebugText.visible;
-		}
+		playerDebugText.visible = FlxG.save.data.fpsshown || FlxG.save.data.playerInfoShown;
 		Main.subtitlesBox.visible = FlxG.save.data.subtitles;
 		if (Main.subtitlesBox.visible && !members.contains(Main.subtitlesBox))
 			add(Main.subtitlesBox);
@@ -402,7 +405,9 @@ class PlayState extends TransitionableState
 		FlxG.autoPause = false;
 		var showPlayerMarker = playerLayer.length > 1;
 		gameCam.pixelPerfectRender = true;
-		playerDebugText.text = "\n" + "FPS: " + Main.FPS.currentFPS + "\n";
+		playerDebugText.text = "";
+		if (FlxG.save.data.fpsshown)
+			playerDebugText.text = "\n" + "FPS: " + Main.FPS.currentFPS + "\n";
 		var currentBarHeight = 0.0;
 		var currentBarIndex = 0;
 		enemyLayer.forEachOfType(Entity, (p) ->
@@ -530,7 +535,7 @@ class PlayState extends TransitionableState
 					{
 						if (h is Hitbox)
 						{
-							if (!FlxG.save.data.friendlyFire && e != p && e is PlayerEntity)
+							if (!FlxG.save.data.friendlyFire && e != p && playerLayer.members.contains(e))
 								return;
 							var e2:Entity = cast(e);
 							var hitbox:Hitbox = cast(h);
@@ -565,17 +570,23 @@ class PlayState extends TransitionableState
 				playerMarkerColors.splice(0,1);
 			}
 			p.showPlayerMarker = showPlayerMarker;
-			playerDebugText.text += p.toString() + "\n\n";
+			if (FlxG.save.data.playerInfoShown)
+				playerDebugText.text += p.toString() + "\n\n";
 		});
-		if (alivePlayers == 1 && playerHealth <= 50)
+		if (alivePlayers == 1 && playerHealth <= 50 && !FlxG.save.data.disableChroma)
 		{
 			chromeLerp += elapsed;
 			if (chromeLerp > 1)
 			{
 				chromeLerp = 0;
 			}
-			chrome.setChrome(FlxMath.lerp(oldChrome, 0.05 / playerHealth, chromeLerp));
-			oldChrome = FlxMath.lerp(oldChrome, 0.05 / playerHealth, chromeLerp);
+			var newChrome = FlxMath.lerp(oldChrome, 0.05 / FlxMath.bound(playerHealth, 10, 100), chromeLerp);
+			chrome.setChrome(newChrome);
+			oldChrome = newChrome;
+		}
+		else
+		{
+			chrome.setChrome(0);
 		}
 		if (alivePlayers <= 0 && playersSpawned)
 		{
@@ -587,7 +598,13 @@ class PlayState extends TransitionableState
 		super.update(elapsed);
 		FlxG.collide(playerLayer, mapLayer, playerWallCollision);
 		// FlxG.collide(playerLayer, enemyLayer);
-		FlxG.collide(enemyLayer, mapLayer, playerWallCollision);
+		enemyLayer.forEachOfType(Entity, (e) ->
+		{
+			if (!e.noclip)
+			{
+				FlxG.collide(e, mapLayer, playerWallCollision);
+			}
+		});
 	}
 	var gambaText1 = "";
 	var gambaText2 = "";

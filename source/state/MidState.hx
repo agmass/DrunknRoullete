@@ -2,6 +2,7 @@ package state;
 
 import abilities.attributes.Attribute;
 import entity.bosses.BIGEVILREDCUBE;
+import entity.bosses.RatKingBoss;
 import entity.bosses.RobotBoss;
 import flixel.FlxG;
 import flixel.FlxSprite;

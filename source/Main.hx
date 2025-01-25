@@ -58,6 +58,7 @@ class Main extends Sprite
 		\"Rattle1\" by freesound_community
 		\"Mechanical1\" by freesound_community
 		\"Hit Flesh 02\" by u_xjrmmgxfru
+		\"Coin Donation 2\" by floraphonic
 
 		All following sounds are by creators from Freesound.
 
@@ -112,6 +113,9 @@ class Main extends Sprite
 		}, {capture: false, passive: false});
 		Browser.document.addEventListener('keydown', function(event)
 		{
+			#if !debug
+			event.preventDefault();
+			#end
 			if (event.key == "Enter")
 			{
 				if (Browser.document.getElementById("cutscene") != null)
@@ -152,7 +156,7 @@ class Main extends Sprite
 				connectionsDirty = true;
 			}
 		}
-		if (FlxG.keys.firstPressed() != -1 || FlxG.mouse.justPressed)
+		if (FlxG.keys.firstPressed() != -1)
 		{
 			if (!kbmConnected)
 			{

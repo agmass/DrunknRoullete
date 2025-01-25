@@ -105,6 +105,7 @@ class WheelSubState extends FlxSubState {
 				}
 			});
 		}
+		playerReminder.color = FlxColor.BLACK;
 		playerReminder.text = StringTools.replace(StringTools.replace(Language.get("hint.slotMachine"), "%1", p.entityName), "%2", p.input.uiAcceptName());
         for (source in Main.activeInputs)
         {
@@ -136,20 +137,39 @@ class WheelSubState extends FlxSubState {
 			amountText.text = "FREE!";
 			amountText.color = FlxColor.LIME;
 		}
+		if (p.handWeapon != null && p.holsteredWeapon != null)
+		{
+			playerReminder.text = playerReminder.text.split("\n")[0] + "\nWill override primary!";
+			playerReminder.color = FlxColor.RED;
+		}
 		if (startRoll)
 		{
-			if ((p.handWeapon == null && p.holsteredWeapon == null) || p.tokens > 4 && gambaTime < 0)
+			if (((p.handWeapon == null && p.holsteredWeapon == null) || p.tokens > 4) && gambaTime < 0)
 			{
 				if (p.tokens > 4)
 				{
 					p.tokens -= 5;
 				}
-				gambaTime = FlxG.random.float(660, 1200);
+				gambaTime = FlxG.random.float(160, 2000);
 				FlxTween.tween(this, {gambaTime: 0}, 5, {
 					ease: FlxEase.smootherStepOut,
 					onComplete: (t) ->
 					{
-						p.handWeapon = Type.createInstance(weaponMap.get(portion % 360), [p]);
+						if (p.handWeapon == null)
+						{
+							p.handWeapon = Type.createInstance(weaponMap.get(portion % 360), [p]);
+						}
+						else
+						{
+							if (p.holsteredWeapon == null)
+							{
+								p.holsteredWeapon = Type.createInstance(weaponMap.get(portion % 360), [p]);
+							}
+							else
+							{
+								p.handWeapon = Type.createInstance(weaponMap.get(portion % 360), [p]);
+							}
+						}
 					}
 				});
 			}

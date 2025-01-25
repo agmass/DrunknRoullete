@@ -49,9 +49,15 @@ class EquippedEntity extends Entity
 		}
 		timeUntilAttack -= elapsed;
 		if (handWeapon != null)
+		{
+			handWeapon.equipped = true;
 			handWeapon.update(elapsed);
+		}
 		if (holsteredWeapon != null)
+		{
+			holsteredWeapon.equipped = false;
 			holsteredWeapon.update(elapsed);
+		}
 		if (!extraVelocity.isZero())
 		{
 			if (isTouching(FLOOR) || isTouching(UP))

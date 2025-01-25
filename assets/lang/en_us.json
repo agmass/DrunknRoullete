@@ -39,6 +39,10 @@
     "pause.menu": "Back to Menu",
     "button.options": "Options",
     "button.start": "Play",
+    "button.fullscreen": "Fullscreen",
+    "button.intro": "Replay Intro",
+    "menu.controllerWarning": "Want to use a controller as player 1, but want to use your keyboard? Enable \"No Keyboard\" In the settings!",
+    "menu.itchWarning": "Itch's default fullscreen button is broken. Use \"O\" to fullscreen at any time.",
 
     "hint.slotMachine": "Player: %1\nPress %2 to use!",
     "hint.weaponRequired": "Get a weapon at the Wheel Of Fortune!",

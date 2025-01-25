@@ -23,6 +23,7 @@ class SettingsSubState extends FlxSubState
 	var disableKeyboard:FlxUICheckBox = new FlxUICheckBox(10, 60, null, null, "No Keyboard", 200);
 	var friendlyFire:FlxUICheckBox = new FlxUICheckBox(10, 90, null, null, "Friendly Fire", 200);
 	var disableShaders:FlxUICheckBox = new FlxUICheckBox(10, 120, null, null, "Performance Mode", 200);
+	var disableChroma:FlxUICheckBox = new FlxUICheckBox(10, 210 + 30, null, null, "No Chromatic Abberation", 200);
 	var lookAtMovement:FlxUICheckBox = new FlxUICheckBox(10, 150, null, null, "Controller - Look at Movement", 400);
 	var frameRateInfo:FlxUICheckBox = new FlxUICheckBox(10, 180, null, null, "Debug Info (FPS Counter)", 200);
 	var playerInfo:FlxUICheckBox = new FlxUICheckBox(10, 210, null, null, "Debug Info (PlayerInfo)", 200);
@@ -41,6 +42,7 @@ class SettingsSubState extends FlxSubState
 		disableKeyboard.scrollFactor.set();
 		friendlyFire.scrollFactor.set();
 		disableShaders.scrollFactor.set();
+		disableChroma.scrollFactor.set();
 		lookAtMovement.scrollFactor.set();
 		frameRateInfo.scrollFactor.set();
 		playerInfo.scrollFactor.set();
@@ -52,6 +54,7 @@ class SettingsSubState extends FlxSubState
 		disableKeyboard.checked = FlxG.save.data.disableKeyboard;
 		friendlyFire.checked = FlxG.save.data.friendlyFire;
 		disableShaders.checked = FlxG.save.data.shadersDisabled;
+		disableChroma.checked = FlxG.save.data.disableChroma;
 		lookAtMovement.checked = FlxG.save.data.lookAtMovement;
 		frameRateInfo.checked = FlxG.save.data.fpsshown;
 		playerInfo.checked = FlxG.save.data.playerInfoShown;
@@ -66,6 +69,7 @@ class SettingsSubState extends FlxSubState
 		bg.add(disableKeyboard);
 		bg.add(friendlyFire);
 		bg.add(disableShaders);
+		bg.add(disableChroma);
 		bg.add(lookAtMovement);
 		bg.add(frameRateInfo);
 		bg.add(playerInfo);
@@ -76,7 +80,8 @@ class SettingsSubState extends FlxSubState
 			disableShaders,
 			lookAtMovement,
 			frameRateInfo,
-			playerInfo
+			playerInfo,
+			disableChroma
 		];
 		bg.camera = uicam;
 		subtitles.camera = uicam;
@@ -86,6 +91,7 @@ class SettingsSubState extends FlxSubState
 		frameRateInfo.camera = uicam;
 		playerInfo.camera = uicam;
 		friendlyFire.camera = uicam;
+		disableChroma.camera = uicam;
 		add(subtitles);
 		add(disableKeyboard);
 		add(friendlyFire);
@@ -93,6 +99,7 @@ class SettingsSubState extends FlxSubState
 		add(lookAtMovement);
 		add(frameRateInfo);
 		add(playerInfo);
+		add(disableChroma);
 		add(back);
 		back.camera = uicam;
 		back.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 2);
@@ -199,6 +206,7 @@ class SettingsSubState extends FlxSubState
 		FlxG.save.data.friendlyFire = friendlyFire.checked;
 		FlxG.save.data.shadersDisabled = disableShaders.checked;
 		FlxG.save.data.lookAtMovement = lookAtMovement.checked;
+		FlxG.save.data.disableChroma = disableChroma.checked;
 		FlxG.save.data.fpsshown = frameRateInfo.checked;
 		FlxG.save.data.playerInfoShown = playerInfo.checked;
 		if (FlxG.keys.justPressed.ESCAPE)

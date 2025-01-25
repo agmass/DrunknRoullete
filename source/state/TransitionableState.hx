@@ -26,7 +26,8 @@ class TransitionableState extends FlxState
 			// mouthwashFadeOut.level.value = [0.0];
 			oldSprite.makeGraphic(FlxG.width, FlxG.height);
 			oldSprite.graphic.bitmap = bitmapData;
-			oldSprite.shader = mouthwashFadeOut;
+			if (!FlxG.save.data.shadersDisabled)
+				oldSprite.shader = mouthwashFadeOut;
 			add(oldSprite);
 		}
 	}
@@ -47,30 +48,37 @@ class TransitionableState extends FlxState
 	{
 		if (mouthwashFadeOut != null && oldSprite.alive)
 		{
-			if (fadeIn)
+			if (FlxG.save.data.shadersDisabled)
 			{
-				if (mouthwashFadeOut.level.value[0] > 0.0)
-				{
-					mouthwashFadeOut.level.value[0] -= elapsed;
-				}
-				else
-				{
-					oldSprite.alive = false;
-					remove(oldSprite);
-					oldSprite.shader = null;
-				}
+				oldSprite.alpha -= elapsed;
 			}
 			else
 			{
-				if (mouthwashFadeOut.level.value[0] > 0.0)
+				if (fadeIn)
 				{
-					mouthwashFadeOut.level.value[0] -= elapsed;
+					if (mouthwashFadeOut.level.value[0] > 0.0)
+					{
+						mouthwashFadeOut.level.value[0] -= elapsed;
+					}
+					else
+					{
+						oldSprite.alive = false;
+						remove(oldSprite);
+						oldSprite.shader = null;
+					}
 				}
 				else
 				{
-					oldSprite.alive = false;
-					remove(oldSprite);
-					oldSprite.shader = null;
+					if (mouthwashFadeOut.level.value[0] > 0.0)
+					{
+						mouthwashFadeOut.level.value[0] -= elapsed;
+					}
+					else
+					{
+						oldSprite.alive = false;
+						remove(oldSprite);
+						oldSprite.shader = null;
+					}
 				}
 			}
 		}

@@ -48,6 +48,7 @@ class Entity extends FlxSprite {
 	public var ragdoll:FlxNapeSprite;
 
 	public var naturalRegeneration = 0.0;
+	public var noclip = false;
     
     public function new(x,y) {
         super(x,y);
@@ -139,6 +140,7 @@ class Entity extends FlxSprite {
 			ragdoll.setBodyMaterial(0.05, 0.9, 1.6, 20, 1);
 			FlxTween.tween(ragdoll, {alpha: 0}, 3);
 		}
+		blood.update(elapsed);
 		if (ragdoll != null)
 		{
 			ragdoll.update(elapsed);
@@ -166,7 +168,6 @@ class Entity extends FlxSprite {
 				health += elapsed * attributes.get(Attribute.REGENERATION).getValue();
 			}
 		}
-		blood.update(elapsed);
 		nametag.text = entityName;
 		healthBar.value = health;
 		healthBar.setRange(0, attributes.get(Attribute.MAX_HEALTH).getValue());
@@ -181,8 +182,8 @@ class Entity extends FlxSprite {
 				value.refreshAndGetValue();
 			}
 		}
-		var newWidth = (32 * attributes.get(Attribute.SIZE_X).getValue());
-		var newHeight = (32 * attributes.get(Attribute.SIZE_Y).getValue());
+		var newWidth = (originalSpriteSizeX * attributes.get(Attribute.SIZE_X).getValue());
+		var newHeight = (originalSpriteSizeY * attributes.get(Attribute.SIZE_Y).getValue());
 		if (!manuallyUpdateSize && (newWidth != width || newHeight != height))
 		{
 			y += height - newHeight;
@@ -204,8 +205,13 @@ class Entity extends FlxSprite {
         super.update(elapsed);
     }
 
+	public var originalSpriteSizeX = 32;
+	public var originalSpriteSizeY = 32;
+
     public function createAttributes() {
 		attributes.set(Attribute.MAX_HEALTH, new Attribute(100));
+		attributes.set(Attribute.SIZE_X, new Attribute(1));
+		attributes.set(Attribute.SIZE_Y, new Attribute(1));
 	}
     override function draw() {
 		if (ragdoll != null)

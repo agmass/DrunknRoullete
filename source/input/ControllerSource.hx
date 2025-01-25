@@ -72,6 +72,10 @@ class ControllerSource extends InputSource {
 
 	override function getLookAngle(origin:FlxPoint):Float
 	{
+		if (FlxG.save.data.lookAtMovement)
+		{
+			return new FlxPoint(-horizontal.value(), -vertical.value()).degrees;
+		}
 		if (!new FlxPoint(-horizontal_look.value(), -vertical_look.value()).isZero())
 		{
 			lastView = new FlxPoint(-horizontal_look.value(), -vertical_look.value()).degrees;

@@ -38,9 +38,9 @@ class RobotBoss extends PlayerEntity
 	override function createAttributes()
 	{
 		super.createAttributes();
-		attributes.set(Attribute.ATTACK_SPEED, new Attribute(1 + FlxG.random.float(-0.15, 0.5), true));
-		attributes.set(Attribute.DASH_SPEED, new Attribute(350, true));
-		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(450 + FlxG.random.int(10 * (Main.run.roomsTraveled - 1), 10 * Main.run.roomsTraveled), true));
+		attributes.set(Attribute.ATTACK_SPEED, new Attribute(1 + FlxG.random.float(0.1, 0.5), true));
+		attributes.set(Attribute.DASH_SPEED, new Attribute(250, true));
+		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(450 + FlxG.random.int(5 * (Main.run.roomsTraveled - 1), 5 * Main.run.roomsTraveled), true));
 		attributes.set(Attribute.MAX_HEALTH, new Attribute(125 + FlxG.random.int(10 * (Main.run.roomsTraveled - 1), 20 * Main.run.roomsTraveled), true));
 	}
 
@@ -158,7 +158,7 @@ class RobotBoss extends PlayerEntity
 		super.update(elapsed);
 	}
 
-	var dashCooldown = 0.3;
+	var dashCooldown = 0.7;
 
 	override function draw()
 	{
