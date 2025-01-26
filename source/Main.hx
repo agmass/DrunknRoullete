@@ -82,6 +82,7 @@ class Main extends Sprite
 	public static var connectionsDirty = false;
 	public static var napeSpace:Space;
 	public static var run:Run;
+	public static var saveFileVersion = "1.0";
 
 	public function new()
 	{

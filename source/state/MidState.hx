@@ -1,6 +1,9 @@
 package state;
 
 import abilities.attributes.Attribute;
+import abilities.attributes.AttributeContainer;
+import abilities.attributes.AttributeType;
+import entity.PlayerEntity;
 import entity.bosses.BIGEVILREDCUBE;
 import entity.bosses.RatKingBoss;
 import entity.bosses.RobotBoss;
@@ -8,11 +11,17 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
+import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import flixel.util.FlxTimer;
+import haxe.xml.Check.Attrib;
+import input.InputSource;
+import input.KeyboardSource;
 import objects.Elevator;
 import shader.AttributesSlotTextShader;
 import ui.ElevatorButton;
 import util.Language;
+import util.Run;
 
 class MidState extends TransitionableState
 {
@@ -56,19 +65,165 @@ class MidState extends TransitionableState
 		{
 			text.color = FlxColor.BLACK;
 		}
+		for (source in Main.activeInputs)
+		{
+			if (!(source is KeyboardSource))
+			{
+				selection = 0;
+			}
+		}
+		add(autosavingText);
+		FlxTween.tween(autosavingText, {alpha: 0}, 1);
+		pickNextBoss();
+		saveFile();
+		FlxG.save.flush();
+	}
+
+	public static function saveFile()
+	{
+		FlxG.save.data.run = Main.saveFileVersion;
+		FlxG.save.data.roomsTraveled = Main.run.roomsTraveled;
+		FlxG.save.data.combo = Main.run.combo;
+		FlxG.save.data.nextBoss = Type.getClassName(Type.getClass(Main.run.nextBoss));
+		var serializedPlayers = "";
+		for (entity in Main.run.players)
+		{
+			var builder = "";
+			if (entity.handWeapon != null)
+			{
+				builder += Type.getClassName(Type.getClass(entity.handWeapon)) + ":";
+			}
+			else
+			{
+				builder += "null:";
+			}
+			if (entity.holsteredWeapon != null)
+			{
+				builder += Type.getClassName(Type.getClass(entity.holsteredWeapon)) + ":";
+			}
+			else
+			{
+				builder += "null:";
+			}
+			builder += entity.tokens + ":";
+			builder += entity.health + ":";
+			for (key => attribute in entity.attributes)
+			{
+				builder += key.id + "*";
+				builder += attribute.defaultValue + "*";
+				builder += attribute.min + "*";
+				builder += attribute.max + "*";
+				for (container in attribute.modifiers)
+				{
+					if (attribute.temporaryModifiers.exists(container))
+						continue; // we dont save temporary attributes but dont tell anyone shhh
+					trace(container.amount);
+					builder += container.operation.getName() + "$" + container.amount + "]";
+				}
+				builder += "}";
+			}
+			builder += ",";
+			serializedPlayers += builder;
+		}
+		FlxG.save.data.players = serializedPlayers;
+	}
+
+	public static function readSaveFile()
+	{
+		Main.run = new Run();
+		if (Main.activeInputs.length == 0)
+		{
+			Main.kbmConnected = true;
+			Main.connectionsDirty = true;
+			Main.activeInputs.push(new KeyboardSource());
+		}
+		Main.run.roomsTraveled = FlxG.save.data.roomsTraveled;
+		Main.run.combo = FlxG.save.data.combo;
+		Main.run.nextBoss = Type.createInstance(Type.resolveClass(FlxG.save.data.nextBoss), [0, 0]);
+		var pArrayString:String = FlxG.save.data.players;
+		var i = 0;
+		for (e in pArrayString.split(","))
+		{
+			if (e == "")
+				continue;
+			var input = new InputSource();
+			if (i < Main.activeInputs.length)
+			{
+				input = Main.activeInputs[i];
+			}
+			else
+			{
+				continue;
+			}
+			Main.run.players[i] = new PlayerEntity(0, 0, "Player " + i);
+			Main.run.players[i].input = input;
+			var handWeaponData = e.split(":")[0];
+			trace(handWeaponData);
+			if (handWeaponData != "null")
+			{
+				Main.run.players[i].handWeapon = Type.createInstance(Type.resolveClass(handWeaponData), [Main.run.players[i]]);
+			}
+			var holsteredWeaponData = e.split(":")[1];
+			trace(holsteredWeaponData);
+			if (holsteredWeaponData != "null")
+			{
+				Main.run.players[i].holsteredWeapon = Type.createInstance(Type.resolveClass(holsteredWeaponData), [Main.run.players[i]]);
+			}
+			Main.run.players[i].tokens = Std.parseInt(e.split(":")[2]);
+			Main.run.players[i].health = Std.parseFloat(e.split(":")[3]);
+			for (attributeString in e.split(":")[4].split("}"))
+			{
+				trace(attributeString);
+				if (attributeString == "")
+					continue;
+				for (type in [
+					Attribute.ATTACK_DAMAGE,
+					Attribute.ATTACK_KNOCKBACK,
+					Attribute.ATTACK_SPEED,
+					Attribute.CRIT_CHANCE,
+					Attribute.CROUCH_SCALE,
+					Attribute.DASH_SPEED,
+					Attribute.JUMP_COUNT,
+					Attribute.JUMP_HEIGHT,
+					Attribute.MAX_HEALTH,
+					Attribute.MOVEMENT_SPEED,
+					Attribute.REGENERATION,
+					Attribute.SIZE_X,
+					Attribute.SIZE_Y
+				])
+				{
+					if (type.id == attributeString.split("*")[0])
+					{
+						Main.run.players[i].attributes.set(type, new Attribute(Std.parseFloat(attributeString.split("*")[1])));
+						Main.run.players[i].attributes.get(type).min = Std.parseFloat(attributeString.split("*")[2]);
+						Main.run.players[i].attributes.get(type).max = Std.parseFloat(attributeString.split("*")[3]);
+						for (attributeString2 in attributeString.split("*")[4].split("]"))
+						{
+							if (attributeString2 != "")
+							{
+								var attributeContainer:AttributeContainer = new AttributeContainer(Attribute.parseOperation(attributeString2.split("$")[0]),
+									Std.parseFloat(attributeString2.split("$")[1]));
+								Main.run.players[i].attributes.get(type).modifiers.push(attributeContainer);
+							}
+						}
+					}
+				}
+			}
+			i++;
+		}
 	}
 
 	var s = 0.0;
 	var targetAngle = 0.0;
 	var originalAngle = 0.0;
-	var selection = 0;
+	var selection = null;
 	var breath = 1.0;
+	var autosavingText:FlxText = new FlxText(FlxG.width - 400, FlxG.height - 150, 0, "Autosaving...", 32);
 	var shader = new AttributesSlotTextShader();
 
+	function pickNextBoss()
+	{
 
-	override function update(elapsed:Float)
-	{   
-		shader.elapsed.value[0] += elapsed;
 		if (Main.run.nextBoss == null || Main.run.nextBoss.ragdoll != null || !Main.run.nextBoss.alive)
 		{
 			Main.run.nextBoss = [
@@ -77,6 +232,12 @@ class MidState extends TransitionableState
 				new RatKingBoss(0, 0)
 			][FlxG.random.int(0, 2)];
 		}
+	}
+
+	override function update(elapsed:Float)
+	{
+		pickNextBoss();
+		shader.elapsed.value[0] += elapsed;
 		Main.detectConnections();
 		var gamepadAccepted = false;
 		for (i in Main.activeInputs)
@@ -128,6 +289,7 @@ class MidState extends TransitionableState
 			FlxG.switchState(new PlayState());
 		}
 		elevator.y += Math.sin(s) * 0.3;
+		card.visible = selection != null;
 		if (selection <= -1)
 		{
 			selection = 50;

@@ -29,21 +29,25 @@ class Gamblevolver extends Equipment
 	public var maxBullets = 6;
 	public var shootyAnimation = 0.0;
 	public var bullets:FlxTypedSpriteGroup<BulletProjectile> = new FlxTypedSpriteGroup();
+	var shootSelf = 0.0;
 
 	override public function new(entity)
 	{
 		super(entity);
 		weaponSpeed = 0.25;
 		loadGraphic(AssetPaths.revolver__png);
-	}
+	}	
 
 	override function alt_fire(player:EquippedEntity)
 	{
+		shootSelf = 3.0;
 		super.alt_fire(player);
 	}
 
 	override function attack(player:EquippedEntity)
 	{
+		if (shootSelf > 0)
+			return;
 		if (bullets.length >= maxBullets)
 		{
 			MultiSoundManager.playRandomSound(player, "out_of_ammo", FlxG.random.float(0.9, 1.1));
@@ -77,6 +81,8 @@ class Gamblevolver extends Equipment
 		super.attack(player);
 	}
 
+	var lastShootSelf = 0.0;
+
 	override function update(elapsed:Float)
 	{
 		shootyAnimation -= elapsed * (shootyAnimation * 6);
@@ -93,16 +99,64 @@ class Gamblevolver extends Equipment
 		}
 		bullets.update(elapsed);
 		super.update(elapsed);
-		if (flipX)
+		shootSelf -= elapsed * 3;
+		if (shootSelf <= 0)
 		{
-			angle += FlxMath.lerp(0, 50, FlxMath.bound(shootyAnimation, 0, 1));
+			if (flipX)
+			{
+				angle += FlxMath.lerp(0, 50, FlxMath.bound(shootyAnimation, 0, 1));
+			}
+			else
+			{
+				angle -= FlxMath.lerp(0, 50, FlxMath.bound(shootyAnimation, 0, 1));
+			}
 		}
 		else
 		{
-			angle -= FlxMath.lerp(0, 50, FlxMath.bound(shootyAnimation, 0, 1));
+			if (shootSelf >= 1.5)
+			{
+				angle = FlxMath.lerp(0, angle, 1 - easeOutBounce(1 - ((shootSelf - 1.5) / 1.5)));
+			}
+			else
+			{
+				if (lastShootSelf >= 1.5)
+				{
+					CursedBulletProjectile.roll(wielder, wielder);
+					wielder.damage(5, wielder);
+				}
+				angle = FlxMath.lerp(angle, 0, 1 - easeOutSine(1 - (shootSelf / 1.5)));
+			}
 		}
+		lastShootSelf = shootSelf;
 		offset.y = 6;
 		offset.x = 0;
+	}
+	function easeOutSine(x:Float)
+	{
+		return Math.sin((x * Math.PI) / 2);
+	}
+
+	function easeOutBounce(x:Float)
+	{
+		var n1 = 7.5625;
+		var d1 = 2.75;
+
+		if (x < 1 / d1)
+		{
+			return n1 * x * x;
+		}
+		else if (x < 2 / d1)
+		{
+			return n1 * (x -= 1.5 / d1) * x + 0.75;
+		}
+		else if (x < 2.5 / d1)
+		{
+			return n1 * (x -= 2.25 / d1) * x + 0.9375;
+		}
+		else
+		{
+			return n1 * (x -= 2.625 / d1) * x + 0.984375;
+		}
 	}
 
 	override function draw()

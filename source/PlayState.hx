@@ -133,10 +133,13 @@ class PlayState extends TransitionableState
 				}
 				for (player in Main.run.players)
 				{
-					playerLayer.add(player);
-					player.screenCenter();
-					takenInputs.push(player.input);
-					player.kill();
+					if (player.input != null)
+					{
+						playerLayer.add(player);
+						player.screenCenter();
+						takenInputs.push(player.input);
+						player.kill();
+					}
 				}
 				playerLayer.forEachOfType(PlayerEntity, (p) ->
 				{
@@ -590,6 +593,9 @@ class PlayState extends TransitionableState
 		}
 		if (alivePlayers <= 0 && playersSpawned)
 		{
+			Main.run = new Run();
+			FlxG.save.data.run = null;
+			FlxG.save.flush();
 			FlxG.switchState(new MenuState());
 		}
 		noEpilepsy -= elapsed;

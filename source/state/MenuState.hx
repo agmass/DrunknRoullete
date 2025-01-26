@@ -15,6 +15,7 @@ class MenuState extends TransitionableState
 {
 	var title:FlxText = new FlxText(0, 0, 0, "Drunk'n'Roullete", 64);
 	var play:FlxText = new FlxText(0, 0, 0, Language.get("button.start"), 32);
+	var continueButton:FlxText = new FlxText(0, 0, 0, Language.get("button.continue"), 32);
 	var intro:FlxText = new FlxText(0, 0, 0, Language.get("button.intro"), 32);
 	var fullscreen:FlxText = new FlxText(0, 0, 0, Language.get("button.fullscreen"), 32);
 	var options:FlxText = new FlxText(0, 0, 0, Language.get("button.options"), 32);
@@ -40,6 +41,7 @@ class MenuState extends TransitionableState
 		add(intro);
 		add(fullscreen);
 		add(connectedPlayers);
+		add(continueButton);
 		super.create();
 	}
 
@@ -71,11 +73,25 @@ class MenuState extends TransitionableState
 				{
 					FlxG.sound.play(AssetPaths.menu_select__ogg);
 					selection += 1;
+					if (FlxG.save.data.run == null)
+					{
+						if (selection == 1)
+						{
+							selection = 2;
+						}
+					}
 				}
 				if (i.getMovementVector().y == -1)
 				{
 					FlxG.sound.play(AssetPaths.menu_select__ogg);
 					selection -= 1;
+					if (FlxG.save.data.run == null)
+					{
+						if (selection == 1)
+						{
+							selection = 0;
+						}
+					}
 				}
 			}
 			i.lastMovement.y = i.getMovementVector().y;
@@ -89,7 +105,7 @@ class MenuState extends TransitionableState
 		{
 			selection = 50;
 		}
-		if (selection >= 4)
+		if (selection >= 5)
 		{
 			selection = 0;
 		}
@@ -107,36 +123,44 @@ class MenuState extends TransitionableState
 		fullscreen.color = FlxColor.WHITE;
 		fullscreen.scale.set(0.75, 0.75);
 		fullscreen.alpha = 0.75;
+		continueButton.color = FlxColor.WHITE;
+		continueButton.scale.set(0.75, 0.75);
+		continueButton.alpha = 0.75;
 		if (FlxG.mouse.overlaps(play) && selection != 0)
 		{
 			FlxG.sound.play(AssetPaths.menu_select__ogg);
 			selection = 0;
 		}
-		if (FlxG.mouse.overlaps(options) && selection != 1)
+		if (FlxG.mouse.overlaps(continueButton) && selection != 1 && FlxG.save.data.run != null) 
 		{
 			FlxG.sound.play(AssetPaths.menu_select__ogg);
 			selection = 1;
 		}
+		if (FlxG.mouse.overlaps(options) && selection != 2)
+		{
+			FlxG.sound.play(AssetPaths.menu_select__ogg);
+			selection = 2;
+		}
 		if (FlxG.save.data.seenIntro)
 		{
-			if (FlxG.mouse.overlaps(intro) && selection != 3)
+			if (FlxG.mouse.overlaps(intro) && selection != 4)
 			{
 				FlxG.sound.play(AssetPaths.menu_select__ogg);
-				selection = 3;
+				selection = 4;
 			}
 		}
 		else
 		{
 			intro.visible = false;
-			if (selection >= 3)
+			if (selection >= 4)
 			{
 				selection = 0;
 			}
 		}
-		if (FlxG.mouse.overlaps(fullscreen) && selection != 2)
+		if (FlxG.mouse.overlaps(fullscreen) && selection != 3)
 		{
 			FlxG.sound.play(AssetPaths.menu_select__ogg);
-			selection = 2;
+			selection = 3;
 		}
 		switch (selection)
 		{
@@ -158,6 +182,15 @@ class MenuState extends TransitionableState
 					}
 				}
 			case 1:
+				continueButton.color = FlxColor.YELLOW;
+				continueButton.scale.set(1.25, 1.25);
+				continueButton.alpha = 1;
+				if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
+				{
+					MidState.readSaveFile();
+					FlxG.switchState(new MidState());
+				}
+			case 2:
 				options.color = FlxColor.YELLOW;
 				options.scale.set(1.25, 1.25);
 				options.alpha = 1;
@@ -166,7 +199,7 @@ class MenuState extends TransitionableState
 					var tempState:SettingsSubState = new SettingsSubState();
 					openSubState(tempState);
 				}
-			case 3:
+			case 4:
 				intro.color = FlxColor.YELLOW;
 				intro.scale.set(1.25, 1.25);
 				intro.alpha = 1;
@@ -174,7 +207,7 @@ class MenuState extends TransitionableState
 				{
 					Main.playVideo(AssetPaths.intro__mp4);
 				}
-			case 2:
+			case 3:
 				fullscreen.color = FlxColor.YELLOW;
 				fullscreen.scale.set(1.25, 1.25);
 				fullscreen.alpha = 1;
@@ -185,12 +218,27 @@ class MenuState extends TransitionableState
 		}
 
 		play.screenCenter();
-		options.screenCenter();
-		options.y += 64;
-		fullscreen.screenCenter();
-		fullscreen.y += 128;
-		intro.screenCenter();
-		intro.y += 128 + 64;
+		continueButton.visible = FlxG.save.data.run != null;
+		if (FlxG.save.data.run == null)
+		{
+			options.screenCenter();
+			options.y += 64;
+			fullscreen.screenCenter();
+			fullscreen.y += 128;
+			intro.screenCenter();
+			intro.y += 128 + 64;
+		}
+		else
+		{
+			continueButton.screenCenter();
+			continueButton.y += 64;
+			options.screenCenter();
+			options.y += 128;
+			fullscreen.screenCenter();
+			fullscreen.y += 128 + 64;
+			intro.screenCenter();
+			intro.y += 128 + 64 + 64;
+		}
 		super.update(elapsed);
 	}
 }

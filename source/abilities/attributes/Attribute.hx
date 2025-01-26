@@ -122,11 +122,11 @@ class Attribute {
 
 	public static function parseOperation(string:String):AttributeOperation
 	{
-		if (string == "add")
+		if (string == AttributeOperation.ADD.getName())
 			return AttributeOperation.ADD;
-		if (string == "first_add")
+		if (string == AttributeOperation.FIRST_ADD.getName())
 			return AttributeOperation.FIRST_ADD;
-		if (string == "multiply")
+		if (string == AttributeOperation.MULTIPLY.getName())
 			return AttributeOperation.MULTIPLY;
 		return AttributeOperation.ADD;
 	}

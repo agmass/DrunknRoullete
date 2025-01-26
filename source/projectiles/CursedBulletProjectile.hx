@@ -42,12 +42,17 @@ class CursedBulletProjectile extends BulletProjectile
 		FlxG.camera.shake(0.001, 0.05);
 		hitEntity = true;
 		entity.velocity = velocity.scaleNew(shooter.attributes.get(Attribute.ATTACK_KNOCKBACK).getValue()).scalePoint(new FlxPoint(3, 1.5));
-		roll(entity);
+		roll(entity, shooter);
 	}
 
-	public function roll(p:Entity)
+	public static function roll(p:Entity, shooter:Entity)
 	{
-		var lostOrWon = FlxG.random.bool(50);
+		var lostOrWon = FlxG.random.bool(20);
+		if (shooter == p)
+		{
+			lostOrWon = FlxG.random.bool(80);
+		}
+
 		var amount = 0.0;
 
 		var operation:AttributeOperation = [AttributeOperation.ADD, AttributeOperation.MULTIPLY][FlxG.random.int(0, 1)];
@@ -57,6 +62,18 @@ class CursedBulletProjectile extends BulletProjectile
 			listForBet.push(key);
 		}
 		var type = listForBet[FlxG.random.int(0, listForBet.length - 1)];
+		if (type == Attribute.SIZE_X || type == Attribute.SIZE_Y || type == Attribute.ATTACK_SPEED || type == Attribute.ATTACK_KNOCKBACK
+			|| type == Attribute.CROUCH_SCALE)
+		{
+			if (shooter == p)
+			{
+				lostOrWon = FlxG.random.bool(20);
+			}
+			else
+			{
+				lostOrWon = FlxG.random.bool(80);
+			}
+		}
 		if (!p.attributes.exists(type))
 		{
 			lostOrWon = true;
@@ -80,17 +97,17 @@ class CursedBulletProjectile extends BulletProjectile
 		{
 			if (lostOrWon)
 			{
-				amount = FlxG.random.float(1.1, 1.3);
+				amount = FlxG.random.float(1.1, 2);
 			}
 			else
 			{
-				amount = FlxG.random.float(0.3, 0.9);
+				amount = FlxG.random.float(0.4, 0.9);
 			}
 			amount = FlxMath.roundDecimal(amount, 1);
 		}
 		else
 		{
-			amount = [10.0, 10.0, 10.0, 10.0, 10.0, 25.0, 25.0, 25.0, 25.0, 25.0][FlxG.random.int(0, 9)];
+			amount = [10.0, 10.0, 10.0, 10.0, 10.0, 25.0, 25.0, 25.0, 25.0, 25.0, 50.0, 100.0][FlxG.random.int(0, 11)];
 			if (type.additionMultiplier <= 0.001 && amount <= 50)
 			{
 				amount = 100.0;
@@ -110,6 +127,10 @@ class CursedBulletProjectile extends BulletProjectile
 			p.attributes.get(type).min = type.minBound;
 			p.attributes.get(type).max = type.maxBound;
 		}
+		var positive = lostOrWon;
+		if (type == Attribute.SIZE_X || type == Attribute.SIZE_Y || type == Attribute.ATTACK_SPEED || type == Attribute.CROUCH_SCALE
+			|| type == Attribute.ATTACK_KNOCKBACK)
+			positive = !lostOrWon;
 		if (type == Attribute.SIZE_X || type == Attribute.SIZE_Y)
 		{
 			p.attributes.get(Attribute.SIZE_Y).addTemporaryOperation(new AttributeContainer(operation, amount), 4.5);
@@ -117,7 +138,12 @@ class CursedBulletProjectile extends BulletProjectile
 		}
 		else
 		{
-			p.attributes.get(type).addTemporaryOperation(new AttributeContainer(operation, amount), 4.5);
+			var timeBonus = 0;
+			if (positive && shooter == p)
+				timeBonus += 10;
+			if (!positive && shooter != p)
+				timeBonus += 10;
+			p.attributes.get(type).addTemporaryOperation(new AttributeContainer(operation, amount), FlxG.random.float(5, 8) + timeBonus);
 		}
 		if (type == Attribute.MAX_HEALTH)
 		{
