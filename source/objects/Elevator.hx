@@ -64,7 +64,7 @@ class Elevator extends SpriteToInteract
 
 	override function interact(p:PlayerEntity)
 	{
-		if (interactable)
+		if (interactable && !p.crouching)
 		{
 			interactable = false;
 			animation.play("closed");

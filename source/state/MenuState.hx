@@ -8,6 +8,7 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import openfl.display.BitmapData;
+import substate.CreditsSubState;
 import substate.SettingsSubState;
 import util.Language;
 
@@ -19,6 +20,7 @@ class MenuState extends TransitionableState
 	var intro:FlxText = new FlxText(0, 0, 0, Language.get("button.intro"), 32);
 	var fullscreen:FlxText = new FlxText(0, 0, 0, Language.get("button.fullscreen"), 32);
 	var options:FlxText = new FlxText(0, 0, 0, Language.get("button.options"), 32);
+	var credits:FlxText = new FlxText(0, 0, 0, Language.get("button.credits"), 32);
 	var connectedPlayers:FlxText = new FlxText(20, 20, 0, "No Players Connected", 16);
 	var itchIsBroken:FlxText = new FlxText(0, 0, 0, Language.get("button.start"), 32);
 	var wasPlayingVideo = false;
@@ -42,6 +44,7 @@ class MenuState extends TransitionableState
 		add(fullscreen);
 		add(connectedPlayers);
 		add(continueButton);
+		add(credits);
 		super.create();
 	}
 
@@ -105,7 +108,7 @@ class MenuState extends TransitionableState
 		{
 			selection = 50;
 		}
-		if (selection >= 5)
+		if (selection >= 6)
 		{
 			selection = 0;
 		}
@@ -126,6 +129,9 @@ class MenuState extends TransitionableState
 		continueButton.color = FlxColor.WHITE;
 		continueButton.scale.set(0.75, 0.75);
 		continueButton.alpha = 0.75;
+		credits.color = FlxColor.WHITE;
+		credits.scale.set(0.75, 0.75);
+		credits.alpha = 0.75;
 		if (FlxG.mouse.overlaps(play) && selection != 0)
 		{
 			FlxG.sound.play(AssetPaths.menu_select__ogg);
@@ -141,18 +147,23 @@ class MenuState extends TransitionableState
 			FlxG.sound.play(AssetPaths.menu_select__ogg);
 			selection = 2;
 		}
+		if (FlxG.mouse.overlaps(credits) && selection != 4)
+		{
+			FlxG.sound.play(AssetPaths.menu_select__ogg);
+			selection = 4;
+		}
 		if (FlxG.save.data.seenIntro)
 		{
-			if (FlxG.mouse.overlaps(intro) && selection != 4)
+			if (FlxG.mouse.overlaps(intro) && selection != 5)
 			{
 				FlxG.sound.play(AssetPaths.menu_select__ogg);
-				selection = 4;
+				selection = 5;
 			}
 		}
 		else
 		{
 			intro.visible = false;
-			if (selection >= 4)
+			if (selection >= 5)
 			{
 				selection = 0;
 			}
@@ -200,6 +211,15 @@ class MenuState extends TransitionableState
 					openSubState(tempState);
 				}
 			case 4:
+				credits.color = FlxColor.YELLOW;
+				credits.scale.set(1.25, 1.25);
+				credits.alpha = 1;
+				if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
+				{
+					var tempState:CreditsSubState = new CreditsSubState();
+					openSubState(tempState);
+				}
+			case 5:
 				intro.color = FlxColor.YELLOW;
 				intro.scale.set(1.25, 1.25);
 				intro.alpha = 1;
@@ -225,8 +245,10 @@ class MenuState extends TransitionableState
 			options.y += 64;
 			fullscreen.screenCenter();
 			fullscreen.y += 128;
+			credits.screenCenter();
+			credits.y += 128 + 64;
 			intro.screenCenter();
-			intro.y += 128 + 64;
+			intro.y += 128 + 64 + 64;
 		}
 		else
 		{
@@ -236,8 +258,10 @@ class MenuState extends TransitionableState
 			options.y += 128;
 			fullscreen.screenCenter();
 			fullscreen.y += 128 + 64;
+			credits.screenCenter();
+			credits.y += 128 + 64 + 64;
 			intro.screenCenter();
-			intro.y += 128 + 64 + 64;
+			intro.y += 128 + 64 + 64 + 64;
 		}
 		super.update(elapsed);
 	}

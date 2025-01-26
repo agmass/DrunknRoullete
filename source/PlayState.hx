@@ -4,6 +4,7 @@ import abilities.attributes.Attribute;
 import abilities.attributes.AttributeContainer;
 import abilities.attributes.AttributeOperation;
 import abilities.equipment.items.Gamblevolver;
+import abilities.equipment.items.HammerItem;
 import entity.Entity;
 import entity.EquippedEntity;
 import entity.PlayerEntity;
@@ -47,6 +48,7 @@ import sound.FootstepManager.MultiSoundManager;
 import state.MenuState;
 import state.TransitionableState;
 import substate.PauseSubState;
+import substate.RoulleteSubState;
 import substate.SlotsSubState;
 import ui.InGameHUD;
 import util.EnviornmentsLoader;
@@ -570,8 +572,6 @@ class PlayState extends TransitionableState
 				p.playerMarkerColor = playerMarkerColors[0];
 				playerMarkerColors.splice(0,1);
 			}
-			if (FlxG.keys.justPressed.THREE)
-				p.handWeapon = new Gamblevolver(p);
 			p.showPlayerMarker = showPlayerMarker;
 			if (FlxG.save.data.playerInfoShown)
 				playerDebugText.text += p.toString() + "\n\n";

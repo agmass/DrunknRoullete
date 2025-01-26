@@ -117,7 +117,6 @@ class MidState extends TransitionableState
 				{
 					if (attribute.temporaryModifiers.exists(container))
 						continue; // we dont save temporary attributes but dont tell anyone shhh
-					trace(container.amount);
 					builder += container.operation.getName() + "$" + container.amount + "]";
 				}
 				builder += "}";

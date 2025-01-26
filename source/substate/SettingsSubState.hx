@@ -201,7 +201,7 @@ class SettingsSubState extends FlxSubState
 				}
 			}
 		}
-
+		FlxG.save.data.subtitles = subtitles.checked;
 		FlxG.save.data.disableKeyboard = disableKeyboard.checked;
 		FlxG.save.data.friendlyFire = friendlyFire.checked;
 		FlxG.save.data.shadersDisabled = disableShaders.checked;

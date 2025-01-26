@@ -26,7 +26,12 @@ import js.Browser;
 
 class Main extends Sprite
 {
-	public var attribution:String = "
+	public static var attribution:String = "
+
+		`Programming by agmas`
+		$Art by moi$
+		^Music by [[LUCA]]^
+
 		-----------
 		Attribution
 		-----------
@@ -59,6 +64,8 @@ class Main extends Sprite
 		\"Mechanical1\" by freesound_community
 		\"Hit Flesh 02\" by u_xjrmmgxfru
 		\"Coin Donation 2\" by floraphonic
+		\"Dog Toy\" by freesound_community
+		\"Digging v1\" by freesound_community
 
 		All following sounds are by creators from Freesound.
 
@@ -69,7 +76,6 @@ class Main extends Sprite
 		# Silly Quotes
 
 		\"drunk soviet simulator\" - __REDACTED__
-		\"Cant believe how evil red guy is\" - smorrebrot
 	";
 
 	public static var FPS:FPS;

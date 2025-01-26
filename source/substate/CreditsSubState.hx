@@ -30,11 +30,20 @@ class CreditsSubState extends FlxSubState
 		bg.scrollFactor.set();
 		FlxG.save.bind("brj2025");
 		super.create();
-		bg.resize(FlxG.width / 3, FlxG.height - 40);
+		bg.resize(FlxG.width / 3, (FlxG.height - 100) / 1.75);
 		bg.screenCenter();
 		add(bg);
+		var attributions:FlxText = new FlxText(bg.x + 4, bg.y + 4, 350, Main.attribution, 8);
+		attributions.applyMarkup(attributions.text, [
+			new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.GREEN.getLightened(0.2)), "$"),
+			new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.PINK), "`"),
+			new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.BLUE.getLightened(0.2)), "^")
+		]);
 		bg.camera = uicam;
 		add(back);
+		attributions.color = FlxColor.BLACK;
+		attributions.camera = uicam;
+		add(attributions);
 		back.camera = uicam;
 		back.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 2);
 		back.scrollFactor.set(0, 0);
@@ -44,7 +53,6 @@ class CreditsSubState extends FlxSubState
 		back.updateHitbox();
 	}
 
-	var selection = -6;
 
 	override function close()
 	{
@@ -55,7 +63,6 @@ class CreditsSubState extends FlxSubState
 
 	override function destroy()
 	{
-		FlxG.save.flush();
 		super.destroy();
 	}
 
@@ -74,75 +81,14 @@ class CreditsSubState extends FlxSubState
 		}
 
 		Main.detectConnections();
-		var gamepadAccepted = false;
 		for (i in Main.activeInputs)
 		{
-			if (i is KeyboardSource)
-				continue;
-			if (FlxMath.roundDecimal(i.getMovementVector().y, 1) != FlxMath.roundDecimal(i.lastMovement.y, 1))
-			{
-				if (selection == -6)
-				{
-					selection = -1;
-				}
-				if (i.getMovementVector().y == 1)
-				{
-					FlxG.sound.play(AssetPaths.menu_select__ogg);
-					selection += 1;
-				}
-				if (i.getMovementVector().y == -1)
-				{
-					FlxG.sound.play(AssetPaths.menu_select__ogg);
-					selection -= 1;
-				}
-			}
-			i.lastMovement.y = i.getMovementVector().y;
-			if (i.ui_accept)
-			{
-				FlxG.sound.play(AssetPaths.menu_accept__ogg);
-				gamepadAccepted = true;
-			}
 			if (i.ui_deny)
 			{
 				close();
 			}
 		}
-		if (selection <= -1 && selection != -6)
-		{
-			selection = 7;
-		}
-		if (selection >= 8)
-		{
-			selection = 0;
-		}
 
-		if (selection >= 0)
-		{
-			if (selection < selectable.length)
-			{
-				if (selectable[selection] != null)
-				{
-					var checkBox = selectable[selection];
-					selectionSprite.x = (checkBox.x - 2);
-					selectionSprite.y = (checkBox.y - 2);
-					selectionSprite.scale.set(checkBox.width + 4, checkBox.height + 4);
-					selectionSprite.updateHitbox();
-					checkBox.checkbox_dirty = true;
-					if (gamepadAccepted)
-					{
-						checkBox.checked = !checkBox.checked;
-					}
-				}
-			}
-		}
-
-		FlxG.save.data.disableKeyboard = disableKeyboard.checked;
-		FlxG.save.data.friendlyFire = friendlyFire.checked;
-		FlxG.save.data.shadersDisabled = disableShaders.checked;
-		FlxG.save.data.lookAtMovement = lookAtMovement.checked;
-		FlxG.save.data.disableChroma = disableChroma.checked;
-		FlxG.save.data.fpsshown = frameRateInfo.checked;
-		FlxG.save.data.playerInfoShown = playerInfo.checked;
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
 			close();

@@ -15,6 +15,7 @@ class Equipment extends FlxSprite
 	public var weaponSpeed:Float = 0.1;
 	public var equipped = false;
 	public var changePlayerAnimation = false;
+	public var weaponScale = 1;
 
 	public function new(entity:EquippedEntity)
 	{

@@ -3,6 +3,7 @@ package entity.bosses;
 import abilities.attributes.Attribute;
 import flixel.FlxG;
 import flixel.group.FlxSpriteGroup;
+import sound.FootstepManager.MultiSoundManager;
 import util.Language;
 
 class RatKingBoss extends HumanoidEntity
@@ -87,6 +88,7 @@ class RatKingBoss extends HumanoidEntity
 		}
 		if (!isOnScreen())
 		{
+			MultiSoundManager.playRandomSound(this, "dig", FlxG.random.float(0.9, 1.1));
 			FlxG.camera.shake(0.025, 0.1);
 			behaviourState = 0;
 			velocity.y = -1250;

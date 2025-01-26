@@ -117,8 +117,10 @@ class EquippedEntity extends Entity
 			{
 				holsteredWeapon.x += FlxMath.lerp(holsteredWeapon.flipX ? -8 : 8, 0, (Math.abs(0.5 - switchingAnimation) * 2));
 			}
-			holsteredWeapon.scale.x = attributes.get(Attribute.SIZE_X).getValue();
-			holsteredWeapon.scale.y = attributes.get(Attribute.SIZE_Y).getValue();
+			holsteredWeapon.scale.x = attributes.get(Attribute.SIZE_X).getValue() * holsteredWeapon.weaponScale;
+			holsteredWeapon.scale.y = attributes.get(Attribute.SIZE_Y).getValue() * holsteredWeapon.weaponScale;
+			if (holsteredWeapon.weaponScale != 1)
+				holsteredWeapon.updateHitbox();
 			if (switchingAnimation < 0.25)
 				holsteredWeapon.draw();
 		}
@@ -134,8 +136,10 @@ class EquippedEntity extends Entity
 			handWeapon.x = getGraphicMidpoint().x - (handWeapon.width / 2);
 			handWeapon.y = getGraphicMidpoint().y - (handWeapon.height / 2);
 			handWeapon.flipX = flipX;
-			handWeapon.scale.x = attributes.get(Attribute.SIZE_X).getValue();
-			handWeapon.scale.y = attributes.get(Attribute.SIZE_Y).getValue();
+			handWeapon.scale.x = attributes.get(Attribute.SIZE_X).getValue() * handWeapon.weaponScale;
+			handWeapon.scale.y = attributes.get(Attribute.SIZE_Y).getValue() * handWeapon.weaponScale;
+			if (handWeapon.weaponScale != 1)
+				handWeapon.updateHitbox();
 			if (switchingAnimation <= 0)
 			{
 				if (handWeapon.flipX)
