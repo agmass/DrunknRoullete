@@ -49,7 +49,7 @@ class PlayerEntity extends HumanoidEntity
 	{
         super(x,y);
 		// makeGraphic(32, 32, FlxColor.WHITE);
-		loadGraphic(AssetPaths.goober__png, true, 40, 69);
+		loadGraphic(AssetPaths.goober__png, true, 42, 71);
 		animation.add("idle", [0]);
 		animation.add("walk", [1, 0, 2, 0], 3);
 		animation.add("idle_no_weapon", [3]);

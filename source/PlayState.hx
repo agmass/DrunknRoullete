@@ -13,6 +13,7 @@ import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.FlxSubState;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.addons.nape.FlxNapeSprite;
 import flixel.addons.plugin.screengrab.FlxScreenGrab;
@@ -21,6 +22,7 @@ import flixel.graphics.frames.FlxFrame;
 import flixel.group.FlxSpriteGroup;
 import flixel.input.gamepad.mappings.SwitchProMapping;
 import flixel.math.FlxMath;
+import flixel.sound.FlxSound;
 import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
@@ -50,6 +52,7 @@ import state.TransitionableState;
 import substate.PauseSubState;
 import substate.RoulleteSubState;
 import substate.SlotsSubState;
+import substate.WheelSubState;
 import ui.InGameHUD;
 import util.EnviornmentsLoader;
 import util.Language;
@@ -88,6 +91,10 @@ class PlayState extends TransitionableState
 
 	public var gameHud:InGameHUD = new InGameHUD();
 	public static var forcedBg = null;
+	public var music_track_gambling:FlxSound = new FlxSound();
+	public var music_track_gambling_in_menu:FlxSound = new FlxSound();
+
+	public static var gamblingTrackLastPos = 0.0;
 
 	var slotsShader = new AttributesSlotTextShader();
 	var tokensText:FlxText = new FlxText(0, 0, 0, "0 TOKENS", 64);
@@ -96,13 +103,34 @@ class PlayState extends TransitionableState
 	{
 		remove(Main.subtitlesBox);
 		saveToRun();
+		if (music_track_gambling.playing)
+			gamblingTrackLastPos = music_track_gambling.time;
+		music_track_gambling_in_menu.fadeOut(1.5);
+		music_track_gambling.fadeOut(1.5);
 		Main.napeSpace.clear();
 		super.destroy();
 	}
 	var bgName = "";
 
+	override function openSubState(SubState:FlxSubState)
+	{
+		if (SubState is SlotsSubState || SubState is WheelSubState)
+		{
+			if (music_track_gambling.playing)
+			{
+				music_track_gambling.fadeOut(0.25);
+				music_track_gambling_in_menu.fadeIn(0.25);
+			}
+		}
+		super.openSubState(SubState);
+	}
+
+
 	override public function create()
 	{
+		music_track_gambling.loadEmbedded(AssetPaths.about_to_gamble__wav, true);
+		music_track_gambling_in_menu.loadEmbedded(AssetPaths.gambling__wav, true);
+		music_track_gambling_in_menu.volume = 0;
 		if (Main.activeInputs.length == 0)
 		{
 			Main.kbmConnected = true;
@@ -248,6 +276,10 @@ class PlayState extends TransitionableState
 			if (!FlxG.save.data.shadersDisabled)
 			wheel.shader = slotsShader;
 			interactable.add(wheel);
+			music_track_gambling.play();
+			music_track_gambling_in_menu.play();
+			music_track_gambling.time = gamblingTrackLastPos;
+			music_track_gambling_in_menu.time = gamblingTrackLastPos;
 		}
 		if (!FlxG.save.data.shadersDisabled)
 			gameCam.filters = [new ShaderFilter(chrome)];
@@ -294,6 +326,11 @@ class PlayState extends TransitionableState
 
 	override function closeSubState()
 	{
+		if (music_track_gambling.playing)
+		{
+			music_track_gambling_in_menu.fadeOut(0.25);
+			music_track_gambling.fadeIn(0.25);
+		}
 		if (FlxG.save.data.shadersDisabled)
 		{
 			gameCam.filters = [];
