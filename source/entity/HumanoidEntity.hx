@@ -3,6 +3,7 @@ package entity;
 import abilities.attributes.Attribute;
 import flixel.FlxG;
 import flixel.effects.particles.FlxEmitter;
+import flixel.util.FlxColor;
 import sound.FootstepManager;
 
 class HumanoidEntity extends EquippedEntity
@@ -31,7 +32,7 @@ class HumanoidEntity extends EquippedEntity
 		attributes.set(Attribute.SIZE_Y, new Attribute(1));
 	}
 
-	function jumpParticles()
+	public function jumpParticles()
 	{
 		poofParticles.x = getMidpoint().x;
 		poofParticles.y = getGraphicBounds().bottom - 8;
@@ -39,6 +40,19 @@ class HumanoidEntity extends EquippedEntity
 		poofParticles.speed.set(50 * sc, 50 * sc, 0, 0);
 		poofParticles.scale.set(0.8 * sc, 0.8 * sc, 1.2 * sc, 1.2 * sc, 0.2 * sc, 0.2 * sc, 0.2 * sc, 0.2 * sc);
 		poofParticles.launchAngle.set(-180, 0);
+		poofParticles.color.set(FlxColor.WHITE);
+		poofParticles.start(true, 0.1, FlxG.random.int(3, 6));
+	}
+
+	public function jumpParticleswithColor(color:FlxColor)
+	{
+		poofParticles.x = getMidpoint().x;
+		poofParticles.y = getGraphicBounds().bottom - 8;
+		var sc = attributes.get(Attribute.SIZE_X).getValue();
+		poofParticles.speed.set(50 * sc, 50 * sc, 0, 0);
+		poofParticles.scale.set(0.8 * sc, 0.8 * sc, 1.2 * sc, 1.2 * sc, 0.2 * sc, 0.2 * sc, 0.2 * sc, 0.2 * sc);
+		poofParticles.launchAngle.set(-180, 0);
+		poofParticles.color.set(color);
 		poofParticles.start(true, 0.1, FlxG.random.int(3, 6));
 	}
 

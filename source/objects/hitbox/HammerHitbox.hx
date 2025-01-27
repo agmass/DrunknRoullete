@@ -13,8 +13,10 @@ class HammerHitbox extends Hitbox
 	override public function new(x, y)
 	{
 		super(x, y);
-		damage = FlxG.random.int(8, 15);
-		makeGraphic(72, 72, FlxColor.TRANSPARENT);
+		damage = FlxG.random.int(10, 13);
+		makeGraphic(120, 120, FlxColor.TRANSPARENT);
+		x -= 12;
+		y -= 12;
 	}
 
 	override function onHit(victim:Entity)
