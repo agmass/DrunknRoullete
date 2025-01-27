@@ -677,6 +677,19 @@ class PlayState extends TransitionableState
 			copiedPlayer.health = p.health;
 			copiedPlayer.input = p.input;
 			copiedPlayer.tokens = p.tokens;
+			if (FlxG.save.data.highestTokens == null)
+			{
+				FlxG.save.data.highestTokens = p.tokens;
+				FlxG.save.flush();
+			}
+			else
+			{
+				if (p.tokens > FlxG.save.data.highestTokens)
+				{
+					FlxG.save.data.highestTokens = p.tokens;
+					FlxG.save.flush();
+				}
+			}
 			if (p.handWeapon != null)
 				copiedPlayer.handWeapon = Type.createInstance(Type.getClass(p.handWeapon), [copiedPlayer]);
 			if (p.holsteredWeapon != null)

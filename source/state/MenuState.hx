@@ -8,6 +8,7 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import openfl.display.BitmapData;
+import shader.AttributesSlotTextShader;
 import substate.CreditsSubState;
 import substate.SettingsSubState;
 import util.Language;
@@ -24,6 +25,7 @@ class MenuState extends TransitionableState
 	var connectedPlayers:FlxText = new FlxText(20, 20, 0, "No Players Connected", 16);
 	var itchIsBroken:FlxText = new FlxText(0, 0, 0, Language.get("button.start"), 32);
 	var wasPlayingVideo = false;
+	var highScore:FlxText = new FlxText(0, FlxG.height - 48, "HIGHEST TOKENS: 0", 32);
 
 	override function create()
 	{
@@ -45,12 +47,30 @@ class MenuState extends TransitionableState
 		add(connectedPlayers);
 		add(continueButton);
 		add(credits);
+		highScore.color = FlxColor.LIME;
+		if (FlxG.save.data.highestTokens != null)
+		{
+			add(highScore);
+			highScore.text = "HIGHEST TOKENS: " + FlxG.save.data.highestTokens;
+			highScore.screenCenter(X);
+			if (!FlxG.save.data.shadersDisabled)
+			{
+				s.modulo.value[0] = 999;
+				highScore.shader = s;
+			}
+			else
+			{
+				highScore.color = FlxColor.YELLOW;
+			}
+		}
 		super.create();
 	}
 
+	var s = new AttributesSlotTextShader();
 	var selection = 0;
 	override function update(elapsed:Float)
 	{
+		s.elapsed.value[0] += elapsed;
 		if (Main.playingVideo)
 		{
 			wasPlayingVideo = true;
