@@ -128,7 +128,7 @@ class Gamblevolver extends Equipment
 			}
 		}
 		lastShootSelf = shootSelf;
-		offset.y = 6;
+		offset.y = 5 + Math.sin(idleSwing);
 		offset.x = 0;
 	}
 	function easeOutSine(x:Float)

@@ -10,6 +10,7 @@ import input.ControllerSource;
 import input.InputSource;
 import input.KeyboardSource;
 import input.control.Input;
+import js.html.Console;
 import nape.geom.Vec2;
 import nape.space.Space;
 import openfl.display.FPS;
@@ -121,7 +122,10 @@ class Main extends Sprite
 		Browser.document.addEventListener('keydown', function(event)
 		{
 			#if !debug
-			event.preventDefault();
+			if (event.key != "F11")
+			{
+				event.preventDefault();
+			}
 			#end
 			if (event.key == "Enter")
 			{
@@ -153,6 +157,8 @@ class Main extends Sprite
 			}
 		}
 		if (FlxG.keys.justPressed.O)
+			FlxG.fullscreen = !FlxG.fullscreen;
+		if ((FlxG.keys.pressed.ALT && FlxG.keys.justPressed.ENTER) || (FlxG.keys.justPressed.ALT && FlxG.keys.pressed.ENTER))
 			FlxG.fullscreen = !FlxG.fullscreen;
 		for (gamepad in FlxG.gamepads.getActiveGamepads())
 		{

@@ -103,10 +103,8 @@ class PlayState extends TransitionableState
 	{
 		remove(Main.subtitlesBox);
 		saveToRun();
-		if (music_track_gambling.playing)
-			gamblingTrackLastPos = music_track_gambling.time;
-		music_track_gambling_in_menu.fadeOut(1.5);
-		music_track_gambling.fadeOut(1.5);
+		music_track_gambling_in_menu.fadeOut(0.23);
+		music_track_gambling.fadeOut(0.23);
 		Main.napeSpace.clear();
 		super.destroy();
 	}
@@ -119,7 +117,7 @@ class PlayState extends TransitionableState
 			if (music_track_gambling.playing)
 			{
 				music_track_gambling.fadeOut(0.25);
-				music_track_gambling_in_menu.fadeIn(0.25);
+				music_track_gambling_in_menu.fadeIn(0.25, FlxG.sound.volume);
 			}
 		}
 		super.openSubState(SubState);
@@ -276,10 +274,8 @@ class PlayState extends TransitionableState
 			if (!FlxG.save.data.shadersDisabled)
 			wheel.shader = slotsShader;
 			interactable.add(wheel);
-			music_track_gambling.play();
-			music_track_gambling_in_menu.play();
-			music_track_gambling.time = gamblingTrackLastPos;
-			music_track_gambling_in_menu.time = gamblingTrackLastPos;
+			music_track_gambling.play(false);
+			music_track_gambling_in_menu.play(false);
 		}
 		if (!FlxG.save.data.shadersDisabled)
 			gameCam.filters = [new ShaderFilter(chrome)];
@@ -329,7 +325,7 @@ class PlayState extends TransitionableState
 		if (music_track_gambling.playing)
 		{
 			music_track_gambling_in_menu.fadeOut(0.25);
-			music_track_gambling.fadeIn(0.25);
+			music_track_gambling.fadeIn(0.25, FlxG.sound.volume);
 		}
 		if (FlxG.save.data.shadersDisabled)
 		{
@@ -347,6 +343,14 @@ class PlayState extends TransitionableState
 
 	override public function update(elapsed:Float)
 	{
+		if (music_track_gambling.fadeTween == null && music_track_gambling.volume != 0)
+		{
+			music_track_gambling.volume = FlxG.sound.volume;
+		}
+		if (music_track_gambling_in_menu.fadeTween == null && music_track_gambling_in_menu.volume != 0)
+		{
+			music_track_gambling_in_menu.volume = FlxG.sound.volume;
+		}
 		if (tokensTime > 0)
 		{
 			FlxG.timeScale = 0.2;

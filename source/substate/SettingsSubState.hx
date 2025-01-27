@@ -5,12 +5,14 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.addons.ui.FlxUI;
+import flixel.addons.ui.FlxUIBar;
 import flixel.addons.ui.FlxUICheckBox;
 import flixel.addons.ui.FlxUITabMenu;
 import flixel.input.gamepad.FlxGamepad;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
+import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import flixel.util.FlxSave;
 import input.KeyboardSource;
@@ -27,10 +29,10 @@ class SettingsSubState extends FlxSubState
 	var lookAtMovement:FlxUICheckBox = new FlxUICheckBox(10, 150, null, null, "Controller - Look at Movement", 400);
 	var frameRateInfo:FlxUICheckBox = new FlxUICheckBox(10, 180, null, null, "Debug Info (FPS Counter)", 200);
 	var playerInfo:FlxUICheckBox = new FlxUICheckBox(10, 210, null, null, "Debug Info (PlayerInfo)", 200);
+	var fullscreen:FlxUICheckBox = new FlxUICheckBox(10, 210 + 60, null, null, "Fullscreen", 200);
 	var back:FlxText = new FlxText(0, 0, 0, "Back", 24);
 	var selectionSprite:FlxSprite = new FlxSprite(1, 1);
 	var selectable:Array<FlxUICheckBox> = [];
-
 	override public function create():Void
 	{
 		uicam.bgColor.alpha = 0;
@@ -46,6 +48,7 @@ class SettingsSubState extends FlxSubState
 		lookAtMovement.scrollFactor.set();
 		frameRateInfo.scrollFactor.set();
 		playerInfo.scrollFactor.set();
+		fullscreen.scrollFactor.set();
 		FlxG.save.bind("brj2025");
 		super.create();
 		bg.resize(FlxG.width / 3, FlxG.height / 3);
@@ -58,6 +61,7 @@ class SettingsSubState extends FlxSubState
 		lookAtMovement.checked = FlxG.save.data.lookAtMovement;
 		frameRateInfo.checked = FlxG.save.data.fpsshown;
 		playerInfo.checked = FlxG.save.data.playerInfoShown;
+		fullscreen.checked = FlxG.fullscreen;
 		add(bg);
 		selectionSprite.camera = uicam;
 		selectionSprite.makeGraphic(1, 1);
@@ -73,6 +77,7 @@ class SettingsSubState extends FlxSubState
 		bg.add(lookAtMovement);
 		bg.add(frameRateInfo);
 		bg.add(playerInfo);
+		bg.add(fullscreen);
 		selectable = [
 			subtitles,
 			disableKeyboard,
@@ -81,7 +86,8 @@ class SettingsSubState extends FlxSubState
 			lookAtMovement,
 			frameRateInfo,
 			playerInfo,
-			disableChroma
+			disableChroma,
+			fullscreen
 		];
 		bg.camera = uicam;
 		subtitles.camera = uicam;
@@ -92,6 +98,7 @@ class SettingsSubState extends FlxSubState
 		playerInfo.camera = uicam;
 		friendlyFire.camera = uicam;
 		disableChroma.camera = uicam;
+		fullscreen.camera = uicam;
 		add(subtitles);
 		add(disableKeyboard);
 		add(friendlyFire);
@@ -100,7 +107,9 @@ class SettingsSubState extends FlxSubState
 		add(frameRateInfo);
 		add(playerInfo);
 		add(disableChroma);
+		add(fullscreen);
 		add(back);
+
 		back.camera = uicam;
 		back.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 2);
 		back.scrollFactor.set(0, 0);
@@ -138,6 +147,7 @@ class SettingsSubState extends FlxSubState
 				close();
 			}
 		}
+		FlxG.fullscreen = fullscreen.checked;
 
 		Main.detectConnections();
 		var gamepadAccepted = false;
@@ -175,9 +185,9 @@ class SettingsSubState extends FlxSubState
 		}
 		if (selection <= -1 && selection != -6)
 		{
-			selection = 7;
+			selection = 8;
 		}
-		if (selection >= 8)
+		if (selection >= 9)
 		{
 			selection = 0;
 		}

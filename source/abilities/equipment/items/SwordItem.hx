@@ -127,7 +127,7 @@ class SwordItem extends Equipment
 		else
 		{
 			offset.x = 0;
-			offset.y = 6;
+			offset.y = 5 + Math.sin(idleSwing);
 		}
 		super.update(elapsed);
 	}

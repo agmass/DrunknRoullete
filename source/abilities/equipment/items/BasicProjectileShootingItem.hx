@@ -120,7 +120,7 @@ class BasicProjectileShootingItem extends Equipment
 		{
 			angle -= FlxMath.lerp(0, 50, FlxMath.bound(shootyAnimation, 0, 1));
 		}
-		offset.y = 6;
+		offset.y = 5 + (Math.sin(idleSwing) * 3);
 		offset.x = 0;
 	}
 

@@ -68,9 +68,11 @@ class MenuState extends TransitionableState
 
 	var s = new AttributesSlotTextShader();
 	var selection = 0;
+	var waitForFadeOut = 0.3;
 	override function update(elapsed:Float)
 	{
 		s.elapsed.value[0] += elapsed;
+		waitForFadeOut -= elapsed;
 		if (Main.playingVideo)
 		{
 			wasPlayingVideo = true;
@@ -83,8 +85,7 @@ class MenuState extends TransitionableState
 		}
 		Main.detectConnections();
 		var gamepadAccepted = false;
-		connectedPlayers.text = #if html5 Language.get("menu.itchWarning") + "\n" + #end
-		Language.get("menu.controllerWarning");
+		connectedPlayers.text = Language.get("menu.controllerWarning");
 		var e = 0;
 		for (i in Main.activeInputs)
 		{
@@ -209,7 +210,8 @@ class MenuState extends TransitionableState
 					}
 					else
 					{
-						FlxG.switchState(new PlayState());
+						if (waitForFadeOut < 0)
+							FlxG.switchState(new PlayState());
 					}
 				}
 			case 1:

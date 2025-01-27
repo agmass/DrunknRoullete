@@ -217,6 +217,7 @@ class MidState extends TransitionableState
 	var originalAngle = 0.0;
 	var selection = null;
 	var breath = 1.0;
+	var makeSureMusicFadesOut = 0.0;
 	var autosavingText:FlxText = new FlxText(FlxG.width - 400, FlxG.height - 150, 0, "Autosaving...", 32);
 	var shader = new AttributesSlotTextShader();
 
@@ -235,6 +236,7 @@ class MidState extends TransitionableState
 
 	override function update(elapsed:Float)
 	{
+		makeSureMusicFadesOut += elapsed;
 		pickNextBoss();
 		shader.elapsed.value[0] += elapsed;
 		Main.detectConnections();
@@ -283,10 +285,6 @@ class MidState extends TransitionableState
 			originalAngle = elevator.angle;
 
 		}
-		if (FlxG.keys.justPressed.P)
-		{
-			FlxG.switchState(new PlayState());
-		}
 		elevator.y += Math.sin(s) * 0.3;
 		card.visible = selection != null;
 		if (selection <= -1)
@@ -326,7 +324,7 @@ class MidState extends TransitionableState
 					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.RED, false, false, FlxColor.RED.getDarkened(0.5), false), "`"),
 					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.BLUE, false, false, FlxColor.YELLOW.getDarkened(0.5), false), "@")
 				]);
-				if (gamepadAccepted)
+				if (gamepadAccepted && makeSureMusicFadesOut > 0.25)
 				{
 					TransitionableState.screengrab();
 					PlayState.forcedBg = AssetPaths._city__png;
@@ -346,7 +344,7 @@ class MidState extends TransitionableState
 					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.RED, false, false, FlxColor.RED.getDarkened(0.5), false), "`"),
 					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.BLUE, false, false, FlxColor.YELLOW.getDarkened(0.5), false), "@")
 				]);
-				if (gamepadAccepted)
+				if (gamepadAccepted && makeSureMusicFadesOut > 0.25)
 				{
 					TransitionableState.screengrab();
 					PlayState.forcedBg = null;

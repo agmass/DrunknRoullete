@@ -16,6 +16,7 @@ class Equipment extends FlxSprite
 	public var equipped = false;
 	public var changePlayerAnimation = false;
 	public var weaponScale = 1;
+	public var idleSwing = 0.0;
 
 	public function new(entity:EquippedEntity)
 	{
@@ -26,6 +27,12 @@ class Equipment extends FlxSprite
 	public function canSwapOut():Bool
 	{
 		return false;
+	}
+
+	override function update(elapsed:Float)
+	{
+		idleSwing += elapsed;
+		super.update(elapsed);
 	}
 
 	public function attack(player:EquippedEntity) {}
