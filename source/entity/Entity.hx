@@ -94,6 +94,7 @@ class Entity extends FlxSprite {
 		txt.color = color;
 		floatingTexts.add(txt);
 	}
+	public function onCollideWithEntity(e:Entity) {}
 
     override function update(elapsed:Float) {
 		if (lastHealth > health && ragdoll == null)

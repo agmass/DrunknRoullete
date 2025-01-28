@@ -493,6 +493,10 @@ class PlayState extends TransitionableState
 			{
 				c.onOverlapWithEntity(e);
 			});
+			FlxG.overlap(p, playerLayer, (c:Entity, e:Entity) ->
+			{
+				c.onCollideWithEntity(e);
+			});
 			FlxG.overlap(p.collideables, mapLayer, (c:Projectile, e:Entity) ->
 			{
 				c.onOverlapWithMap();

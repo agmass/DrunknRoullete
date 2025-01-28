@@ -35,6 +35,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		health = attributes.get(Attribute.MAX_HEALTH).getValue();
 	}
 
+
 	override function createAttributes()
 	{
 		super.createAttributes();
