@@ -84,6 +84,7 @@ class MidState extends TransitionableState
 	{
 		FlxG.save.data.run = Main.saveFileVersion;
 		FlxG.save.data.roomsTraveled = Main.run.roomsTraveled;
+		FlxG.save.data.cheatedThisRun = Main.run.cheatedThisRun;
 		FlxG.save.data.combo = Main.run.combo;
 		FlxG.save.data.nextBoss = Type.getClassName(Type.getClass(Main.run.nextBoss));
 		var serializedPlayers = "";
@@ -139,6 +140,7 @@ class MidState extends TransitionableState
 		}
 		Main.run.roomsTraveled = FlxG.save.data.roomsTraveled;
 		Main.run.combo = FlxG.save.data.combo;
+		Main.run.cheatedThisRun = FlxG.save.data.cheatedThisRun;
 		Main.run.nextBoss = Type.createInstance(Type.resolveClass(FlxG.save.data.nextBoss), [0, 0]);
 		var pArrayString:String = FlxG.save.data.players;
 		var i = 0;
@@ -232,7 +234,10 @@ class MidState extends TransitionableState
 				new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2),
 				new RatKingBoss(0, 0)
 			][FlxG.random.int(0, 2)];
-			Main.run.nextBoss = new DrunkDriveDaveBoss(0, 0);
+			if (FlxG.random.bool(5))
+			{
+				Main.run.nextBoss = new DrunkDriveDaveBoss(0, 0);
+			}
 		}
 	}
 
@@ -249,22 +254,24 @@ class MidState extends TransitionableState
 			{
 				if (i.getMovementVector().y == 1)
 				{
-					FlxG.sound.play(AssetPaths.menu_select__ogg);
+					FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
 					selection += 1;
 				}
 				if (i.getMovementVector().y == -1)
 				{
-					FlxG.sound.play(AssetPaths.menu_select__ogg);
+					FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
 					selection -= 1;
 				}
 			}
 			i.lastMovement.y = i.getMovementVector().y;
 			if (i.ui_accept)
 			{
-				FlxG.sound.play(AssetPaths.menu_accept__ogg);
+				FlxG.sound.play(AssetPaths.menu_accept__ogg, Main.UI_VOLUME);
 				gamepadAccepted = true;
 			}
 		}
+		elevator.screenCenter();
+		elevator.y += Math.sin(s) * 30;
 		bg.x = elevator.x - (bg.width + 120);
 		bg.y = elevator.y - 128;
 		card.x = elevator.x + (card.width + 120);
@@ -287,7 +294,6 @@ class MidState extends TransitionableState
 			originalAngle = elevator.angle;
 
 		}
-		elevator.y += Math.sin(s) * 0.3;
 		card.visible = selection != null;
 		if (selection <= -1)
 		{
@@ -301,12 +307,12 @@ class MidState extends TransitionableState
 		continueButton.animation.play("i");
 		if (FlxG.mouse.overlaps(gambleButton) && selection != 0)
 		{
-			FlxG.sound.play(AssetPaths.menu_select__ogg);
+			FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
 			selection = 0;
 		}
 		if (FlxG.mouse.overlaps(continueButton) && selection != 1)
 		{
-			FlxG.sound.play(AssetPaths.menu_select__ogg);
+			FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
 			selection = 1;
 		}
 

@@ -49,6 +49,7 @@ class PlayerEntity extends HumanoidEntity
 	{
         super(x,y);
 		// makeGraphic(32, 32, FlxColor.WHITE);
+		usePlayerVolume = true;
 		loadGraphic(AssetPaths.goober__png, true, 42, 71);
 		animation.add("idle", [0]);
 		animation.add("walk", [1, 0, 2, 0], 3);
@@ -78,6 +79,7 @@ class PlayerEntity extends HumanoidEntity
 
     override function update(elapsed:Float) {
 
+		noclip = FlxG.save.data.cheats;
 		if (ragdoll != null)
 		{
 			healthBar.alpha = 0;
@@ -271,6 +273,8 @@ class PlayerEntity extends HumanoidEntity
 		}
 		// health bar
 
+		if (FlxG.save.data.cheats)
+			velocity = inputVelocity.scale(SPEED);
 
         super.update(elapsed);
         if (!dashMovement.isZero()) {
@@ -343,6 +347,13 @@ class PlayerEntity extends HumanoidEntity
 	}
 
 	var trailFadeOut = new FadingOut();
+
+	override function damage(amount:Float, attacker:Entity)
+	{
+		if (FlxG.save.data.cheats)
+			return;
+		super.damage(amount, attacker);
+	}
 
     override function toString():String {
         return super.toString() + "\n   Input:"+ input.toString();

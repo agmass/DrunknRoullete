@@ -10,7 +10,6 @@ import input.ControllerSource;
 import input.InputSource;
 import input.KeyboardSource;
 import input.control.Input;
-import js.html.Console;
 import nape.geom.Vec2;
 import nape.space.Space;
 import openfl.display.FPS;
@@ -23,6 +22,7 @@ import util.Run;
 import util.SubtitlesBox;
 #if html5
 import js.Browser;
+import js.html.Console;
 #end
 
 class Main extends Sprite
@@ -91,6 +91,12 @@ class Main extends Sprite
 	public static var run:Run;
 	public static var saveFileVersion = "1.0";
 
+	public static var PLAYER_SOUND_VOLUME = 1.0;
+	public static var ENEMY_SOUND_VOLUME = 0.9;
+	public static var OTHER_VOLUME = 1.0;
+	public static var UI_VOLUME = 0.75;
+	public static var MUSIC_VOLUME = 1.0;
+
 	public function new()
 	{
 		super();
@@ -107,6 +113,10 @@ class Main extends Sprite
 		MultiSoundManager.footstepVolume.set("carpet", 0.15);
 		MultiSoundManager.footstepVolume.set("wood", 0.75);
 		addChild(new FlxGame(0, 0, MenuState));
+		#if cpp
+		FlxG.drawFramerate = 240;
+		FlxG.updateFramerate = 240;
+		#end
 		#if html5
 		var link = Browser.document.createLinkElement();
 		link.href = "assets/data/styles.css";
@@ -158,8 +168,10 @@ class Main extends Sprite
 		}
 		if (FlxG.keys.justPressed.O)
 			FlxG.fullscreen = !FlxG.fullscreen;
+		#if cpp
 		if ((FlxG.keys.pressed.ALT && FlxG.keys.justPressed.ENTER) || (FlxG.keys.justPressed.ALT && FlxG.keys.pressed.ENTER))
 			FlxG.fullscreen = !FlxG.fullscreen;
+		#end
 		for (gamepad in FlxG.gamepads.getActiveGamepads())
 		{
 			if (!Main.activeGamepads.contains(gamepad))
@@ -168,6 +180,10 @@ class Main extends Sprite
 				activeInputs.push(new ControllerSource(gamepad));
 				connectionsDirty = true;
 			}
+		}
+		if (FlxG.save.data.disableKeyboard)
+		{
+			kbmConnected = false;
 		}
 		if (FlxG.keys.firstPressed() != -1)
 		{

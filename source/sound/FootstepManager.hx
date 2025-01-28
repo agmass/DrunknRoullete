@@ -1,6 +1,7 @@
 package sound;
 
 import entity.Entity;
+import entity.SmallRatEntity;
 import flixel.FlxG;
 import flixel.sound.FlxSound;
 import flixel.system.FlxAssets;
@@ -68,11 +69,15 @@ class MultiSoundManager
 		var sound = FlxG.sound.play(multiSounds.get(soundName)[FlxG.random.int(0, multiSounds.get(soundName).length - 1)]);
 		sound.proximity(entity.x, entity.y, Main.audioPanner, 1920, true);
 		sound.pitch = pitch;
-		sound.volume = volume;
+		sound.volume = entity.usePlayerVolume ? Main.PLAYER_SOUND_VOLUME : Main.ENEMY_SOUND_VOLUME - (1 - volume);
 	}
 
 	public static function playFootstepForEntity(entity:Entity)
 	{
+		if (entity is SmallRatEntity)
+		{
+			return;
+		}
 		if (entity.isTouching(FLOOR))
 		{
 			if (entity.footstepCount >= surfaceMap.get(entity.steppingOn).length - 1)

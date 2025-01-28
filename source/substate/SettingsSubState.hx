@@ -29,6 +29,7 @@ class SettingsSubState extends FlxSubState
 	var lookAtMovement:FlxUICheckBox = new FlxUICheckBox(10, 150, null, null, "Controller - Look at Movement", 400);
 	var frameRateInfo:FlxUICheckBox = new FlxUICheckBox(10, 180, null, null, "Debug Info (FPS Counter)", 200);
 	var playerInfo:FlxUICheckBox = new FlxUICheckBox(10, 210, null, null, "Debug Info (PlayerInfo)", 200);
+	var cheats:FlxUICheckBox = new FlxUICheckBox(250, 30, null, null, "CHEATER!!! >:C", 200);
 	var fullscreen:FlxUICheckBox = new FlxUICheckBox(10, 210 + 60, null, null, "Fullscreen", 200);
 	var back:FlxText = new FlxText(0, 0, 0, "Back", 24);
 	var selectionSprite:FlxSprite = new FlxSprite(1, 1);
@@ -49,6 +50,7 @@ class SettingsSubState extends FlxSubState
 		frameRateInfo.scrollFactor.set();
 		playerInfo.scrollFactor.set();
 		fullscreen.scrollFactor.set();
+		cheats.scrollFactor.set();
 		FlxG.save.bind("brj2025");
 		super.create();
 		bg.resize(FlxG.width / 3, FlxG.height / 3);
@@ -61,6 +63,7 @@ class SettingsSubState extends FlxSubState
 		lookAtMovement.checked = FlxG.save.data.lookAtMovement;
 		frameRateInfo.checked = FlxG.save.data.fpsshown;
 		playerInfo.checked = FlxG.save.data.playerInfoShown;
+		cheats.checked = FlxG.save.data.cheats;
 		fullscreen.checked = FlxG.fullscreen;
 		add(bg);
 		selectionSprite.camera = uicam;
@@ -78,6 +81,7 @@ class SettingsSubState extends FlxSubState
 		bg.add(frameRateInfo);
 		bg.add(playerInfo);
 		bg.add(fullscreen);
+		bg.add(cheats);
 		selectable = [
 			subtitles,
 			disableKeyboard,
@@ -87,7 +91,8 @@ class SettingsSubState extends FlxSubState
 			frameRateInfo,
 			playerInfo,
 			disableChroma,
-			fullscreen
+			fullscreen,
+			cheats
 		];
 		bg.camera = uicam;
 		subtitles.camera = uicam;
@@ -99,6 +104,7 @@ class SettingsSubState extends FlxSubState
 		friendlyFire.camera = uicam;
 		disableChroma.camera = uicam;
 		fullscreen.camera = uicam;
+		cheats.camera = uicam;
 		add(subtitles);
 		add(disableKeyboard);
 		add(friendlyFire);
@@ -108,6 +114,7 @@ class SettingsSubState extends FlxSubState
 		add(playerInfo);
 		add(disableChroma);
 		add(fullscreen);
+		add(cheats);
 		add(back);
 
 		back.camera = uicam;
@@ -163,19 +170,19 @@ class SettingsSubState extends FlxSubState
 				}
 				if (i.getMovementVector().y == 1)
 				{
-					FlxG.sound.play(AssetPaths.menu_select__ogg);
+					FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
 					selection += 1;
 				}
 				if (i.getMovementVector().y == -1)
 				{
-					FlxG.sound.play(AssetPaths.menu_select__ogg);
+					FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
 					selection -= 1;
 				}
 			}
 			i.lastMovement.y = i.getMovementVector().y;
 			if (i.ui_accept)
 			{
-				FlxG.sound.play(AssetPaths.menu_accept__ogg);
+				FlxG.sound.play(AssetPaths.menu_accept__ogg, Main.UI_VOLUME);
 				gamepadAccepted = true;
 			}
 			if (i.ui_deny)
@@ -219,6 +226,7 @@ class SettingsSubState extends FlxSubState
 		FlxG.save.data.disableChroma = disableChroma.checked;
 		FlxG.save.data.fpsshown = frameRateInfo.checked;
 		FlxG.save.data.playerInfoShown = playerInfo.checked;
+		FlxG.save.data.cheats = cheats.checked;
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
 			close();

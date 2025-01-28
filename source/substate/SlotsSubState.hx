@@ -320,7 +320,7 @@ class SlotsSubState extends FlxSubState
 			sprite.y += elapsed * 3050;
 			if (sprite.y >= middle && sprite.graphic.key == desiredIconOne)
 			{
-				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", FlxG.random.float(0.9, 1.1), 1);
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", FlxG.random.float(0.9, 1.1), Main.UI_VOLUME);
 				sprite.y = middle;
 				lockedInState = 1;
 			}
@@ -375,7 +375,7 @@ class SlotsSubState extends FlxSubState
 			sprite.y += elapsed * 3050;
 			if (sprite.y >= middle && sprite.graphic.key == desiredIconTwo)
 			{
-				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", FlxG.random.float(0.9, 1.1), 1);
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", FlxG.random.float(0.9, 1.1), Main.UI_VOLUME);
 				sprite.y = middle;
 				lockedInState = 2;
 			}
@@ -429,7 +429,7 @@ class SlotsSubState extends FlxSubState
 			text.y += elapsed * 3050;
 			if (text.y >= middle + ((bg1.height - 50) / 2) && text.text == desiredIconThree)
 			{
-				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", FlxG.random.float(0.9, 1.1), 1);
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", FlxG.random.float(0.9, 1.1), Main.UI_VOLUME);
 				text.y = middle + ((bg1.height - 50) / 2);
 				lockedInState = 3;
 			}
@@ -463,6 +463,7 @@ class SlotsSubState extends FlxSubState
 				{
 					holdTime = 6 - 1.4;
 					rumblingSound.play(false);
+					rumblingSound.volume = Main.UI_VOLUME;
 					rumblingSound.looped = true;
 				}
 			}
@@ -483,7 +484,7 @@ class SlotsSubState extends FlxSubState
 		{
 			if (gambaTime >= 2.0)
 			{
-				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "lever_pull", FlxG.random.float(0.9, 1.1), 1);
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "lever_pull", FlxG.random.float(0.9, 1.1), Main.UI_VOLUME);
 				slotsMachine.animation.play("pullBack");
 				gambaTime = -1;
 			}
@@ -519,7 +520,8 @@ class SlotsSubState extends FlxSubState
 							});
 						}
 					});
-					MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "lever_pull", FlxG.random.float(0.9, 1.1), 1);
+					MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "lever_pull", FlxG.random.float(0.9, 1.1),
+						Main.UI_VOLUME);
 					roll();
 				}
 				else

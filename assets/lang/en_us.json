@@ -19,8 +19,10 @@
     "entity.evil_cube.description": "A monolith of retired grandparents mindlessly pressing away at slots. When killed once, will become smaller and attempt to @ground pound@ instead of attack.",
     "entity.robot": "PLAYER-3000",
     "entity.robot.description": "A digital copy of yourself, designed for maximum effeciency combat against intruders in all the same ways they; you; would attack.",
+    "entity.dave": "Dave",
+    "entity.dave.description": "???",
     "entity.rat": "Rat King",
-    "entity.rat.description": "this rat and his children will fuck you up",
+    "entity.rat.description": "A rat living within the casino's walls with a concerning amount of `children.`",
     "entity.basic": "Unregistered Entity",
 
     "subtitle.footsteps": "Footsteps",

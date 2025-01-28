@@ -34,6 +34,7 @@ class RobotBoss extends PlayerEntity
 		handWeapon = Type.createInstance(array[FlxG.random.int(0, 2)], [this]);
 		typeTranslationKey = "robot";
 		bossHealthBar = true;
+		usePlayerVolume = false;
 	}
 
 	override function createAttributes()
@@ -157,6 +158,7 @@ class RobotBoss extends PlayerEntity
 					switchingAnimation * 2);
 			}
 		}
+		noclip = false;
 		dashCooldown -= elapsed;
 		super.update(elapsed);
 	}

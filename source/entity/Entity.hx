@@ -96,6 +96,8 @@ class Entity extends FlxSprite {
 	}
 	public function onCollideWithEntity(e:Entity) {}
 
+	public var usePlayerVolume = false;
+
     override function update(elapsed:Float) {
 		if (lastHealth > health && ragdoll == null)
 		{

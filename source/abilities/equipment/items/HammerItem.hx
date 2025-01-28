@@ -67,6 +67,7 @@ class HammerItem extends Equipment
 	var angleChecker = 0.15;
 	var spin = 0.0;
 	var cooldown = 0.0;
+	var lastWielderPos:FlxPoint = new FlxPoint();
 
 	override function update(elapsed:Float)
 	{
@@ -86,7 +87,11 @@ class HammerItem extends Equipment
 		angleChecker -= elapsed;
 		if (angleChecker <= 0 && equipped || spin > 0 && equipped)
 		{
-			if (Math.abs(lastangle - angle) > 20 && spin < 0 || (spin > 0 && equipped && Math.round(spin) % 12 == 0))
+			if ((Math.abs(lastangle - angle) > 20
+				|| Math.abs(wielder.x - lastWielderPos.x) > 150
+				|| Math.abs(wielder.y - lastWielderPos.y) > 150)
+				&& spin < 0
+				|| (spin > 0 && equipped && Math.round(spin) % 12 == 0))
 			{
 				if (spin > 0)
 					angle = spin;
@@ -104,6 +109,7 @@ class HammerItem extends Equipment
 				MultiSoundManager.playRandomSound(wielder, "toyhammer", FlxG.random.float(0.9, 1.1));
 			}
 			lastangle = angle;
+			lastWielderPos = wielder.getPosition();
 			angleChecker = 0.15 * wielder.attributes.get(Attribute.ATTACK_SPEED).getValue();
 		}
 		offset.x = 0;

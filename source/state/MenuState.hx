@@ -11,24 +11,76 @@ import openfl.display.BitmapData;
 import shader.AttributesSlotTextShader;
 import substate.CreditsSubState;
 import substate.SettingsSubState;
+import ui.MenuTextButton;
 import util.Language;
+#if cpp
+import hxvlc.flixel.FlxVideoSprite;
+#end
 
 class MenuState extends TransitionableState
 {
 	var title:FlxText = new FlxText(0, 0, 0, "Drunk'n'Roullete", 64);
-	var play:FlxText = new FlxText(0, 0, 0, Language.get("button.start"), 32);
-	var continueButton:FlxText = new FlxText(0, 0, 0, Language.get("button.continue"), 32);
-	var intro:FlxText = new FlxText(0, 0, 0, Language.get("button.intro"), 32);
-	var fullscreen:FlxText = new FlxText(0, 0, 0, Language.get("button.fullscreen"), 32);
-	var options:FlxText = new FlxText(0, 0, 0, Language.get("button.options"), 32);
-	var credits:FlxText = new FlxText(0, 0, 0, Language.get("button.credits"), 32);
+	var play:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.start"), 32);
+	var continueButton:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.continue"), 32, () ->
+	{
+		MidState.readSaveFile();
+		FlxG.switchState(new MidState());
+	});
+	var intro:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.intro"), 32);
+	var fullscreen:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.fullscreen"), 32, () ->
+	{
+		FlxG.fullscreen = !FlxG.fullscreen;
+	});
+	var options:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.options"), 32,);
+	var credits:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.credits"), 32);
 	var connectedPlayers:FlxText = new FlxText(20, 20, 0, "No Players Connected", 16);
 	var itchIsBroken:FlxText = new FlxText(0, 0, 0, Language.get("button.start"), 32);
+	var menuSelectables:Array<MenuTextButton> = [];
 	var wasPlayingVideo = false;
 	var highScore:FlxText = new FlxText(0, FlxG.height - 48, "HIGHEST TOKENS: 0", 32);
+	#if cpp
+	var video = new FlxVideoSprite(0, 0);
+	#end
 
 	override function create()
 	{
+		credits.onUsed = () ->
+		{
+			var tempState:CreditsSubState = new CreditsSubState();
+			openSubState(tempState);
+		};
+		options.onUsed = () ->
+		{
+			var tempState:SettingsSubState = new SettingsSubState();
+			openSubState(tempState);
+		}
+		intro.onUsed = () -> {
+			#if html5
+			Main.playVideo(AssetPaths.intro__mp4);
+			#end
+			#if cpp
+			video.play();
+			#end
+		};
+		play.onUsed = () ->
+		{
+			if (!FlxG.save.data.seenIntro)
+			{
+				FlxG.save.data.seenIntro = true;
+				FlxG.save.flush();
+				#if html5
+				Main.playVideo(AssetPaths.intro__mp4);
+				#end
+				#if cpp
+				video.play();
+				#end
+			}
+			else
+			{
+				if (waitForFadeOut < 0)
+					FlxG.switchState(new PlayState());
+			}
+		};
 		FlxG.save.bind("brj2025");
 		Main.run = null;
 		if (FlxG.save.data.seenIntro)
@@ -47,6 +99,7 @@ class MenuState extends TransitionableState
 		add(connectedPlayers);
 		add(continueButton);
 		add(credits);
+		menuSelectables = [play, continueButton, options, fullscreen, credits, intro];
 		highScore.color = FlxColor.LIME;
 		if (FlxG.save.data.highestTokens != null)
 		{
@@ -63,6 +116,12 @@ class MenuState extends TransitionableState
 				highScore.color = FlxColor.YELLOW;
 			}
 		}
+		#if cpp
+		video.active = false;
+		video.antialiasing = true;
+		video.load(AssetPaths.intro__mp4);
+		add(video);
+		#end
 		super.create();
 	}
 
@@ -73,6 +132,13 @@ class MenuState extends TransitionableState
 	{
 		s.elapsed.value[0] += elapsed;
 		waitForFadeOut -= elapsed;
+		#if cpp
+		if (video.bitmap.isPlaying)
+		{
+			wasPlayingVideo = true;
+			return;
+		}
+		#end
 		if (Main.playingVideo)
 		{
 			wasPlayingVideo = true;
@@ -95,7 +161,7 @@ class MenuState extends TransitionableState
 			{
 				if (i.getMovementVector().y == 1)
 				{
-					FlxG.sound.play(AssetPaths.menu_select__ogg);
+					FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
 					selection += 1;
 					if (FlxG.save.data.run == null)
 					{
@@ -107,7 +173,7 @@ class MenuState extends TransitionableState
 				}
 				if (i.getMovementVector().y == -1)
 				{
-					FlxG.sound.play(AssetPaths.menu_select__ogg);
+					FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
 					selection -= 1;
 					if (FlxG.save.data.run == null)
 					{
@@ -121,65 +187,48 @@ class MenuState extends TransitionableState
 			i.lastMovement.y = i.getMovementVector().y;
 			if (i.ui_accept)
 			{
-				FlxG.sound.play(AssetPaths.menu_accept__ogg);
+				FlxG.sound.play(AssetPaths.menu_accept__ogg, Main.UI_VOLUME);
 				gamepadAccepted = true;
 			}
 		}
+		var i = 0;
+		for (menuText in menuSelectables)
+		{
+			menuText.selected = false;
+			if (FlxG.mouse.overlaps(menuText) && selection != i)
+			{
+				selection = i;
+				FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
+			}
+			if (selection == i)
+			{
+				menuText.selected = true;
+				if (gamepadAccepted)
+				{
+					menuText.onUsed();
+				}
+			}
+			i++;
+		}
 		if (selection <= -1)
 		{
-			selection = 50;
+			selection = i - 1;
 		}
-		if (selection >= 6)
+		if (selection >= menuSelectables.length)
 		{
 			selection = 0;
 		}
-		play.color = FlxColor.WHITE;
-		play.scale.set(0.75, 0.75);
-		play.alpha = 0.75;
-
-		options.color = FlxColor.WHITE;
-		options.scale.set(0.75, 0.75);
-		options.alpha = 0.75;
-		intro.color = FlxColor.WHITE;
-		intro.scale.set(0.75, 0.75);
-		intro.alpha = 0.75;
-
-		fullscreen.color = FlxColor.WHITE;
-		fullscreen.scale.set(0.75, 0.75);
-		fullscreen.alpha = 0.75;
-		continueButton.color = FlxColor.WHITE;
-		continueButton.scale.set(0.75, 0.75);
-		continueButton.alpha = 0.75;
-		credits.color = FlxColor.WHITE;
-		credits.scale.set(0.75, 0.75);
-		credits.alpha = 0.75;
-		if (FlxG.mouse.overlaps(play) && selection != 0)
+		if (FlxG.save.data.run != null) 
 		{
-			FlxG.sound.play(AssetPaths.menu_select__ogg);
-			selection = 0;
+			continueButton.visible = true;
 		}
-		if (FlxG.mouse.overlaps(continueButton) && selection != 1 && FlxG.save.data.run != null) 
+		else
 		{
-			FlxG.sound.play(AssetPaths.menu_select__ogg);
-			selection = 1;
-		}
-		if (FlxG.mouse.overlaps(options) && selection != 2)
-		{
-			FlxG.sound.play(AssetPaths.menu_select__ogg);
-			selection = 2;
-		}
-		if (FlxG.mouse.overlaps(credits) && selection != 4)
-		{
-			FlxG.sound.play(AssetPaths.menu_select__ogg);
-			selection = 4;
+			continueButton.visible = true;
 		}
 		if (FlxG.save.data.seenIntro)
 		{
-			if (FlxG.mouse.overlaps(intro) && selection != 5)
-			{
-				FlxG.sound.play(AssetPaths.menu_select__ogg);
-				selection = 5;
-			}
+			intro.visible = true;
 		}
 		else
 		{
@@ -188,75 +237,6 @@ class MenuState extends TransitionableState
 			{
 				selection = 0;
 			}
-		}
-		if (FlxG.mouse.overlaps(fullscreen) && selection != 3)
-		{
-			FlxG.sound.play(AssetPaths.menu_select__ogg);
-			selection = 3;
-		}
-		switch (selection)
-		{
-			case 0:
-				play.color = FlxColor.YELLOW;
-				play.scale.set(1.25, 1.25);
-				play.alpha = 1;
-				if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
-				{
-					if (!FlxG.save.data.seenIntro)
-					{
-						FlxG.save.data.seenIntro = true;
-						FlxG.save.flush();
-						Main.playVideo(AssetPaths.intro__mp4);
-					}
-					else
-					{
-						if (waitForFadeOut < 0)
-							FlxG.switchState(new PlayState());
-					}
-				}
-			case 1:
-				continueButton.color = FlxColor.YELLOW;
-				continueButton.scale.set(1.25, 1.25);
-				continueButton.alpha = 1;
-				if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
-				{
-					MidState.readSaveFile();
-					FlxG.switchState(new MidState());
-				}
-			case 2:
-				options.color = FlxColor.YELLOW;
-				options.scale.set(1.25, 1.25);
-				options.alpha = 1;
-				if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
-				{
-					var tempState:SettingsSubState = new SettingsSubState();
-					openSubState(tempState);
-				}
-			case 4:
-				credits.color = FlxColor.YELLOW;
-				credits.scale.set(1.25, 1.25);
-				credits.alpha = 1;
-				if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
-				{
-					var tempState:CreditsSubState = new CreditsSubState();
-					openSubState(tempState);
-				}
-			case 5:
-				intro.color = FlxColor.YELLOW;
-				intro.scale.set(1.25, 1.25);
-				intro.alpha = 1;
-				if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
-				{
-					Main.playVideo(AssetPaths.intro__mp4);
-				}
-			case 3:
-				fullscreen.color = FlxColor.YELLOW;
-				fullscreen.scale.set(1.25, 1.25);
-				fullscreen.alpha = 1;
-				if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
-				{
-					FlxG.fullscreen = !FlxG.fullscreen;
-				}
 		}
 
 		play.screenCenter();

@@ -11,6 +11,7 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import state.MenuState;
 import state.TransitionableState;
+import ui.MenuTextButton;
 import util.Language;
 
 class PauseSubState extends FlxSubState
@@ -18,12 +19,13 @@ class PauseSubState extends FlxSubState
 	var selection:Int = 0;
 	var locked = false;
 	var title:FlxText;
-	var play:FlxText;
-	var menu:FlxText;
+	var play:MenuTextButton;
+	var menu:MenuTextButton;
 	var uicam:FlxCamera = new FlxCamera();
-	var saves:FlxText;
+	var saves:MenuTextButton;
 
 	var sprite:FlxSprite = new FlxSprite(0, 0);
+	var menuSelectables = [];
 
 	override public function create():Void
 	{
@@ -37,40 +39,46 @@ class PauseSubState extends FlxSubState
 		sprite.camera = uicam;
 		add(sprite);
 		super.create();
-		title = new FlxText(0, 0, 0, "Drunk'n'Roullete", 32);
+		title = new MenuTextButton(0, 0, 0, "Drunk'n'Roullete", 32);
 		title.screenCenter();
 		title.scrollFactor.set(0, 0);
 		title.y -= 64;
-		title.alpha = 0;
-		FlxTween.tween(title, {alpha: 1}, 0.1);
 		title.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 1, 1);
 		add(title);
 
-		play = new FlxText(0, 0, 0, Language.get("pause.play"), 16);
+		play = new MenuTextButton(0, 0, 0, Language.get("pause.play"), 16, () ->
+		{
+			close();
+		});
 		play.screenCenter();
 		play.scrollFactor.set(0, 0);
 		play.y -= 32;
-		play.alpha = 0;
-		FlxTween.tween(play, {alpha: 0.75}, 0.1);
 		play.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 1, 1);
 		add(play);
 
-		menu = new FlxText(0, 0, 0, Language.get("pause.menu"), 16);
+		menu = new MenuTextButton(0, 0, 0, Language.get("pause.menu"), 16, () ->
+		{
+			TransitionableState.screengrab();
+			FlxG.switchState(new MenuState());
+		});
 		menu.screenCenter();
 		menu.scrollFactor.set(0, 0);
 		menu.alpha = 0;
-		FlxTween.tween(menu, {alpha: 0.75}, 0.1);
 		menu.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 1, 1);
 		add(menu);
 
-		saves = new FlxText(0, 0, 0, Language.get("button.options"), 16);
+		saves = new MenuTextButton(0, 0, 0, Language.get("button.options"), 16, () ->
+		{
+			var tempState:SettingsSubState = new SettingsSubState();
+			openSubState(tempState);
+		});
 		saves.screenCenter();
 		saves.scrollFactor.set(0, 0);
-		saves.alpha = 0;
 		saves.y += 32;
 		FlxTween.tween(saves, {alpha: 0.75}, 0.1);
 		saves.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 1, 1);
 		add(saves);
+		menuSelectables = [play, menu, saves];
 
 		menu.camera = uicam;
 		saves.camera = uicam;
@@ -84,6 +92,7 @@ class PauseSubState extends FlxSubState
 		{
 			locked = false;
 		});
+
 		add(Main.subtitlesBox);
 	}
 
@@ -106,83 +115,48 @@ class PauseSubState extends FlxSubState
 				{
 					if (i.getMovementVector().y == 1)
 					{
-						FlxG.sound.play(AssetPaths.menu_select__ogg);
+						FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
 						selection += 1;
 					}
 					if (i.getMovementVector().y == -1)
 					{
-						FlxG.sound.play(AssetPaths.menu_select__ogg);
+						FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
 						selection -= 1;
 					}
 				}
 				i.lastMovement.y = i.getMovementVector().y;
 				if (i.ui_accept)
 				{
-					FlxG.sound.play(AssetPaths.menu_accept__ogg);
+					FlxG.sound.play(AssetPaths.menu_accept__ogg, Main.UI_VOLUME);
 					gamepadAccepted = true;
 				}
 			}
+			var i = 0;
+			for (menuText in menuSelectables)
+			{
+				menuText.selected = false;
+				if (FlxG.mouse.overlaps(menuText) && selection != i)
+				{
+					selection = i;
+					FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
+				}
+				if (selection == i)
+				{
+					menuText.selected = true;
+					if (gamepadAccepted)
+					{
+						menuText.onUsed();
+					}
+				}
+				i++;
+			}
 			if (selection <= -1)
 			{
-				selection = 50;
+				selection = i - 1;
 			}
-			if (selection >= 3)
+			if (selection >= menuSelectables.length)
 			{
 				selection = 0;
-			}
-			play.color = FlxColor.WHITE;
-			play.scale.set(0.75, 0.75);
-			play.alpha = 0.75;
-
-			menu.color = FlxColor.WHITE;
-			menu.scale.set(0.75, 0.75);
-			menu.alpha = 0.75;
-			saves.color = FlxColor.WHITE;
-			saves.scale.set(0.75, 0.75);
-			saves.alpha = 0.75;
-			if (FlxG.mouse.overlaps(play) && selection != 0)
-			{
-				FlxG.sound.play(AssetPaths.menu_select__ogg);
-				selection = 0;
-			}
-			if (FlxG.mouse.overlaps(menu) && selection != 1)
-			{
-				FlxG.sound.play(AssetPaths.menu_select__ogg);
-				selection = 1;
-			}
-			if (FlxG.mouse.overlaps(saves) && selection != 2)
-			{
-				FlxG.sound.play(AssetPaths.menu_select__ogg);
-				selection = 2;
-			}
-			switch (selection)
-			{
-				case 0:
-					play.color = FlxColor.YELLOW;
-					play.scale.set(1.25, 1.25);
-					play.alpha = 1;
-					if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
-					{
-						close();
-					}
-				case 1:
-					menu.color = FlxColor.YELLOW;
-					menu.scale.set(1.25, 1.25);
-					menu.alpha = 1;
-					if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
-					{
-						TransitionableState.screengrab();
-						FlxG.switchState(new MenuState());
-					}
-				case 2:
-					saves.color = FlxColor.YELLOW;
-					saves.scale.set(1.25, 1.25);
-					saves.alpha = 1;
-					if (FlxG.keys.justPressed.ENTER || FlxG.mouse.justPressed || gamepadAccepted)
-					{
-						var tempState:SettingsSubState = new SettingsSubState();
-						openSubState(tempState);
-					}
 			}
 		}
 		// persistentDraw = true;

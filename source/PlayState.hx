@@ -362,7 +362,7 @@ class PlayState extends TransitionableState
 				tokensState = 0;
 				tokensText.text = originalTokens + " TOKENS";
 				HUDCam.shake(0.0015, 0.1);
-				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "coin", 0.8);
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "coin", 0.8, Main.OTHER_VOLUME);
 			}
 			if (tokensTime <= 0.5 && tokensState == 0)
 			{
@@ -375,7 +375,7 @@ class PlayState extends TransitionableState
 					tokensText.text = "COMBO x" + Main.run.combo;
 					tokensState = 1;
 					HUDCam.shake(0.0015, 0.1);
-					MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "coin", 1);
+					MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "coin", 1, Main.OTHER_VOLUME);
 				}
 			}
 			if (tokensTime <= 0.25 && tokensState == 1)
@@ -383,7 +383,7 @@ class PlayState extends TransitionableState
 				tokensText.text = (originalTokens * Main.run.combo) + " TOKENS";
 				tokensState = 2;
 				HUDCam.shake(0.0015, 0.1);
-				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "coin", 1.2);
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "coin", 1.2, Main.OTHER_VOLUME);
 			}
 			tokensTime -= elapsed;
 		}
@@ -583,7 +583,7 @@ class PlayState extends TransitionableState
 					{
 						if (h is Hitbox)
 						{
-							if (!FlxG.save.data.friendlyFire && e != p && playerLayer.members.contains(e))
+							if (!FlxG.save.data.friendlyFire && e.ID != p.ID && playerLayer.members.contains(e))
 								return;
 							var e2:Entity = cast(e);
 							var hitbox:Hitbox = cast(h);
@@ -621,6 +621,20 @@ class PlayState extends TransitionableState
 			if (FlxG.save.data.playerInfoShown)
 				playerDebugText.text += p.toString() + "\n\n";
 		});
+		if (FlxG.save.data.cheats && FlxG.keys.pressed.U)
+		{
+			FlxG.camera.follow(playerLayer.getFirstAlive());
+			HUDCam.follow(playerLayer.getFirstAlive());
+		}
+		else
+		{
+			FlxG.camera.target = null;
+			HUDCam.target = null;
+			FlxG.camera.scroll.x = 0;
+			FlxG.camera.scroll.y = 0;
+			HUDCam.scroll.x = 0;
+			HUDCam.scroll.y = 0;
+		}
 		if (alivePlayers == 1 && playerHealth <= 50 && !FlxG.save.data.disableChroma)
 		{
 			chromeLerp += elapsed;
@@ -647,7 +661,13 @@ class PlayState extends TransitionableState
 		if (gambaTime != -1)
 			gambaTime += elapsed;
 		super.update(elapsed);
-		FlxG.collide(playerLayer, mapLayer, playerWallCollision);
+		playerLayer.forEachOfType(Entity, (e) ->
+		{
+			if (!e.noclip)
+			{
+				FlxG.collide(e, mapLayer, playerWallCollision);
+			}
+		});
 		// FlxG.collide(playerLayer, enemyLayer);
 		enemyLayer.forEachOfType(Entity, (e) ->
 		{
