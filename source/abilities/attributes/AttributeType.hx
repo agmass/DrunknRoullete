@@ -9,7 +9,7 @@ class AttributeType
 	public var minBound:Float;
 	public var maxBound:Float;
 
-	public function new(id, additionMultiplier, ?minBound = 0.0, ?maxBound = 999999999, ?mustBeAddition = false)
+	public function new(id, additionMultiplier, ?minBound = 0.0, ?maxBound = 999999999.9, ?mustBeAddition = false)
 	{
 		this.id = id;
 		this.additionMultiplier = additionMultiplier;
