@@ -201,7 +201,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		var validGroundPound = false;
 		if (behaviourState == 1 && downtime < 0)
 		{
-			health += elapsed * 8;
+			health += elapsed * 3;
 			if (closest != null)
 			{
 				flipX = closest.x < x;

@@ -5,6 +5,7 @@ import abilities.attributes.AttributeContainer;
 import abilities.attributes.AttributeType;
 import entity.PlayerEntity;
 import entity.bosses.BIGEVILREDCUBE;
+import entity.bosses.DrunkDriveDaveBoss;
 import entity.bosses.RatKingBoss;
 import entity.bosses.RobotBoss;
 import flixel.FlxG;
@@ -231,6 +232,7 @@ class MidState extends TransitionableState
 				new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2),
 				new RatKingBoss(0, 0)
 			][FlxG.random.int(0, 2)];
+			Main.run.nextBoss = new DrunkDriveDaveBoss(0, 0);
 		}
 	}
 
