@@ -29,8 +29,6 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import flixelighting.FlxLighting;
-import flixelighting.FlxNormalMap;
 import input.ControllerSource;
 import input.KeyboardSource;
 import nape.geom.Vec2;
@@ -98,7 +96,6 @@ class PlayState extends TransitionableState
 	public var music_track_gambling_in_menu:FlxSound = new FlxSound();
 
 	public static var gamblingTrackLastPos = 0.0;
-	public var lighting:FlxLighting;
 
 	var slotsShader = new AttributesSlotTextShader();
 	var tokensText:FlxText = new FlxText(0, 0, 0, "0 TOKENS", 64);
@@ -130,9 +127,6 @@ class PlayState extends TransitionableState
 
 	override public function create()
 	{
-		lighting = new FlxLighting();
-		lighting.setAmbient(FlxColor.WHITE, 0.9);
-		lighting.addNormalMap(new FlxNormalMap(0, 0, AssetPaths.normal_gamblers__png));
 		music_track_gambling.loadEmbedded(AssetPaths.about_to_gamble__ogg, true);
 		music_track_gambling_in_menu.loadEmbedded(AssetPaths.gambling__ogg, true);
 		music_track_gambling_in_menu.volume = 0;
@@ -285,7 +279,7 @@ class PlayState extends TransitionableState
 			music_track_gambling_in_menu.play(false);
 		}
 		if (!FlxG.save.data.shadersDisabled)
-			gameCam.filters = [new ShaderFilter(chrome), lighting.getFilter()];
+			gameCam.filters = [new ShaderFilter(chrome)];
 		if (bgName == AssetPaths.winbig__png)
 		{
 			ground.footstepSoundName = "carpet";
@@ -350,7 +344,6 @@ class PlayState extends TransitionableState
 
 	override public function update(elapsed:Float)
 	{
-		lighting.update();
 		if (music_track_gambling.fadeTween == null && music_track_gambling.volume != 0)
 		{
 			music_track_gambling.volume = FlxG.sound.volume;
