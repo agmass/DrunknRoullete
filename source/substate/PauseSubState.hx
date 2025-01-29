@@ -108,7 +108,7 @@ class PauseSubState extends FlxSubState
 		if (!locked)
 		{
 			Main.detectConnections();
-			var gamepadAccepted = false;
+			var gamepadAccepted = FlxG.mouse.justPressed;
 			for (i in Main.activeInputs)
 			{
 				if (FlxMath.roundDecimal(i.getMovementVector().y, 1) != FlxMath.roundDecimal(i.lastMovement.y, 1))

@@ -150,7 +150,7 @@ class MenuState extends TransitionableState
 			return;
 		}
 		Main.detectConnections();
-		var gamepadAccepted = false;
+		var gamepadAccepted = FlxG.mouse.justPressed;
 		connectedPlayers.text = Language.get("menu.controllerWarning");
 		var e = 0;
 		for (i in Main.activeInputs)
