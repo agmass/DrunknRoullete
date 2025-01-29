@@ -1,0 +1,1 @@
+music will sound really bad on HTML5 targets if you do not implement some form of the first file change from: https://github.com/openfl/lime/pull/1788

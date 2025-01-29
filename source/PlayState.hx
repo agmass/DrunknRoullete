@@ -126,8 +126,8 @@ class PlayState extends TransitionableState
 
 	override public function create()
 	{
-		music_track_gambling.loadEmbedded(AssetPaths.about_to_gamble__wav, true);
-		music_track_gambling_in_menu.loadEmbedded(AssetPaths.gambling__wav, true);
+		music_track_gambling.loadEmbedded(AssetPaths.about_to_gamble__ogg, true);
+		music_track_gambling_in_menu.loadEmbedded(AssetPaths.gambling__ogg, true);
 		music_track_gambling_in_menu.volume = 0;
 		if (Main.activeInputs.length == 0)
 		{
