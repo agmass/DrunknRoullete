@@ -30,6 +30,9 @@ class SettingsSubState extends FlxSubState
 	var frameRateInfo:FlxUICheckBox = new FlxUICheckBox(10, 180, null, null, "Debug Info (FPS Counter)", 200);
 	var playerInfo:FlxUICheckBox = new FlxUICheckBox(10, 210, null, null, "Debug Info (PlayerInfo)", 200);
 	var cheats:FlxUICheckBox = new FlxUICheckBox(250, 30, null, null, "CHEATER!!! >:C", 200);
+	#if html5
+	var pixelScaling:FlxUICheckBox = new FlxUICheckBox(250, 60, null, null, "html5: Nearest Neighbour Scaling (no smoothing)", 200);
+	#end
 	var fullscreen:FlxUICheckBox = new FlxUICheckBox(10, 210 + 60, null, null, "Fullscreen", 200);
 	var back:FlxText = new FlxText(0, 0, 0, "Back", 24);
 	var selectionSprite:FlxSprite = new FlxSprite(1, 1);
@@ -51,6 +54,9 @@ class SettingsSubState extends FlxSubState
 		playerInfo.scrollFactor.set();
 		fullscreen.scrollFactor.set();
 		cheats.scrollFactor.set();
+		#if html5
+		pixelScaling.scrollFactor.set();
+		#end
 		FlxG.save.bind("brj2025");
 		super.create();
 		bg.resize(FlxG.width / 3, FlxG.height / 3);
@@ -65,6 +71,9 @@ class SettingsSubState extends FlxSubState
 		playerInfo.checked = FlxG.save.data.playerInfoShown;
 		cheats.checked = FlxG.save.data.cheats;
 		fullscreen.checked = FlxG.fullscreen;
+		#if html5
+		pixelScaling.checked = FlxG.save.data.pixelScaling;
+		#end
 		add(bg);
 		selectionSprite.camera = uicam;
 		selectionSprite.makeGraphic(1, 1);
@@ -82,6 +91,7 @@ class SettingsSubState extends FlxSubState
 		bg.add(playerInfo);
 		bg.add(fullscreen);
 		bg.add(cheats);
+		bg.add(pixelScaling);
 		selectable = [
 			subtitles,
 			disableKeyboard,
@@ -94,6 +104,21 @@ class SettingsSubState extends FlxSubState
 			fullscreen,
 			cheats
 		];
+		#if html5
+		selectable = [
+			subtitles,
+			disableKeyboard,
+			friendlyFire,
+			disableShaders,
+			lookAtMovement,
+			frameRateInfo,
+			playerInfo,
+			disableChroma,
+			fullscreen,
+			cheats,
+			pixelScaling
+		];
+		#end
 		bg.camera = uicam;
 		subtitles.camera = uicam;
 		disableKeyboard.camera = uicam;
@@ -105,6 +130,9 @@ class SettingsSubState extends FlxSubState
 		disableChroma.camera = uicam;
 		fullscreen.camera = uicam;
 		cheats.camera = uicam;
+		#if html5
+		pixelScaling.camera = uicam;
+		#end
 		add(subtitles);
 		add(disableKeyboard);
 		add(friendlyFire);
@@ -116,6 +144,9 @@ class SettingsSubState extends FlxSubState
 		add(fullscreen);
 		add(cheats);
 		add(back);
+		#if html5
+		add(pixelScaling);
+		#end
 
 		back.camera = uicam;
 		back.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 2);
@@ -227,6 +258,9 @@ class SettingsSubState extends FlxSubState
 		FlxG.save.data.fpsshown = frameRateInfo.checked;
 		FlxG.save.data.playerInfoShown = playerInfo.checked;
 		FlxG.save.data.cheats = cheats.checked;
+		#if html5
+		FlxG.save.data.pixelScaling = pixelScaling.checked;
+		#end
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
 			close();

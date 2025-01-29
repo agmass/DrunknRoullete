@@ -14,6 +14,8 @@ import nape.geom.Vec2;
 import nape.space.Space;
 import openfl.display.FPS;
 import openfl.display.Sprite;
+import openfl.display.StageQuality;
+import openfl.display.StageScaleMode;
 import sound.FootstepManager;
 import state.MenuState;
 import util.EnviornmentsLoader;
@@ -23,6 +25,7 @@ import util.SubtitlesBox;
 #if html5
 import js.Browser;
 import js.html.Console;
+import js.html.LinkElement;
 #end
 
 class Main extends Sprite
@@ -96,6 +99,9 @@ class Main extends Sprite
 	public static var OTHER_VOLUME = 1.0;
 	public static var UI_VOLUME = 0.75;
 	public static var MUSIC_VOLUME = 1.0;
+	#if html5
+	public static var linkElement:LinkElement;
+	#end
 
 	public function new()
 	{
@@ -118,6 +124,13 @@ class Main extends Sprite
 		FlxG.updateFramerate = 240;
 		#end
 		#if html5
+		linkElement = Browser.document.createLinkElement();
+		linkElement.href = "assets/data/pixelScaling.css";
+		linkElement.type = "text/css";
+		linkElement.rel = "stylesheet";
+		linkElement.media = "screen,print";
+		linkElement.disabled = true;
+		Browser.document.head.appendChild(linkElement);
 		var link = Browser.document.createLinkElement();
 		link.href = "assets/data/styles.css";
 		link.type = "text/css";
@@ -125,6 +138,7 @@ class Main extends Sprite
 		link.media = "screen,print";
 		Browser.document.head.appendChild(link);
 		FlxG.stage.showDefaultContextMenu = false;
+		FlxG.stage.quality = StageQuality.BEST;
 		Browser.document.addEventListener("mousedown", (event) ->
 		{
 			event.preventDefault();
@@ -158,6 +172,9 @@ class Main extends Sprite
 
 	public static function detectConnections()
 	{
+		#if html5
+		linkElement.disabled = !FlxG.save.data.pixelScaling;
+		#end
 		for (source in activeInputs)
 		{
 			source.update();

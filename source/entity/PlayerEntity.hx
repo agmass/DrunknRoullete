@@ -15,6 +15,7 @@ import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
+import flixelighting.FlxLight;
 import input.InputSource;
 import input.KeyboardSource;
 import objects.hitbox.Hitbox;
@@ -45,6 +46,7 @@ class PlayerEntity extends HumanoidEntity
 
 	public var GRAPHIC_X = 64;
 	public var GRAPHIC_Y = 80;
+	var light:FlxLight = new FlxLight(600, 600, 0.3, 0.03, FlxColor.BLUE.getLightened(0.35));
 	override public function new(x, y, username)
 	{
         super(x,y);
@@ -64,8 +66,33 @@ class PlayerEntity extends HumanoidEntity
 		manuallyUpdateSize = true;
 		typeTranslationKey = "player";
 		entityName = username;
+		if (FlxG.state is PlayState)
+		{
+			var ps:PlayState = cast(FlxG.state);
+			ps.lighting.addLight(light);
+		}
 		// holsteredWeapon = new BasicProjectileShootingItem(this);
     }
+
+	override function kill()
+	{
+		if (FlxG.state is PlayState)
+		{
+			var ps:PlayState = cast(FlxG.state);
+			ps.lighting.removeLight(light);
+		}
+		super.kill();
+	}
+
+	override function revive()
+	{
+		if (FlxG.state is PlayState)
+		{
+			var ps:PlayState = cast(FlxG.state);
+			ps.lighting.addLight(light);
+		}
+		super.revive();
+	}
 
     override function createAttributes() {
 		super.createAttributes();
@@ -79,6 +106,13 @@ class PlayerEntity extends HumanoidEntity
 
     override function update(elapsed:Float) {
 
+		if (FlxG.keys.pressed.K)
+			light.z += elapsed;
+		if (FlxG.keys.pressed.J)
+			light.z -= elapsed;
+		trace(light.z);
+		light.x = getMidpoint().x;
+		light.y = getMidpoint().y;
 		noclip = FlxG.save.data.cheats;
 		if (ragdoll != null)
 		{

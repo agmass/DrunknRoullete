@@ -234,12 +234,15 @@ class MidState extends TransitionableState
 				new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2),
 				new RatKingBoss(0, 0)
 			][FlxG.random.int(0, 2)];
-			if (FlxG.random.bool(5))
+			if (FlxG.random.bool(5) && FlxG.save.data.hasPlayedOneNormalMatch)
 			{
 				Main.run.nextBoss = new DrunkDriveDaveBoss(0, 0);
 			}
+			FlxG.save.data.hasPlayedOneNormalMatch = true;
+			FlxG.save.flush();
 		}
 	}
+
 
 	override function update(elapsed:Float)
 	{
@@ -347,10 +350,18 @@ class MidState extends TransitionableState
 					+ "`\n@Level "
 					+ (Main.run.roomsTraveled + 1)
 					+ " boss@";
+				if (antiEpilepsy < 0)
+				{
+					antiEpilepsy = 0.25;
+					randomColor = FlxG.random.color();
+					randomColor2 = FlxG.random.color();
+				}
 				description.applyMarkup(description.text, [
 					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.GRAY, false, true), "|"),
 					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.RED, false, false, FlxColor.RED.getDarkened(0.5), false), "`"),
-					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.BLUE, false, false, FlxColor.YELLOW.getDarkened(0.5), false), "@")
+					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.BLUE, false, false, FlxColor.YELLOW.getDarkened(0.5), false), "@"),
+					new FlxTextFormatMarkerPair(new FlxTextFormat(randomColor, FlxG.random.bool(50), FlxG.random.bool(50), randomColor2,
+						FlxG.random.bool(50)), "#")
 				]);
 				if (gamepadAccepted && makeSureMusicFadesOut > 0.25)
 				{
@@ -359,6 +370,10 @@ class MidState extends TransitionableState
 					FlxG.switchState(new PlayState());
 				}
 		}
+		antiEpilepsy -= elapsed;
 		super.update(elapsed);
 	}
+	var antiEpilepsy = 0.25;
+	var randomColor = FlxColor.BLACK;
+	var randomColor2 = FlxColor.BLACK;
 }

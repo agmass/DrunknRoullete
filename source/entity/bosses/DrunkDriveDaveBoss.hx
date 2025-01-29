@@ -4,12 +4,16 @@ import abilities.attributes.Attribute;
 import flixel.FlxG;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
+import flixel.sound.FlxSound;
 import flixel.tweens.FlxTween;
 import sound.FootstepManager.MultiSoundManager;
 import util.Language;
 
 class DrunkDriveDaveBoss extends HumanoidEntity
 {
+	var furElise:FlxSound = new FlxSound();
+
+	public static var quietDownFurEliseIsPlaying = false;
 	override public function new(x, y)
 	{
 		super(x, y);
@@ -23,6 +27,9 @@ class DrunkDriveDaveBoss extends HumanoidEntity
 		animation.add("crashing", [1]);
 		rewards = new Rewards(FlxG.random.int(6, 9), true);
 		entityName = Language.get("entity." + typeTranslationKey);
+		furElise.loadEmbedded(AssetPaths.furelise__ogg, true);
+		quietDownFurEliseIsPlaying = true;
+		furElise.play();
 	}
 
 	override function createAttributes()
@@ -62,8 +69,18 @@ class DrunkDriveDaveBoss extends HumanoidEntity
 			}
 		}
 	}
+	override function destroy()
+	{
+		furElise.looped = false;
+		furElise.stop();
+		furElise.destroy();
+		quietDownFurEliseIsPlaying = false;
+		super.destroy();
+	}
+
 	override function update(elapsed:Float)
 	{
+		furElise.proximity(x, y, Main.audioPanner, 1740, true);
 		damagecool -= elapsed;
 		var SPEED = attributes.get(Attribute.MOVEMENT_SPEED).getValue();
 		var closest:PlayerEntity = null;
