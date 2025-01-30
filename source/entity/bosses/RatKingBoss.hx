@@ -1,8 +1,11 @@
 package entity.bosses;
 
 import abilities.attributes.Attribute;
+import abilities.equipment.items.RatGun;
 import flixel.FlxG;
 import flixel.group.FlxSpriteGroup;
+import flixel.util.FlxColor;
+import objects.DroppedItem;
 import sound.FootstepManager.MultiSoundManager;
 import util.Language;
 
@@ -37,6 +40,18 @@ class RatKingBoss extends HumanoidEntity
 
 	override function update(elapsed:Float)
 	{
+		if (health <= 0 && ragdoll == null)
+		{
+			if (FlxG.random.bool(100))
+			{
+				if (FlxG.state is PlayState)
+				{
+					var ps:PlayState = cast(FlxG.state);
+					spawnFloatingText("RARE DROP!", FlxColor.BLUE);
+					ps.interactable.add(new DroppedItem(getMidpoint().x, getMidpoint().y, new RatGun(this)));
+				}
+			}
+		}
 		for (entity in children)
 		{
 			if (entity.alive)

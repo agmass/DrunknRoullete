@@ -236,7 +236,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 				{
 					if (player.overlaps(this))
 					{
-						player.health -= 20;
+						player.damage(20, this);
 						velocity.y = -900;
 					}
 				});

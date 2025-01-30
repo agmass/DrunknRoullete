@@ -15,6 +15,7 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import objects.DroppedItem;
 import sound.FootstepManager.MultiSoundManager;
 import util.Language;
 
@@ -139,7 +140,7 @@ class WheelSubState extends FlxSubState {
 		}
 		if (p.handWeapon != null && p.holsteredWeapon != null)
 		{
-			playerReminder.text = playerReminder.text.split("\n")[0] + "\nWill override primary!";
+			playerReminder.text = playerReminder.text.split("\n")[0] + "\nWill drop primary!";
 			playerReminder.color = FlxColor.RED;
 		}
 		if (startRoll)
@@ -167,6 +168,11 @@ class WheelSubState extends FlxSubState {
 							}
 							else
 							{
+								if (FlxG.state is PlayState)
+								{
+									var ps:PlayState = cast(FlxG.state);
+									ps.interactable.add(new DroppedItem(p.x, p.y, p.handWeapon));
+								}
 								p.handWeapon = Type.createInstance(weaponMap.get(portion % 360), [p]);
 							}
 						}

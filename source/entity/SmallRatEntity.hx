@@ -29,24 +29,41 @@ class SmallRatEntity extends HumanoidEntity
 	}
 
 	var overlappedLastFrame = false;
+	public var forPlayers = false;
 
 	override function update(elapsed:Float)
 	{
-		var closest:PlayerEntity = null;
+		var closest:Entity = null;
 		var closestDistance = 900000.0;
 		if (FlxG.state is PlayState)
 		{
 			var ps:PlayState = cast(FlxG.state);
-			ps.playerLayer.forEachOfType(PlayerEntity, (p) ->
+			if (!forPlayers)
 			{
-				if (!p.alive)
-					return;
-				if (closestDistance > p.getMidpoint().distanceTo(getMidpoint()))
+				ps.playerLayer.forEachOfType(PlayerEntity, (p) ->
 				{
-					closestDistance = p.getMidpoint().distanceTo(getMidpoint());
-					closest = p;
-				}
-			});
+					if (!p.alive)
+						return;
+					if (closestDistance > p.getMidpoint().distanceTo(getMidpoint()))
+					{
+						closestDistance = p.getMidpoint().distanceTo(getMidpoint());
+						closest = p;
+					}
+				});
+			}
+			else
+			{
+				ps.enemyLayer.forEachOfType(Entity, (p) ->
+				{
+					if (!p.alive)
+						return;
+					if (closestDistance > p.getMidpoint().distanceTo(getMidpoint()))
+					{
+						closestDistance = p.getMidpoint().distanceTo(getMidpoint());
+						closest = p;
+					}
+				});
+			}
 		}
 		if (closest != null)
 		{

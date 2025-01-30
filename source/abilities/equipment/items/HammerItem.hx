@@ -32,7 +32,7 @@ class HammerItem extends Equipment
 		weaponSpeed = 0.5;
 		loadGraphic(AssetPaths.hammer__png);
 		weaponScale = 4;
-		scale.set(3, 3);
+		scale.set(4, 4);
 		updateHitbox();
 	}
 

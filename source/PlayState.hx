@@ -3,8 +3,10 @@ package;
 import abilities.attributes.Attribute;
 import abilities.attributes.AttributeContainer;
 import abilities.attributes.AttributeOperation;
+import abilities.equipment.items.BazookaItem;
 import abilities.equipment.items.Gamblevolver;
 import abilities.equipment.items.HammerItem;
+import abilities.equipment.items.RatGun;
 import entity.Entity;
 import entity.EquippedEntity;
 import entity.PlayerEntity;
@@ -32,12 +34,14 @@ import flixel.util.FlxTimer;
 import input.ControllerSource;
 import input.KeyboardSource;
 import nape.geom.Vec2;
+import objects.DroppedItem;
 import objects.Elevator;
 import objects.FootstepChangingSprite;
 import objects.ImmovableFootstepChangingSprite;
 import objects.SlotMachine;
 import objects.SpriteToInteract;
 import objects.WheelOfFortune;
+import objects.hitbox.ExplosionHitbox;
 import objects.hitbox.Hitbox;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
@@ -538,6 +542,10 @@ class PlayState extends TransitionableState
 		var playerHealth = 0.0;
 		playerLayer.forEachOfType(PlayerEntity, (p) ->
 		{
+			if (FlxG.keys.justPressed.THREE)
+			{
+				p.handWeapon = new BazookaItem(p);
+			}
 			if (p.alive)
 				playerHealth = p.health;
 			FlxG.collide(p.hitboxes, mapLayer, (c:Hitbox, e) ->

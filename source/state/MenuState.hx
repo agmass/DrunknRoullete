@@ -31,7 +31,7 @@ class MenuState extends TransitionableState
 	{
 		FlxG.fullscreen = !FlxG.fullscreen;
 	});
-	var options:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.options"), 32,);
+	var options:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.options"), 32);
 	var credits:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.credits"), 32);
 	var connectedPlayers:FlxText = new FlxText(20, 20, 0, "No Players Connected", 16);
 	var itchIsBroken:FlxText = new FlxText(0, 0, 0, Language.get("button.start"), 32);

@@ -77,6 +77,11 @@ class Entity extends FlxSprite {
 
 	public function damage(amount:Float, attacker:Entity)
 	{
+		if (attacker == null)
+		{
+			health -= amount;
+			return;
+		}
 		health -= amount * attacker.attributes.get(Attribute.ATTACK_DAMAGE).getValue();
 		if (attacker.attributes.exists(Attribute.CRIT_CHANCE))
 		{

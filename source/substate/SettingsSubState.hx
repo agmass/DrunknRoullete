@@ -91,7 +91,9 @@ class SettingsSubState extends FlxSubState
 		bg.add(playerInfo);
 		bg.add(fullscreen);
 		bg.add(cheats);
+		#if html5
 		bg.add(pixelScaling);
+		#end
 		selectable = [
 			subtitles,
 			disableKeyboard,

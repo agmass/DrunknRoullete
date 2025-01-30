@@ -20,24 +20,26 @@ import objects.hitbox.SweepHitbox;
 import projectiles.BottleProjectile;
 import projectiles.BulletProjectile;
 import projectiles.CursedBulletProjectile;
+import projectiles.ShellProjectile;
 import sound.FootstepManager.MultiSoundManager;
 import util.Language;
 import util.Projectile;
 
-class RatGun extends Equipment
+class BazookaItem extends Equipment
 {
-	public var bulletSpeed = 2400;
-	public var maxBullets = 10;
+	public var bulletSpeed = 800;
+	public var maxBullets = 1;
 	public var shootyAnimation = 0.0;
-	public var bullets:FlxTypedSpriteGroup<SmallRatEntity> = new FlxTypedSpriteGroup();
+	public var bullets:FlxTypedSpriteGroup<ShellProjectile> = new FlxTypedSpriteGroup();
 
 	override public function new(entity)
 	{
 		super(entity);
-		weaponSpeed = 1.25;
+		weaponSpeed = 2;
 		weaponScale = 2;
-		loadGraphic(AssetPaths.ratlauncher__png);
-	}	
+		loadGraphic(AssetPaths.bazooka__png);
+	}
+
 	override function attack(player:EquippedEntity)
 	{
 		if (bullets.length >= maxBullets)
@@ -45,7 +47,8 @@ class RatGun extends Equipment
 			MultiSoundManager.playRandomSound(player, "out_of_ammo", FlxG.random.float(0.9, 1.1));
 			return;
 		}
-		var bullet = new SmallRatEntity(player.getMidpoint().x, player.getMidpoint().y);
+		var bullet = new ShellProjectile(player.getMidpoint().x, player.getMidpoint().y);
+		bullet.shooter = player;
 		bullet.y -= (bullet.height / 2);
 		if (flipX)
 		{
@@ -54,15 +57,17 @@ class RatGun extends Equipment
 		}
 		shootyAnimation = 1.0;
 		var vel = new FlxPoint(bulletSpeed, 0).rotateByDegrees(angle - 90);
-		bullet.velocity = new FlxPoint(vel.x, vel.y);
+		bullet.body.velocity = new Vec2(vel.x, vel.y);
+		bullet.body.rotate(bullet.body.position, (angle + 90) * FlxAngle.TO_RAD);
 		bullets.add(bullet);
-		bullet.forPlayers = true;
+		bullet.angle = angle;
 		player.extraVelocity = vel.scaleNew(0.1).negate();
+		player.collideables.add(bullet);
 		var sound = FlxG.sound.play(AssetPaths.critswing__ogg);
 		sound.pitch = 1.8;
 		sound.volume = 0.45;
 		FlxG.camera.shake(0.002, 0.1);
-		MultiSoundManager.playRandomSound(player, "shoot", FlxG.random.float(0.5, 0.7), 1);
+		MultiSoundManager.playRandomSound(player, "shoot", FlxG.random.float(0.1, 0.25), 1);
 		super.attack(player);
 	}
 
@@ -73,10 +78,10 @@ class RatGun extends Equipment
 		shootyAnimation -= elapsed * (shootyAnimation * 6);
 		for (projectile in bullets)
 		{
-			if (FlxG.state is PlayState)
+			if (projectile.returnToShooter || !projectile.isOnScreen())
 			{
-				var ps:PlayState = cast(FlxG.state);
-				FlxG.collide(projectile, ps.mapLayer);
+				bullets.remove(projectile, true);
+				projectile.destroy();
 			}
 		}
 		bullets.update(elapsed);
