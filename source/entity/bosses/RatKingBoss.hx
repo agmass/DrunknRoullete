@@ -42,7 +42,7 @@ class RatKingBoss extends HumanoidEntity
 	{
 		if (health <= 0 && ragdoll == null)
 		{
-			if (FlxG.random.bool(100))
+			if (FlxG.random.bool(5))
 			{
 				if (FlxG.state is PlayState)
 				{

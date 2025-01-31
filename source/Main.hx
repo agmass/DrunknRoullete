@@ -18,6 +18,7 @@ import openfl.display.StageQuality;
 import openfl.display.StageScaleMode;
 import sound.FootstepManager;
 import state.MenuState;
+import substate.InputManagerSubState;
 import util.EnviornmentsLoader;
 import util.Language;
 import util.Run;
@@ -172,6 +173,8 @@ class Main extends Sprite
 
 	public static function detectConnections()
 	{
+		var previousConnectionsSize = activeInputs.length;
+		var shouldDirty = false;
 		#if html5
 		linkElement.disabled = !FlxG.save.data.pixelScaling;
 		#end
@@ -195,7 +198,7 @@ class Main extends Sprite
 			{
 				Main.activeGamepads.push(gamepad);
 				activeInputs.push(new ControllerSource(gamepad));
-				connectionsDirty = true;
+				shouldDirty = true;
 			}
 		}
 		if (FlxG.save.data.disableKeyboard)
@@ -209,11 +212,21 @@ class Main extends Sprite
 				if (FlxG.save.data.disableKeyboard)
 					return;
 				kbmConnected = true;
-				connectionsDirty = true;
+				shouldDirty = true;
 				activeInputs.push(new KeyboardSource());
 			}
 		}
+		if (previousConnectionsSize == 1 && activeInputs.length == 2)
+		{
+			FlxG.state.openSubState(new InputManagerSubState(activeInputs[1]));
+		}
+		else
+		{
+			if (shouldDirty)
+				connectionsDirty = true;
+		}
 	}
+
 	public static var playingVideo = false;
 
 	#if html5

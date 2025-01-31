@@ -20,6 +20,7 @@ import objects.hitbox.SweepHitbox;
 import projectiles.BottleProjectile;
 import projectiles.BulletProjectile;
 import projectiles.CursedBulletProjectile;
+import projectiles.FriendlyShellProjectile;
 import projectiles.ShellProjectile;
 import sound.FootstepManager.MultiSoundManager;
 import util.Language;
@@ -29,15 +30,50 @@ class BazookaItem extends Equipment
 {
 	public var bulletSpeed = 800;
 	public var maxBullets = 1;
+	public var altCooldown = 0.0;
 	public var shootyAnimation = 0.0;
 	public var bullets:FlxTypedSpriteGroup<ShellProjectile> = new FlxTypedSpriteGroup();
 
 	override public function new(entity)
 	{
 		super(entity);
-		weaponSpeed = 2;
+		weaponSpeed = 1;
 		weaponScale = 2;
 		loadGraphic(AssetPaths.bazooka__png);
+	}
+
+	override function alt_fire(player:EquippedEntity)
+	{
+		if (altCooldown > 0)
+			return;
+		altCooldown = 0.5;
+		if (bullets.length >= maxBullets)
+		{
+			MultiSoundManager.playRandomSound(player, "out_of_ammo", FlxG.random.float(0.9, 1.1));
+			return;
+		}
+		var bullet = new FriendlyShellProjectile(player.getMidpoint().x, player.getMidpoint().y);
+		bullet.shooter = player;
+		bullet.y -= (bullet.height / 2);
+		if (flipX)
+		{
+			bullet.x -= bullet.width;
+			bullet.flipX = true;
+		}
+		shootyAnimation = 1.0;
+		var vel = new FlxPoint(bulletSpeed, 0).rotateByDegrees(angle - 90);
+		bullet.body.velocity = new Vec2(vel.x, vel.y);
+		bullet.body.rotate(bullet.body.position, (angle + 90) * FlxAngle.TO_RAD);
+		bullets.add(bullet);
+		bullet.angle = angle;
+		player.extraVelocity = vel.scaleNew(0.1).negate();
+		player.collideables.add(bullet);
+		var sound = FlxG.sound.play(AssetPaths.critswing__ogg);
+		sound.pitch = 1.8;
+		sound.volume = 0.45;
+		FlxG.camera.shake(0.002, 0.1);
+		MultiSoundManager.playRandomSound(player, "shoot", FlxG.random.float(0.1, 0.25), 1);
+		super.attack(player);
 	}
 
 	override function attack(player:EquippedEntity)
@@ -75,6 +111,7 @@ class BazookaItem extends Equipment
 
 	override function update(elapsed:Float)
 	{
+		altCooldown -= elapsed;
 		shootyAnimation -= elapsed * (shootyAnimation * 6);
 		for (projectile in bullets)
 		{

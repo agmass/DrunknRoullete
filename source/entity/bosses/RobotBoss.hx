@@ -5,6 +5,7 @@ import abilities.attributes.AttributeContainer;
 import abilities.attributes.AttributeOperation;
 import abilities.equipment.Equipment;
 import abilities.equipment.items.BasicProjectileShootingItem;
+import abilities.equipment.items.BazookaItem;
 import abilities.equipment.items.Gamblevolver;
 import abilities.equipment.items.SwordItem;
 import flixel.FlxG;
@@ -14,6 +15,7 @@ import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
 import input.ModifiableInputSource;
+import objects.DroppedItem;
 import sound.FootstepManager.MultiSoundManager;
 import util.Language;
 
@@ -32,6 +34,10 @@ class RobotBoss extends PlayerEntity
 		rewards = new Rewards(FlxG.random.int(5, 6), true);
 		var array:Array<Class<Equipment>> = [SwordItem, BasicProjectileShootingItem, Gamblevolver];
 		handWeapon = Type.createInstance(array[FlxG.random.int(0, 2)], [this]);
+		if (FlxG.random.bool(15))
+		{
+			handWeapon = new BazookaItem(this);
+		}
 		typeTranslationKey = "robot";
 		bossHealthBar = true;
 		usePlayerVolume = false;
@@ -54,6 +60,18 @@ class RobotBoss extends PlayerEntity
 
 	override function update(elapsed:Float)
 	{
+		if (health <= 0 && ragdoll == null)
+		{
+			if (handWeapon is BazookaItem)
+			{
+				if (FlxG.state is PlayState)
+				{
+					var ps:PlayState = cast(FlxG.state);
+					spawnFloatingText("RARE DROP!", FlxColor.BLUE);
+					ps.interactable.add(new DroppedItem(getMidpoint().x, getMidpoint().y, new BazookaItem(this)));
+				}
+			}
+		}
 		if (ragdoll != null)
 		{
 			super.update(elapsed);

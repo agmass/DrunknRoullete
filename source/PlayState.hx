@@ -315,7 +315,7 @@ class PlayState extends TransitionableState
 		add(tokensText);
 		super.create();
 	}
-	var takenInputs = [];
+	public var takenInputs = [];
 	var oldChrome = 0.00001;
 	var kmbConnected = false;
 
@@ -428,6 +428,7 @@ class PlayState extends TransitionableState
 					takenInputs.push(i);
 				}
 			}
+			Main.connectionsDirty = false;
 		}
 		var pressedDebugSpawn = false;
 
@@ -542,10 +543,6 @@ class PlayState extends TransitionableState
 		var playerHealth = 0.0;
 		playerLayer.forEachOfType(PlayerEntity, (p) ->
 		{
-			if (FlxG.keys.justPressed.THREE)
-			{
-				p.handWeapon = new BazookaItem(p);
-			}
 			if (p.alive)
 				playerHealth = p.health;
 			FlxG.collide(p.hitboxes, mapLayer, (c:Hitbox, e) ->
