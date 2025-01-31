@@ -7,6 +7,8 @@ import abilities.equipment.items.BazookaItem;
 import abilities.equipment.items.Gamblevolver;
 import abilities.equipment.items.HammerItem;
 import abilities.equipment.items.RatGun;
+import backgrounds.CityBackground;
+import backgrounds.TrueCityBackground;
 import entity.Entity;
 import entity.EquippedEntity;
 import entity.PlayerEntity;
@@ -22,6 +24,7 @@ import flixel.addons.nape.FlxNapeSprite;
 import flixel.addons.plugin.screengrab.FlxScreenGrab;
 import flixel.effects.particles.FlxParticle;
 import flixel.graphics.frames.FlxFrame;
+import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.group.FlxSpriteGroup;
 import flixel.input.gamepad.mappings.SwitchProMapping;
 import flixel.math.FlxMath;
@@ -110,7 +113,12 @@ class PlayState extends TransitionableState
 		saveToRun();
 		music_track_gambling_in_menu.fadeOut(0.23);
 		music_track_gambling.fadeOut(0.23);
+		Main.gameMusic.fadeOut(0.23, 0, (p) ->
+		{
+			Main.gameMusic.pause();
+		});
 		Main.napeSpace.clear();
+		Main.napeSpaceAmbient.clear();
 		super.destroy();
 	}
 	var bgName = "";
@@ -127,6 +135,7 @@ class PlayState extends TransitionableState
 		}
 		super.openSubState(SubState);
 	}
+	var customBackgroundItems:FlxTypedGroup<FlxSprite> = new FlxTypedGroup();
 
 
 	override public function create()
@@ -281,6 +290,12 @@ class PlayState extends TransitionableState
 			interactable.add(wheel);
 			music_track_gambling.play(false);
 			music_track_gambling_in_menu.play(false);
+			customBackgroundItems = new CityBackground();
+		}
+		else
+		{
+			Main.gameMusic.play();
+			Main.gameMusic.fadeIn(0.23);
 		}
 		if (!FlxG.save.data.shadersDisabled)
 			gameCam.filters = [new ShaderFilter(chrome)];
@@ -295,11 +310,38 @@ class PlayState extends TransitionableState
 			table.immovable = true;
 					mapLayerBehind.add(table); */
 		}
+		if (bgName == AssetPaths.backrooms__png)
+		{
+			mapLayerFront.remove(wall);
+			mapLayerFront.remove(wall2);
+			wall.body.space = null;
+			wall.ambientEdition.body.space = null;
+			wall2.body.space = null;
+			wall2.ambientEdition.body.space = null;
+			for (i in 0...FlxG.random.int(32, 64))
+			{
+				var crate = new FootstepChangingSprite(FlxG.random.int(0, 1920 - 61), ground.y - 800, "wood");
+				crate.loadGraphic(AssetPaths.crate__png);
+				crate.allowCollisions = NONE;
+				crate.createRectangularBody();
+				crate.body.space = Main.napeSpaceAmbient;
+				crate.setBodyMaterial(-1, 4, 4, 2, 0);
+				crate.immovable = true;
+				mapLayerBehind.add(crate);
+			}
+		}
+		if (bgName == AssetPaths.truecity__png)
+		{
+			ground.footstepSoundName = "carpet";
+			FlxG.camera.color = FlxColor.BLUE.getLightened(0.4);
+			customBackgroundItems = new TrueCityBackground();
+		}
 		mapLayer.add(mapLayerBehind);
 		mapLayer.add(mapLayerFront);
 
 		playerDebugText.size = 12;
 		playerDebugText.visible = false;
+		add(customBackgroundItems);
 		add(enviornmentbg);
 		add(mapLayerBehind);
 		add(interactable);
@@ -356,10 +398,16 @@ class PlayState extends TransitionableState
 		{
 			music_track_gambling_in_menu.volume = FlxG.sound.volume;
 		}
+		Main.gameMusic.volume = FlxG.sound.volume;
 		if (DrunkDriveDaveBoss.quietDownFurEliseIsPlaying)
 		{
 			music_track_gambling_in_menu.volume = 0;
 			music_track_gambling.volume = 0;
+			Main.gameMusic.volume = 0;
+		}
+		else
+		{
+			Main.gameMusic.volume = Main.MUSIC_VOLUME;
 		}
 		if (tokensTime > 0)
 		{
@@ -410,6 +458,10 @@ class PlayState extends TransitionableState
 				cast(sprite, SpriteToInteract).showTip = false;
 			}
 		}
+		if (Main.napeSpaceAmbient != null && elapsed > 0)
+		{
+			Main.napeSpaceAmbient.step(elapsed);
+		}
 		if (Main.napeSpace != null && elapsed > 0)
 		{
 			Main.napeSpace.step(elapsed);
@@ -426,9 +478,15 @@ class PlayState extends TransitionableState
 					playerLayer.add(player);
 					player.screenCenter();
 					takenInputs.push(i);
+					if (!Main.run.brokeWindow)
+					{
+						player.x = 236 * 1.5;
+						player.y = -player.height;
+						player.noclip = true;
+						player.attributes.get(Attribute.MOVEMENT_SPEED).addTemporaryOperation(new AttributeContainer(AttributeOperation.MULTIPLY, 0.05), 1.5);
+					}
 				}
 			}
-			Main.connectionsDirty = false;
 		}
 		var pressedDebugSpawn = false;
 
@@ -492,6 +550,34 @@ class PlayState extends TransitionableState
 		});
 		enemyLayer.forEachOfType(EquippedEntity, (p) ->
 		{
+			if (bgName == AssetPaths.backrooms__png)
+			{
+				if (p.x < -p.width)
+				{
+					p.x = 1920 - p.width;
+				}
+				if (p.x > 1920)
+				{
+					p.x = 0;
+				}
+				p.collideables.forEachOfType(Projectile, (pr) ->
+				{
+					if (!pr.returnToShooter)
+					{
+						if (pr.body != null)
+						{
+							if (pr.body.position.x < -pr.width)
+							{
+								pr.body.position.x = 1920 - pr.width;
+							}
+							if (pr.body.position.x > 1920)
+							{
+								pr.body.position.x = 0;
+							}
+						}
+					}
+				});
+			}
 			FlxG.collide(p.hitboxes, mapLayer, (c:Hitbox, e) ->
 			{
 				c.onHitWall();
@@ -543,6 +629,51 @@ class PlayState extends TransitionableState
 		var playerHealth = 0.0;
 		playerLayer.forEachOfType(PlayerEntity, (p) ->
 		{
+			if (bgName == AssetPaths.backrooms__png)
+			{
+				if (p.x < -p.width)
+				{
+					p.x = 1920 - p.width;
+				}
+				if (p.x > 1920)
+				{
+					p.x = 0;
+				}
+				p.collideables.forEachOfType(Projectile, (pr) ->
+				{
+					if (!pr.returnToShooter)
+					{
+						if (pr.body != null)
+						{
+							if (pr.body.position.x < -pr.width)
+							{
+								pr.body.position.x = 1920 - pr.width;
+							}
+							if (pr.body.position.x > 1920)
+							{
+								pr.body.position.x = 0;
+							}
+						}
+					}
+				});
+			}
+			if (!Main.run.brokeWindow)
+			{
+				if (p.y > 18 * 1.5)
+				{
+					playerLayer.forEachOfType(PlayerEntity, (p2) ->
+					{
+						p2.visible = true;
+						p2.noclip = false;
+					});
+					Main.run.brokeWindow = true;
+					MultiSoundManager.playRandomSound(p, "glass_break");
+				}
+				else
+				{
+					p.visible = false;
+				}
+			}
 			if (p.alive)
 				playerHealth = p.health;
 			FlxG.collide(p.hitboxes, mapLayer, (c:Hitbox, e) ->
@@ -707,6 +838,9 @@ class PlayState extends TransitionableState
 		var newPlayerList = [];
 		playerLayer.forEachOfType(PlayerEntity, (p) ->
 		{
+			p.crouching = false;
+			p.attributes.get(Attribute.MOVEMENT_SPEED).removeOperation(p.crouchAttribute_speed);
+			p.attributes.get(Attribute.JUMP_HEIGHT).removeOperation(p.crouchAttribute_speed);
 			if (!Main.activeInputs.contains(p.input))
 			{
 				return;

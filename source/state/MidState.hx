@@ -141,6 +141,7 @@ class MidState extends TransitionableState
 		Main.run.roomsTraveled = FlxG.save.data.roomsTraveled;
 		Main.run.combo = FlxG.save.data.combo;
 		Main.run.cheatedThisRun = FlxG.save.data.cheatedThisRun;
+		Main.run.brokeWindow = true;
 		Main.run.nextBoss = Type.createInstance(Type.resolveClass(FlxG.save.data.nextBoss), [0, 0]);
 		var pArrayString:String = FlxG.save.data.players;
 		var i = 0;
@@ -205,7 +206,7 @@ class MidState extends TransitionableState
 							{
 								var attributeContainer:AttributeContainer = new AttributeContainer(Attribute.parseOperation(attributeString2.split("$")[0]),
 									Std.parseFloat(attributeString2.split("$")[1]));
-								Main.run.players[i].attributes.get(type).modifiers.push(attributeContainer);
+								Main.run.players[i].attributes.get(type).addOperation(attributeContainer);
 							}
 						}
 					}

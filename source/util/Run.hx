@@ -10,6 +10,7 @@ class Run
 	public var combo = 0;
 	public var nextBoss:Entity = null;
 	public var cheatedThisRun = false;
+	public var brokeWindow = false;
 
 	public function new() {}
 }

@@ -44,6 +44,7 @@ class MenuState extends TransitionableState
 
 	override function create()
 	{
+		Main.gameMusic.loadEmbedded(AssetPaths.gamemusic__ogg, true);
 		credits.onUsed = () ->
 		{
 			var tempState:CreditsSubState = new CreditsSubState();

@@ -540,12 +540,18 @@ class SlotsSubState extends FlxSubState
 	{
 		slotsMachine.animation.play("pull");
 		gambaTime = 0.0;
-		var lostOrWon = FlxG.random.bool(50);
+		var lostOrWon = FlxG.random.bool(80);
+		
 		var amount = 0.0;
 
 		var operation:AttributeOperation = [AttributeOperation.ADD, AttributeOperation.MULTIPLY][FlxG.random.int(0, 1)];
 		var listForBet = Attribute.attributesList;
 		var type = listForBet[FlxG.random.int(0, listForBet.length - 1)];
+		if (type == Attribute.SIZE_X || type == Attribute.SIZE_Y || type == Attribute.ATTACK_SPEED || type == Attribute.ATTACK_KNOCKBACK
+			|| type == Attribute.CROUCH_SCALE)
+		{
+			lostOrWon = FlxG.random.bool(20);
+		}
 		if (!p.attributes.exists(type))
 		{
 			lostOrWon = true;

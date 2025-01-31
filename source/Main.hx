@@ -5,6 +5,7 @@ import flixel.FlxGame;
 import flixel.FlxSprite;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.input.gamepad.FlxGamepad;
+import flixel.sound.FlxSound;
 import flixel.util.FlxColor;
 import input.ControllerSource;
 import input.InputSource;
@@ -81,6 +82,7 @@ class Main extends Sprite
 		# Silly Quotes
 
 		\"drunk soviet simulator\" - __REDACTED__
+		\"you should make the elevator come in with a stock image of a forklife\" - my brother
 	";
 
 	public static var FPS:FPS;
@@ -92,8 +94,10 @@ class Main extends Sprite
 	public static var kbmConnected = false;
 	public static var connectionsDirty = false;
 	public static var napeSpace:Space;
+	public static var napeSpaceAmbient:Space;
 	public static var run:Run;
 	public static var saveFileVersion = "1.0";
+	public static var gameMusic:FlxSound = new FlxSound();
 
 	public static var PLAYER_SOUND_VOLUME = 1.0;
 	public static var ENEMY_SOUND_VOLUME = 0.9;
@@ -112,6 +116,7 @@ class Main extends Sprite
 		FPS = new FPS(0, 20, FlxColor.WHITE);
 		addChild(FPS);
 		napeSpace = new Space(new Vec2(0, 1200));
+		napeSpaceAmbient = new Space(new Vec2(0, 1200));
 		MultiSoundManager.loadMultiSounds();
 		MultiSoundManager.loadSurfaces();
 		EnviornmentsLoader.loadEnviornments();
@@ -218,11 +223,12 @@ class Main extends Sprite
 		}
 		if (previousConnectionsSize == 1 && activeInputs.length == 2)
 		{
+			Main.connectionsDirty = false;
 			FlxG.state.openSubState(new InputManagerSubState(activeInputs[1]));
 		}
 		else
 		{
-			if (shouldDirty)
+			if (shouldDirty) 
 				connectionsDirty = true;
 		}
 	}

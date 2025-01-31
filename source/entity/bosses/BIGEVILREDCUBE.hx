@@ -95,7 +95,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 						bit.createRectangularBody(33, 13 * 3);
 						bit.body.velocity.setxy(FlxG.random.float(-800, 800), FlxG.random.float(-800, 800));
 						bit.body.rotate(bit.body.position, FlxG.random.float(-180, 180));
-						bit.body.space = Main.napeSpace;
+						bit.body.space = Main.napeSpaceAmbient;
 						bit.setBodyMaterial(0.5, 0.4, 0.7, 0.2, 1);
 						bits.add(bit);
 						MultiSoundManager.playRandomSound(this, "flesh", 1, 1);

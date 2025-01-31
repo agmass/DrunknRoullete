@@ -185,7 +185,7 @@ class PlayerEntity extends HumanoidEntity
 		}
 		else
 		{
-			angle = (velocity.x + dashMovement.x + extraVelocity.x) / 350;
+			angle = (velocity.x + dashMovement.x + extraVelocity.x) / 100;
 		}
 
 		// cro uch :3
@@ -274,7 +274,7 @@ class PlayerEntity extends HumanoidEntity
 		}
 		// health bar
 
-		if (FlxG.save.data.cheats)
+		if (FlxG.save.data.cheats && Main.run.brokeWindow)
 			velocity = inputVelocity.scale(SPEED);
 
         super.update(elapsed);
@@ -327,9 +327,12 @@ class PlayerEntity extends HumanoidEntity
 			}
 			else
 			{
-				scale.set(
-				FlxMath.lerp(scale.x, SCALE_X / 1.15, elapsed * (Math.abs(velocity.y) / 100)),
-					FlxMath.lerp(scale.y, SCALE_Y * 1.15, elapsed * (Math.abs(velocity.y) / 100)));
+				if (velocity.y > 0)
+				{
+					scale.set(
+					FlxMath.lerp(scale.x, SCALE_X / 1.25, elapsed * (Math.abs(velocity.y) / 100)),
+						FlxMath.lerp(scale.y, SCALE_Y * 1.25, elapsed * (Math.abs(velocity.y) / 100)));
+				}
 			}
 		}
 		trail.visible = trailFadeOut.alphaFade.value[0] > 0.0;
