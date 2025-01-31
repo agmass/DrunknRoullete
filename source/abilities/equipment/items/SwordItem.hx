@@ -30,6 +30,7 @@ class SwordItem extends Equipment
 		weaponSpeed = 0.5;
 		loadGraphic(AssetPaths.sword__png, true, 24, 48);
 		animation.add("full", [0]);
+		setSize(16, 43);
 		animation.add("broken", [1]);
 	}
 
@@ -119,15 +120,15 @@ class SwordItem extends Equipment
 		broken -= elapsed;
 		if (equipped)
 		{
-			offset.x = FlxMath.lerp(0, lastSwing.x,
+			offset.x = FlxMath.lerp(wielder.holdX + 4, lastSwing.x,
 				Math.max(wielder.timeUntilAttack / (weaponSpeed + wielder.attributes.get(Attribute.ATTACK_SPEED).getValue()), 0));
-			offset.y = FlxMath.lerp(wielder is PlayerEntity ? 6 : 0 * wielder.attributes.get(Attribute.SIZE_X).getValue(), lastSwing.y,
+			offset.y = FlxMath.lerp(wielder is PlayerEntity ? wielder.holdY + 4 : 4 * wielder.attributes.get(Attribute.SIZE_X).getValue(), lastSwing.y,
 				Math.max(wielder.timeUntilAttack / (weaponSpeed + wielder.attributes.get(Attribute.ATTACK_SPEED).getValue()), 0));
 		}
 		else
 		{
 			offset.x = 0;
-			offset.y = 5 + Math.sin(idleSwing);
+			offset.y = 6 + Math.sin(idleSwing);
 		}
 		super.update(elapsed);
 	}

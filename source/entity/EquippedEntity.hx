@@ -19,6 +19,8 @@ class EquippedEntity extends Entity
 
 	public var switchingAnimation = 0.0;
 	public var timeUntilAttack = 0.0;
+	public var holdX = 0;
+	public var holdY = 6;
 	public var extraVelocity:FlxPoint = new FlxPoint();
 
 	override public function new(x, y)

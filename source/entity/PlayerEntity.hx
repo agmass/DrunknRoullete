@@ -39,9 +39,9 @@ class PlayerEntity extends HumanoidEntity
 	public var trail:FlxTrail;
 
 	public var crouchAttribute_speed:AttributeContainer = new AttributeContainer(MULTIPLY, 0.5);
-	public var HITBOX_X = 38;
+	public var HITBOX_X = 35;
 	public var tokens = 0;
-	public var HITBOX_Y = 68;
+	public var HITBOX_Y = 67;
 
 	public var GRAPHIC_X = 64;
 	public var GRAPHIC_Y = 80;
@@ -50,11 +50,9 @@ class PlayerEntity extends HumanoidEntity
         super(x,y);
 		// makeGraphic(32, 32, FlxColor.WHITE);
 		usePlayerVolume = true;
-		loadGraphic(AssetPaths.goober__png, true, 42, 71);
-		animation.add("idle", [0]);
-		animation.add("walk", [1, 0, 2, 0], 3);
-		animation.add("idle_no_weapon", [3]);
-		animation.add("walk_no_weapon", [4, 3, 5, 3], 3);
+		loadGraphic(AssetPaths.gooberDeluxe__png, true, 80, 80);
+		animation.add("idle", [6, 7, 8, 9, 10, 11], 11);
+		animation.add("walk", [0, 1, 2, 3, 4, 5], 3);
         debugTracker.set("Jumps", "jumps");
 		debugTracker.set("Can Dash", "canDash");
 		trail = new FlxTrail(this, null, 4, 4, 0.8, 0.25);
@@ -77,12 +75,18 @@ class PlayerEntity extends HumanoidEntity
     }
 
 	var trailFade = 0.0;
+	var madeRagdollSmaller = false;
 
 	override function update(elapsed:Float)
 	{
 		noclip = FlxG.save.data.cheats;
 		if (ragdoll != null)
 		{
+			if (!madeRagdollSmaller)
+			{
+				madeRagdollSmaller = true;
+				ragdoll.body.scaleShapes(0.5, 0.5);
+			}
 			healthBar.alpha = 0;
 			super.update(elapsed);
 			return;
@@ -155,7 +159,7 @@ class PlayerEntity extends HumanoidEntity
 		offset.set(-0.5 * (newWidth - frameWidth), (-0.5 * (newHeight - frameHeight)) - 1);
 		if (!crouching)
 		{
-			offset.y -= (newHeight) - getGraphicBounds().height;
+			offset.y -= (newHeight) - (getGraphicBounds().height - 9);
 		}
 
 		var SPEED = attributes.get(Attribute.MOVEMENT_SPEED).getValue();
@@ -165,13 +169,24 @@ class PlayerEntity extends HumanoidEntity
         maxVelocity.x = SPEED*Math.abs(inputVelocity.x);
 
         if (!inputVelocity.isZero()) {
-			animation.play("walk" + ((handWeapon != null && !handWeapon.changePlayerAnimation) ? "" : "_no_weapon"));
+			animation.play("walk");
 			animation.timeScale = Math.abs(velocity.x) / 80;
 			lastNonZeroInput = inputVelocity;
+			holdX = 0;
+			holdY = 0;
 		}
 		else
 		{
-			animation.play("idle" + ((handWeapon != null && !handWeapon.changePlayerAnimation) ? "" : "_no_weapon"));
+			animation.play("idle");
+			if (flipX)
+			{
+				holdX = 22;
+			}
+			else
+			{
+				holdX = -22;
+			}
+			holdY = -11;
 		}
 		flipX = input.getLookAngle(getPosition()) < 90 && input.getLookAngle(getPosition()) > -90;
 

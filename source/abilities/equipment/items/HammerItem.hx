@@ -112,8 +112,16 @@ class HammerItem extends Equipment
 			lastWielderPos = wielder.getPosition();
 			angleChecker = 0.15 * wielder.attributes.get(Attribute.ATTACK_SPEED).getValue();
 		}
-		offset.x = 0;
-		offset.y = 6;
+		if (equipped)
+		{
+			offset.y = wielder.holdY;
+			offset.x = wielder.holdX;
+		}
+		else
+		{
+			offset.y = 6;
+			offset.x = 0;
+		}
 		super.update(elapsed);
 		if (spin > 0)
 		{

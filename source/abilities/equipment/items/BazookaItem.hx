@@ -131,8 +131,16 @@ class BazookaItem extends Equipment
 		{
 			angle -= FlxMath.lerp(0, 50, FlxMath.bound(shootyAnimation, 0, 1));
 		}
-		offset.y = 5 + Math.sin(idleSwing);
-		offset.x = 0;
+		if (equipped)
+		{
+			offset.y = wielder.holdY + Math.sin(idleSwing);
+			offset.x = wielder.holdX;
+		}
+		else
+		{
+			offset.y = 6;
+			offset.x = 0;
+		}
 	}
 
 	override function draw()

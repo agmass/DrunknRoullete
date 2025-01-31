@@ -82,7 +82,7 @@ class Main extends Sprite
 		# Silly Quotes
 
 		\"drunk soviet simulator\" - __REDACTED__
-		\"you should make the elevator come in with a stock image of a forklife\" - my brother
+		\"you should make the elevator come in with a stock image of a forklift\" - my brother
 	";
 
 	public static var FPS:FPS;
@@ -193,7 +193,7 @@ class Main extends Sprite
 		}
 		if (FlxG.keys.justPressed.O)
 			FlxG.fullscreen = !FlxG.fullscreen;
-		#if cpp
+		#if html5
 		if ((FlxG.keys.pressed.ALT && FlxG.keys.justPressed.ENTER) || (FlxG.keys.justPressed.ALT && FlxG.keys.pressed.ENTER))
 			FlxG.fullscreen = !FlxG.fullscreen;
 		#end

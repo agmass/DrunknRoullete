@@ -3,10 +3,12 @@ package;
 import abilities.attributes.Attribute;
 import abilities.attributes.AttributeContainer;
 import abilities.attributes.AttributeOperation;
+import abilities.equipment.items.BasicProjectileShootingItem;
 import abilities.equipment.items.BazookaItem;
 import abilities.equipment.items.Gamblevolver;
 import abilities.equipment.items.HammerItem;
 import abilities.equipment.items.RatGun;
+import abilities.equipment.items.SwordItem;
 import backgrounds.CityBackground;
 import backgrounds.TrueCityBackground;
 import entity.Entity;
@@ -87,6 +89,7 @@ class PlayState extends TransitionableState
 	var playerDebugText:FlxText = new FlxText(10,10,0);
 
 	public var mapLayerFront:FlxSpriteGroup = new FlxSpriteGroup();
+	public var mapLayerMiddle:FlxSpriteGroup = new FlxSpriteGroup();
 	public var mapLayerBehind:FlxSpriteGroup = new FlxSpriteGroup();
 	public var interactable:FlxSpriteGroup = new FlxSpriteGroup();
 	public var mapLayer:FlxSpriteGroup = new FlxSpriteGroup();
@@ -140,6 +143,12 @@ class PlayState extends TransitionableState
 
 	override public function create()
 	{
+		bgName = EnviornmentsLoader.enviornments[FlxG.random.int(0, EnviornmentsLoader.enviornments.length - 1)];
+		if (forcedBg != null)
+		{
+			bgName = forcedBg;
+			forcedBg = null;
+		}
 		music_track_gambling.loadEmbedded(AssetPaths.about_to_gamble__ogg, true);
 		music_track_gambling_in_menu.loadEmbedded(AssetPaths.gambling__ogg, true);
 		music_track_gambling_in_menu.volume = 0;
@@ -159,14 +168,14 @@ class PlayState extends TransitionableState
 		if (Main.run == null)
 		{
 			Main.run = new Run();
-			forcedBg = AssetPaths._city__png;
+			bgName = AssetPaths._city__png;
 			playersSpawned = true;
 		}
 		else
 		{
 			if (Main.run.players.length > 0)
 			{
-				if (Main.run.nextBoss != null && forcedBg == null)
+				if (Main.run.nextBoss != null && bgName != AssetPaths._city__png)
 				{
 					Main.run.nextBoss.x = elevator.x + 1024;
 					Main.run.nextBoss.y = 400;
@@ -183,23 +192,36 @@ class PlayState extends TransitionableState
 						player.kill();
 					}
 				}
-				playerLayer.forEachOfType(PlayerEntity, (p) ->
+				var transitionTime = 1.5;
+				if (bgName == AssetPaths.backrooms__png)
 				{
-					if (p.alive)
-						return;
-					new FlxTimer().start(1.5, (t) ->
+					transitionTime = 2.5;
+					elevator.x -= 512;
+					var forklift:FlxSprite = new FlxSprite(elevator.x, (635 * 1.5) - 256, AssetPaths.forklift__png);
+					forklift.allowCollisions = NONE;
+					mapLayerMiddle.add(forklift);
+					elevator.x += 201;
+					elevator.y -= 36;
+					FlxTween.tween(forklift, {x: forklift.x + 512}, 2);
+					FlxTween.tween(elevator, {x: elevator.x + 512}, 2);
+				}
+				new FlxTimer().start(transitionTime, (t) ->
+				{
+					new FlxTimer().start(2, (t) ->
 					{
-						new FlxTimer().start(2, (t) ->
-						{
-							elevator.animation.play("closed");
-						});
+						elevator.animation.play("closed");
+					});
+					elevator.animation.play("open");
+					playerLayer.forEachOfType(PlayerEntity, (p) ->
+					{
+						if (p.alive)
+							return;
 						p.revive();
 						if (bgName == AssetPaths._city__png)
 						{
 							Main.run.combo = 0;
 							p.health = p.attributes.get(Attribute.MAX_HEALTH).getValue();
 						}
-						elevator.animation.play("open");
 						p.y = (elevator.y + elevator.height) - p.height;
 						p.x = elevator.getMidpoint().x - (p.width / 2);
 						playersSpawned = true;
@@ -232,12 +254,6 @@ class PlayState extends TransitionableState
 		wall2.immovable = true;
 		mapLayerFront.add(wall2);
 		var enviornment = new FlxSprite(0, 0);
-		bgName = EnviornmentsLoader.enviornments[FlxG.random.int(0, EnviornmentsLoader.enviornments.length - 1)];
-		if (forcedBg != null)
-		{
-			bgName = forcedBg;
-			forcedBg = null;
-		}
 		enviornment.loadGraphic(bgName);
 		var frames = [];
 		for (i in 0...Math.ceil(enviornment.width / 1280))
@@ -337,6 +353,7 @@ class PlayState extends TransitionableState
 			customBackgroundItems = new TrueCityBackground();
 		}
 		mapLayer.add(mapLayerBehind);
+		mapLayer.add(mapLayerMiddle);
 		mapLayer.add(mapLayerFront);
 
 		playerDebugText.size = 12;
@@ -344,6 +361,7 @@ class PlayState extends TransitionableState
 		add(customBackgroundItems);
 		add(enviornmentbg);
 		add(mapLayerBehind);
+		add(mapLayerMiddle);
 		add(interactable);
 		add(enemyLayer);
 		add(playerLayer);
@@ -523,6 +541,16 @@ class PlayState extends TransitionableState
 			playerDebugText.text = "\n" + "FPS: " + Main.FPS.currentFPS + "\n";
 		var currentBarHeight = 0.0;
 		var currentBarIndex = 0;
+		if (enemyLayer.getFirstAlive() == null)
+		{
+			if (Main.gameMusic.playing && Main.gameMusic.fadeTween == null)
+			{
+				Main.gameMusic.fadeOut(0.23, 0, (p) ->
+				{
+					Main.gameMusic.pause();
+				});
+			}
+		}
 		enemyLayer.forEachOfType(Entity, (p) ->
 		{
 			if (!p.alive)
@@ -629,6 +657,33 @@ class PlayState extends TransitionableState
 		var playerHealth = 0.0;
 		playerLayer.forEachOfType(PlayerEntity, (p) ->
 		{
+			if (FlxG.save.data.cheats)
+			{
+				if (FlxG.keys.justPressed.ONE)
+				{
+					interactable.add(new DroppedItem(p.x, p.y, new SwordItem(p)));
+				}
+				if (FlxG.keys.justPressed.TWO)
+				{
+					interactable.add(new DroppedItem(p.x, p.y, new BasicProjectileShootingItem(p)));
+				}
+				if (FlxG.keys.justPressed.THREE)
+				{
+					interactable.add(new DroppedItem(p.x, p.y, new Gamblevolver(p)));
+				}
+				if (FlxG.keys.justPressed.FOUR)
+				{
+					interactable.add(new DroppedItem(p.x, p.y, new HammerItem(p)));
+				}
+				if (FlxG.keys.justPressed.FIVE)
+				{
+					interactable.add(new DroppedItem(p.x, p.y, new RatGun(p)));
+				}
+				if (FlxG.keys.justPressed.SIX)
+				{
+					interactable.add(new DroppedItem(p.x, p.y, new BazookaItem(p)));
+				}
+			}
 			if (bgName == AssetPaths.backrooms__png)
 			{
 				if (p.x < -p.width)
