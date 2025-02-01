@@ -177,6 +177,7 @@ class PlayerEntity extends HumanoidEntity
 		}
 		else
 		{
+			animation.timeScale = 1;
 			animation.play("idle");
 			if (flipX)
 			{

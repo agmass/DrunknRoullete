@@ -39,6 +39,7 @@
     "subtitle.shoot": "Bullet Shoot",
     "subtitle.pickup_bullet": "Gun Reload",
     "subtitle.lever_pull": "Lever Pull",
+    "subtitle.explosion": "Explosion",
     "subtitle.slots_hit": "Slots Hit",
 
     "pause.play": "Resume",

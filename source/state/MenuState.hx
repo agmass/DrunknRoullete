@@ -79,7 +79,10 @@ class MenuState extends TransitionableState
 			else
 			{
 				if (waitForFadeOut < 0)
+				{
 					FlxG.switchState(new PlayState());
+				}
+
 			}
 		};
 		FlxG.save.bind("brj2025");

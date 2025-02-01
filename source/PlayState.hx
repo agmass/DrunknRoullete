@@ -140,7 +140,6 @@ class PlayState extends TransitionableState
 	}
 	var customBackgroundItems:FlxTypedGroup<FlxSprite> = new FlxTypedGroup();
 
-
 	override public function create()
 	{
 		bgName = EnviornmentsLoader.enviornments[FlxG.random.int(0, EnviornmentsLoader.enviornments.length - 1)];
