@@ -10,8 +10,8 @@ class Attribute {
 	public static var JUMP_HEIGHT:AttributeType = new AttributeType("jump_height", 0.5, 50);
 	public static var MAX_HEALTH:AttributeType = new AttributeType("health", 1, 45);
 
-	public static var SIZE_X:AttributeType = new AttributeType("size_x", 0.001, 0.45, 2);
-	public static var SIZE_Y:AttributeType = new AttributeType("size_y", 0.001, 0.45, 2);
+	public static var SIZE_X:AttributeType = new AttributeType("size_x", 0.001, 0.7, 2);
+	public static var SIZE_Y:AttributeType = new AttributeType("size_y", 0.001, 0.7, 2);
 	public static var ATTACK_SPEED:AttributeType = new AttributeType("attack_speed", 0.01, 0.45, 2);
 	public static var REGENERATION:AttributeType = new AttributeType("regeneration", 0.01, 1, 10);
 

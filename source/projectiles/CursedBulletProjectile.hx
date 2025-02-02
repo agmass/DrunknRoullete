@@ -140,9 +140,9 @@ class CursedBulletProjectile extends BulletProjectile
 		{
 			var timeBonus = 0;
 			if (positive && shooter == p)
-				timeBonus += 10;
+				timeBonus += 3;
 			if (!positive && shooter != p)
-				timeBonus += 10;
+				timeBonus += 3;
 			p.attributes.get(type).addTemporaryOperation(new AttributeContainer(operation, amount), FlxG.random.float(5, 8) + timeBonus);
 		}
 		if (type == Attribute.MAX_HEALTH)

@@ -181,11 +181,11 @@ class PlayerEntity extends HumanoidEntity
 			animation.play("idle");
 			if (flipX)
 			{
-				holdX = 22;
+				holdX = Math.round(22 * attributes.get(Attribute.SIZE_X).getValue());
 			}
 			else
 			{
-				holdX = -22;
+				holdX = Math.round(-22 * attributes.get(Attribute.SIZE_X).getValue());
 			}
 			holdY = -11;
 		}

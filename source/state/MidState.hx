@@ -291,6 +291,10 @@ class MidState extends TransitionableState
 		{
 			elevatorMusic.volume = 0;
 		}
+		else
+		{
+			elevatorMusic.volume = FlxG.sound.volume;
+		}
 		makeSureMusicFadesOut += elapsed;
 		pickNextBoss();
 		shader.elapsed.value[0] += elapsed;
