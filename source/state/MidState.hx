@@ -11,6 +11,7 @@ import entity.bosses.RobotBoss;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxMath;
+import flixel.sound.FlxSound;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
@@ -23,6 +24,9 @@ import shader.AttributesSlotTextShader;
 import ui.ElevatorButton;
 import util.Language;
 import util.Run;
+#if cpp
+import hxvlc.flixel.FlxVideoSprite;
+#end
 
 class MidState extends TransitionableState
 {
@@ -34,9 +38,13 @@ class MidState extends TransitionableState
 	var text:FlxText = new FlxText(0, 0, 0, "", 24);
 	var combo:FlxText = new FlxText(0, 0, 0, "COMBO x0", 32);
 	var description:FlxText = new FlxText(0, 0, 240 * 1.5, "", 13);
+	var elevatorMusic:FlxSound = new FlxSound();
 
 	override function create()
 	{
+		elevatorMusic.loadEmbedded(AssetPaths.elevatormusic__ogg, true);
+		elevatorMusic.play();
+		elevatorMusic.fadeIn(0.1);
 		FlxG.save.bind("brj2025");
 		add(elevator);
 		elevator.screenCenter();
@@ -78,6 +86,11 @@ class MidState extends TransitionableState
 		pickNextBoss();
 		saveFile();
 		FlxG.save.flush();
+		#if cpp
+		video.active = false;
+		video.antialiasing = true;
+		add(video);
+		#end
 	}
 
 	public static function saveFile()
@@ -220,6 +233,7 @@ class MidState extends TransitionableState
 	var targetAngle = 0.0;
 	var originalAngle = 0.0;
 	var selection = null;
+	var wasPlayingVideo = false;
 	var breath = 1.0;
 	var makeSureMusicFadesOut = 0.0;
 	var autosavingText:FlxText = new FlxText(FlxG.width - 400, FlxG.height - 150, 0, "Autosaving...", 32);
@@ -244,9 +258,39 @@ class MidState extends TransitionableState
 		}
 	}
 
+	#if cpp
+	var video = new FlxVideoSprite(0, 0);
+	#end
+
+	override function destroy()
+	{
+		elevatorMusic.fadeOut(0.23);
+		super.destroy();
+	}
 
 	override function update(elapsed:Float)
 	{
+		#if cpp
+		if (video.bitmap.isPlaying)
+		{
+			wasPlayingVideo = true;
+			return;
+		}
+		#end
+		if (Main.playingVideo)
+		{
+			wasPlayingVideo = true;
+			return;
+		}
+		if (wasPlayingVideo)
+		{
+			FlxG.switchState(new PlayState());
+			return;
+		}
+		if (DrunkDriveDaveBoss.quietDownFurEliseIsPlaying)
+		{
+			elevatorMusic.volume = 0;
+		}
 		makeSureMusicFadesOut += elapsed;
 		pickNextBoss();
 		shader.elapsed.value[0] += elapsed;
@@ -366,8 +410,61 @@ class MidState extends TransitionableState
 				]);
 				if (gamepadAccepted && makeSureMusicFadesOut > 0.25)
 				{
+					elevatorMusic.fadeOut(0.23);
 					TransitionableState.screengrab();
 					PlayState.forcedBg = null;
+					if (Main.run.nextBoss is RobotBoss)
+					{
+						trace(FlxG.save.data.metRobot);
+						if (FlxG.save.data.metRobot == null)
+						{
+							#if html5
+							Main.playVideo(AssetPaths.cutscene_robot__mp4);
+							#end
+							#if cpp
+							video.load(AssetPaths.cutscene_robot__mp4);
+							video.play();
+							#end
+							FlxG.save.data.metRobot = true;
+							PlayState.forcedBg = AssetPaths.winbig__png;
+							FlxG.save.flush();
+							return;
+						}
+					}
+					if (Main.run.nextBoss is BIGEVILREDCUBE)
+					{
+						if (FlxG.save.data.metRetirement == null)
+						{
+							#if html5
+							Main.playVideo(AssetPaths.cutscene_retirement__mp4);
+							#end
+							#if cpp
+							video.load(AssetPaths.cutscene_retirement__mp4);
+							video.play();
+							#end
+							FlxG.save.data.metRetirement = true;
+							PlayState.forcedBg = AssetPaths.truecity__png;
+							FlxG.save.flush();
+							return;
+						}
+					}
+					if (Main.run.nextBoss is RatKingBoss)
+					{
+						if (FlxG.save.data.metRat == null)
+						{
+							#if html5
+							Main.playVideo(AssetPaths.cutscene_rat__mp4);
+							#end
+							#if cpp
+							video.load(AssetPaths.cutscene_rat__mp4);
+							video.play();
+							#end
+							FlxG.save.data.metRat = true;
+							PlayState.forcedBg = AssetPaths.backrooms__png;
+							FlxG.save.flush();
+							return;
+						}
+					}
 					FlxG.switchState(new PlayState());
 				}
 		}

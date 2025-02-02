@@ -48,7 +48,8 @@ class RobotBoss extends PlayerEntity
 		super.createAttributes();
 		attributes.set(Attribute.ATTACK_SPEED,
 			new Attribute(1 + FlxG.random.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
-		attributes.set(Attribute.DASH_SPEED, new Attribute(250 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * (Main.run.roomsTraveled)), true));
+		if (Main.run.roomsTraveled > 2)
+			attributes.set(Attribute.DASH_SPEED, new Attribute(250 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * (Main.run.roomsTraveled)), true));
 		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(450 + FlxG.random.int(5 * (Main.run.roomsTraveled - 1), 5 * Main.run.roomsTraveled), true));
 		attributes.set(Attribute.MAX_HEALTH, new Attribute(125 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
 		attributes.set(Attribute.ATTACK_DAMAGE,
@@ -153,7 +154,8 @@ class RobotBoss extends PlayerEntity
 					}
 				}
 				modifiable.movement.y = FlxMath.bound(modifiable.movement.y, -1, 0);
-				if (Math.abs(closest.getPosition().distanceTo(getPosition())) > attackRange + 120)
+				if (Math.abs(closest.getPosition().distanceTo(getPosition())) > attackRange + 120
+					&& attributes.exists(Attribute.DASH_SPEED))
 				{
 					if (dashCooldown < 0)
 					{

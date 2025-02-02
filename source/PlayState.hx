@@ -384,6 +384,11 @@ class PlayState extends TransitionableState
 	var chrome = new ChromaticShader();
 	var chromeLerp = 0.0;
 
+	override function startOutro(onOutroComplete:() -> Void)
+	{
+		super.startOutro(onOutroComplete);
+	}
+
 	override function closeSubState()
 	{
 		if (music_track_gambling.playing)
@@ -404,9 +409,28 @@ class PlayState extends TransitionableState
 	}
 
 	var tokensState = 0;
+	var musicChanger = 0.0;
 
 	override public function update(elapsed:Float)
 	{
+		if (FlxG.timeScale == 0.2)
+		{
+			musicChanger += elapsed;
+			if (musicChanger > 1)
+			{
+				musicChanger = 1;
+			}
+			Main.gameMusic.pitch = FlxMath.lerp(Main.gameMusic.pitch, 0.85, musicChanger);
+		}
+		if (FlxG.timeScale == 1 && musicChanger > 0)
+		{
+			musicChanger -= elapsed;
+			if (musicChanger < 0)
+			{
+				musicChanger = 0;
+			}
+			Main.gameMusic.pitch = FlxMath.lerp(1, Main.gameMusic.pitch, musicChanger);
+		}
 		if (music_track_gambling.fadeTween == null && music_track_gambling.volume != 0)
 		{
 			music_track_gambling.volume = FlxG.sound.volume;

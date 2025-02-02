@@ -61,6 +61,10 @@ class MultiSoundManager
 		var sound = FlxG.sound.play(multiSounds.get(soundName)[FlxG.random.int(0, multiSounds.get(soundName).length - 1)]);
 		sound.proximity(x, y, Main.audioPanner, 1920, true);
 		sound.pitch = pitch;
+		if (soundName != "coin" && FlxG.state.subState == null)
+		{
+			sound.pitch *= FlxG.timeScale;
+		}
 		sound.volume = volume;
 	}
 	public static function playRandomSound(entity:Entity, soundName:String, ?pitch = 1.0, ?volume = 1.0)
@@ -69,7 +73,11 @@ class MultiSoundManager
 		var sound = FlxG.sound.play(multiSounds.get(soundName)[FlxG.random.int(0, multiSounds.get(soundName).length - 1)]);
 		sound.proximity(entity.x, entity.y, Main.audioPanner, 1920, true);
 		sound.pitch = pitch;
-		sound.volume = entity.usePlayerVolume ? Main.PLAYER_SOUND_VOLUME : Main.ENEMY_SOUND_VOLUME - (1 - volume);
+		if (soundName != "coin" && FlxG.state.subState == null)
+		{
+			sound.pitch *= FlxG.timeScale;
+		}
+		sound.volume = (entity.usePlayerVolume ? Main.PLAYER_SOUND_VOLUME : Main.ENEMY_SOUND_VOLUME) - (1 - volume);
 	}
 
 	public static function playFootstepForEntity(entity:Entity)
@@ -88,6 +96,7 @@ class MultiSoundManager
 			Main.subtitles.set(Language.get("subtitle.footsteps"), 4);
 			var sound = FlxG.sound.play(surfaceMap.get(entity.steppingOn)[entity.footstepCount]);
 			sound.proximity(entity.x, entity.y, Main.audioPanner, 1920, true);
+			sound.pitch = FlxG.timeScale;
 			sound.volume = footstepVolume.exists(entity.steppingOn) ? footstepVolume.get(entity.steppingOn) : 1;
 		}
 	}

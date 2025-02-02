@@ -31,6 +31,10 @@ class RatKingBoss extends HumanoidEntity
 		attributes.set(Attribute.SIZE_X, new Attribute(6, true));
 		attributes.set(Attribute.SIZE_Y, new Attribute(6, true));
 		attributes.set(Attribute.MAX_HEALTH, new Attribute(600 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
+		if (Main.run.roomsTraveled >= 5)
+		{
+			attributes.set(Attribute.CRIT_CHANCE, new Attribute(FlxG.random.int(3 * (Main.run.roomsTraveled - 6), 3 * (Main.run.roomsTraveled - 5)), true));
+		}
 	}
 
 	var damageUntilStateSwitch = 100;

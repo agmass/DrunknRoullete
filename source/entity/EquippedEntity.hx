@@ -3,6 +3,7 @@ package entity;
 import abilities.attributes.Attribute;
 import abilities.equipment.Equipment;
 import abilities.equipment.items.SwordItem;
+import entity.bosses.BIGEVILREDCUBE;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
@@ -140,6 +141,11 @@ class EquippedEntity extends Entity
 			handWeapon.flipX = flipX;
 			handWeapon.scale.x = attributes.get(Attribute.SIZE_X).getValue() * handWeapon.weaponScale;
 			handWeapon.scale.y = attributes.get(Attribute.SIZE_Y).getValue() * handWeapon.weaponScale;
+			if (this is BIGEVILREDCUBE)
+			{
+				handWeapon.scale.x = 4 + attributes.get(Attribute.SIZE_X).getValue() * handWeapon.weaponScale;
+				handWeapon.scale.y = 4 + attributes.get(Attribute.SIZE_Y).getValue() * handWeapon.weaponScale;
+			}
 			if (handWeapon.weaponScale != 1)
 				handWeapon.updateHitbox();
 			if (switchingAnimation <= 0)

@@ -27,14 +27,14 @@ import util.Projectile;
 class RatGun extends Equipment
 {
 	public var bulletSpeed = 2400;
-	public var maxBullets = 10;
+	public var maxBullets = 35;
 	public var shootyAnimation = 0.0;
 	public var bullets:FlxTypedSpriteGroup<SmallRatEntity> = new FlxTypedSpriteGroup();
 
 	override public function new(entity)
 	{
 		super(entity);
-		weaponSpeed = 1.25;
+		weaponSpeed = 0.5;
 		weaponScale = 2;
 		loadGraphic(AssetPaths.ratlauncher__png);
 	}	

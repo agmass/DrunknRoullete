@@ -24,13 +24,16 @@ class BIGEVILREDCUBE extends HumanoidEntity
 	override public function new(x, y)
 	{
 		super(x, y);
-		loadGraphic(AssetPaths.retirement__png, true, 24, 32);
+		loadGraphic(AssetPaths.retirement__png, true, 144, 192);
 		typeTranslationKey = "evil_cube";
 		entityName = Language.get("entity.evil_cube");
 		bossHealthBar = true;
 		animation.add("state0", [0]);
 		animation.add("state1", [1]);
-		handWeapon = new SwordItem(this);
+		var sw = new SwordItem(this);
+		sw.retirement = true;
+		handWeapon = sw;
+		
 		rewards = new Rewards(FlxG.random.int(3, 6), true);
 		health = attributes.get(Attribute.MAX_HEALTH).getValue();
 	}
@@ -39,27 +42,48 @@ class BIGEVILREDCUBE extends HumanoidEntity
 	override function createAttributes()
 	{
 		super.createAttributes();
-		attributes.set(Attribute.SIZE_X, new Attribute(6, true));
-		attributes.set(Attribute.SIZE_Y, new Attribute(6, true));
+		attributes.set(Attribute.SIZE_X, new Attribute(2, true));
+		attributes.set(Attribute.SIZE_Y, new Attribute(2, true));
 		attributes.set(Attribute.ATTACK_SPEED,
 			new Attribute(3.5 + FlxG.random.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
 		attributes.set(Attribute.ATTACK_DAMAGE,
 			new Attribute(1.0 + FlxG.random.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
-		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(100 + FlxG.random.int(20 * (Main.run.roomsTraveled - 1), 20 * Main.run.roomsTraveled), true));
-		attributes.set(Attribute.MAX_HEALTH, new Attribute(200 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
+		attributes.set(Attribute.MOVEMENT_SPEED,
+			new Attribute(FlxMath.bound(100 + FlxG.random.int(20 * (Main.run.roomsTraveled - 1), 20 * Main.run.roomsTraveled), 0, 400), true));
+		attributes.set(Attribute.MAX_HEALTH, new Attribute(400 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
+		if (Main.run.roomsTraveled >= 5)
+		{
+			attributes.set(Attribute.CRIT_CHANCE, new Attribute(FlxG.random.int(3 * (Main.run.roomsTraveled - 6), 3 * (Main.run.roomsTraveled - 5)), true));
+		}
 	}
 
 	var downscale = new AttributeContainer(AttributeOperation.MULTIPLY, 0.5);
 	var upscale = new AttributeContainer(AttributeOperation.MULTIPLY, 3.4);
+	var madeRagdollSmaller = false;
 
 	override function update(elapsed:Float)
 	{
+		if (ragdoll != null)
+		{
+			if (!madeRagdollSmaller)
+			{
+				madeRagdollSmaller = true;
+				ragdoll.body.scaleShapes(0.5, 0.5);
+			}
+			super.update(elapsed);
+			return;
+		}
 		if (behaviourState == 0)
 		{
+			originalSpriteSizeX = 144;
+			originalSpriteSizeY = 192;
 			animation.play("state0");
 		}
 		else
 		{
+			originalSpriteSizeX = 106;
+			originalSpriteSizeY = 121;
+			angle += acceleration.x * 0.00025;
 			animation.play("state1");
 		}
 		if (behaviourState == 1 && health == attributes.get(Attribute.MAX_HEALTH).getValue())
@@ -74,8 +98,8 @@ class BIGEVILREDCUBE extends HumanoidEntity
 				lives--;
 				if (lives == 0)
 				{
-					attributes.get(Attribute.SIZE_X).addOperation(downscale);
 					attributes.get(Attribute.SIZE_Y).addOperation(downscale);
+					attributes.get(Attribute.SIZE_X).addOperation(downscale);
 					attributes.get(Attribute.ATTACK_SPEED).addOperation(downscale);
 					attributes.get(Attribute.MOVEMENT_SPEED).addOperation(upscale);
 					behaviourState = 1;
@@ -87,12 +111,11 @@ class BIGEVILREDCUBE extends HumanoidEntity
 					for (i in 0...3)
 					{
 						var bit = new FlxNapeSprite(x, y, false, true);
-						bit.loadGraphic(AssetPaths.retirement_bits__png, true, 11, 13);
+						bit.loadGraphic(AssetPaths.retirement_bits__png, true, 47, 51);
 						bit.animation.add("a", [i]);
 						bit.animation.play("a");
-						bit.scale.set(3, 3);
 						bit.updateHitbox();
-						bit.createRectangularBody(33, 13 * 3);
+						bit.createRectangularBody(47, 51);
 						bit.body.velocity.setxy(FlxG.random.float(-800, 800), FlxG.random.float(-800, 800));
 						bit.body.rotate(bit.body.position, FlxG.random.float(-180, 180));
 						bit.body.space = Main.napeSpaceAmbient;

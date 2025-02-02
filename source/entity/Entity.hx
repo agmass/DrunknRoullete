@@ -167,6 +167,7 @@ class Entity extends FlxSprite {
 			ragdoll.scale.set(scale.x, scale.y);
 			ragdoll.createRectangularBody(frameHeight * scale.x, frameHeight * scale.y);
 			allowCollisions = NONE;
+			ragdoll.color = color;
 			ragdoll.body.space = Main.napeSpaceAmbient;
 			ragdoll.body.rotate(ragdoll.body.position, FlxG.random.float(-180, 180) * FlxAngle.TO_RAD);
 			ragdoll.body.velocity.setxy(FlxG.random.int(-400, 400), FlxG.random.int(-400, 400));

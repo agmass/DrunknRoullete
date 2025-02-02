@@ -56,6 +56,7 @@ class SwordItem extends Equipment
 		super.alt_fire(player);
 	}
 
+	public var retirement:Bool = false;
 
 	override function attack(player:EquippedEntity)
 	{
@@ -63,7 +64,8 @@ class SwordItem extends Equipment
 		{
 			return;
 		}
-		var swordSweep = new SweepHitbox(player.getMidpoint().x, player.getMidpoint().y, Math.floor(player.attributes.get(Attribute.SIZE_X).getValue() - 1));
+		var swordSweep = new SweepHitbox(player.getMidpoint().x, player.getMidpoint().y + (retirement ? 20 : 0),
+			Math.floor((retirement ? 4 : 0) + player.attributes.get(Attribute.SIZE_X).getValue() - 1));
 		swordSweep.shooter = player;
 		swordSweep.y -= (swordSweep.height / 2);
 		if (flipX)
