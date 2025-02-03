@@ -10,6 +10,7 @@ import flixel.util.FlxColor;
 import openfl.display.BitmapData;
 import shader.AttributesSlotTextShader;
 import substate.CreditsSubState;
+import substate.PotentialCrashSubState;
 import substate.SettingsSubState;
 import ui.MenuTextButton;
 import util.Language;
@@ -24,11 +25,7 @@ class MenuState extends TransitionableState
 	var multiplayer:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.online"), 32);
 	var newGame:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.newGame"), 32);
 	var back:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.back"), 32);
-	var continueButton:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.continue"), 32, () ->
-	{
-		MidState.readSaveFile();
-		FlxG.switchState(new MidState());
-	});
+	var continueButton:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.continue"), 32);
 	var intro:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.intro"), 32);
 	var fullscreen:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.fullscreen"), 32, () ->
 	{
@@ -66,6 +63,16 @@ class MenuState extends TransitionableState
 			#if cpp
 			video.play();
 			#end
+		};
+		continueButton.onUsed = () ->
+		{
+			if (FlxG.save.data.run != Main.saveFileVersion)
+			{
+				openSubState(new PotentialCrashSubState());
+				return;
+			}
+			MidState.readSaveFile();
+			FlxG.switchState(new MidState());
 		};
 		multiplayer.onUsed = () ->
 		{

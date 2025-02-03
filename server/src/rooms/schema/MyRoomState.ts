@@ -35,6 +35,9 @@ export class MyRoomState extends Schema {
 
   @type("number") seed: number = 0;
   @type("number") inseed: number = 0;
+  @type("number") ui_selection: number = 0;
+
   @type("string") currentState: string = "";
+  @type("string") encodedRun: string = "";
   @type("string") hostId: string = "";
 }

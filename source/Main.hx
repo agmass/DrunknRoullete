@@ -100,7 +100,7 @@ class Main extends Sprite
 	public static var napeSpace:Space;
 	public static var napeSpaceAmbient:Space;
 	public static var run:Run;
-	public static var saveFileVersion = "1.0";
+	public static var saveFileVersion = "1.1";
 	public static var gameMusic:FlxSound = new FlxSound();
 
 	public static var PLAYER_SOUND_VOLUME = 1.0;

@@ -145,7 +145,7 @@ class MultiplayerManager
 	public var initseed = 0;
 	public var curseed = 0;
 
-	var idMap:Map<InputSource, String> = new Map();
+	public var idMap:Map<InputSource, String> = new Map();
 
 	public function multiplayerCode(err:HttpException, room:Room<MyRoomState>)
 	{
@@ -182,6 +182,13 @@ class MultiplayerManager
 			serverState = c;
 		});
 
+		room.onMessage("refreshFile", (message) ->
+		{
+			if (!isHost)
+			{
+				MidState.readArbitrarySaveFile(true, message);
+			}
+		});
 		room.onMessage("openSubState", (message) ->
 		{
 			if (isHost)

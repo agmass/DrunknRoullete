@@ -7,6 +7,16 @@ export class MyRoom extends Room<MyRoomState> {
   onCreate (options: any) {
     this.setState(new MyRoomState());
 
+    this.onMessage("refreshFile", (client, message) => {
+      this.broadcast("refreshFile", {
+        roomsTraveled: message.roomsTraveled,
+        combo: message.combo,
+        cheatedThisRun: message.cheatedThisRun,
+        brokeWindow: message.brokeWindow,
+        nextBoss: message.nextBoss,
+        players: message.players,
+      });
+    });
     this.onMessage("addInput", (client, message) => {
       const player = new NetPlayer();
       this.state.players.set(client.sessionId + "___" + message, player);

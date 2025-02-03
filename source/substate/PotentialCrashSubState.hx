@@ -11,25 +11,17 @@ import flixel.util.FlxColor;
 import input.ControllerSource;
 import input.InputSource;
 import input.KeyboardSource;
+import state.MidState;
 import ui.MenuTextButton;
 
-class InputManagerSubState extends FlxSubState
+class PotentialCrashSubState extends FlxSubState
 {
 	var bg:FlxUITabMenu;
 	var uicam:FlxCamera = new FlxCamera();
+	var replacePlayerOne:MenuTextButton = new MenuTextButton(0, 0, 0, "Load Outdated Save File (Unsafe)", 32);
 
-	var input:InputSource;
-
-	var replacePlayerOne:MenuTextButton = new MenuTextButton(0, 0, 0, "Replace Player 1", 32);
-
-	var addNew:MenuTextButton = new MenuTextButton(0, 0, 0, "Add New Player", 32);
+	var addNew:MenuTextButton = new MenuTextButton(0, 0, 0, "Go back", 32);
 	var menuSelectables:Array<MenuTextButton>;
-
-	override public function new(input:InputSource)
-	{
-		super();
-		this.input = input;
-	}
 
 	override public function create():Void
 	{
@@ -60,38 +52,12 @@ class InputManagerSubState extends FlxSubState
 
 		addNew.onUsed = () ->
 		{
-			Main.connectionsDirty = true;
 			close();
 		};
 		replacePlayerOne.onUsed = () ->
 		{
-			Main.activeInputs = [input];
-			if (input is ControllerSource)
-			{
-				Main.kbmConnected = false;
-			}
-			if (input is KeyboardSource)
-			{
-				Main.activeGamepads = [];
-			}
-			if (FlxG.state is PlayState)
-			{
-				var ps:PlayState = cast(FlxG.state);
-				if (ps.playerLayer.length > 0)
-				{
-					cast(ps.playerLayer.members[0], PlayerEntity).input = input;
-				}
-				ps.takenInputs.push(input);
-			}
-			if (Main.run != null)
-			{
-				if (Main.run.players.length > 0)
-				{
-					cast(Main.run.players[0], PlayerEntity).input = input;
-				}
-			}
-			Main.connectionsDirty = true;
-			close();
+			MidState.readSaveFile();
+			FlxG.switchState(new MidState());
 		};
 	}
 

@@ -120,6 +120,14 @@ class MidState extends TransitionableState
 			{
 				builder += "null:";
 			}
+			if (Main.multiplayerManager != null)
+			{
+				builder += Main.multiplayerManager.idMap.get(entity.input) + ":";
+			}
+			else
+			{
+				builder += ":";
+			}
 			builder += entity.tokens + ":";
 			builder += entity.health + ":";
 			for (key => attribute in entity.attributes)
@@ -140,36 +148,52 @@ class MidState extends TransitionableState
 			serializedPlayers += builder;
 		}
 		FlxG.save.data.players = serializedPlayers;
+		if (Main.multiplayerManager != null)
+		{
+			Main.multiplayerManager.room.send("refreshFile", {
+				roomsTraveled: Main.run.roomsTraveled,
+				cheatedThisRun: Main.run.cheatedThisRun,
+				combo: Main.run.combo,
+				nextBoss: Type.getClassName(Type.getClass(Main.run.nextBoss)),
+				players: serializedPlayers
+			});
+		}
 	}
 
-	public static function readSaveFile()
+	public static function readArbitrarySaveFile(online:Bool, data)
 	{
 		Main.run = new Run();
-		if (Main.activeInputs.length == 0)
+		if (!online)
 		{
-			Main.kbmConnected = true;
-			Main.connectionsDirty = true;
-			Main.activeInputs.push(new KeyboardSource());
+			if (Main.activeInputs.length == 0)
+			{
+				Main.kbmConnected = true;
+				Main.connectionsDirty = true;
+				Main.activeInputs.push(new KeyboardSource());
+			}
 		}
-		Main.run.roomsTraveled = FlxG.save.data.roomsTraveled;
-		Main.run.combo = FlxG.save.data.combo;
-		Main.run.cheatedThisRun = FlxG.save.data.cheatedThisRun;
+		Main.run.roomsTraveled = data.roomsTraveled;
+		Main.run.combo = data.combo;
+		Main.run.cheatedThisRun = data.cheatedThisRun;
 		Main.run.brokeWindow = true;
-		Main.run.nextBoss = Type.createInstance(Type.resolveClass(FlxG.save.data.nextBoss), [0, 0]);
-		var pArrayString:String = FlxG.save.data.players;
+		Main.run.nextBoss = Type.createInstance(Type.resolveClass(data.nextBoss), [0, 0]);
+		var pArrayString:String = data.players;
 		var i = 0;
 		for (e in pArrayString.split(","))
 		{
 			if (e == "")
 				continue;
 			var input = new InputSource();
-			if (i < Main.activeInputs.length)
+			if (!online)
 			{
-				input = Main.activeInputs[i];
-			}
-			else
-			{
-				continue;
+				if (i < Main.activeInputs.length)
+				{
+					input = Main.activeInputs[i];
+				}
+				else
+				{
+					continue;
+				}
 			}
 			Main.run.players[i] = new PlayerEntity(0, 0, "Player " + i);
 			Main.run.players[i].input = input;
@@ -185,9 +209,22 @@ class MidState extends TransitionableState
 			{
 				Main.run.players[i].holsteredWeapon = Type.createInstance(Type.resolveClass(holsteredWeaponData), [Main.run.players[i]]);
 			}
-			Main.run.players[i].tokens = Std.parseInt(e.split(":")[2]);
-			Main.run.players[i].health = Std.parseFloat(e.split(":")[3]);
-			for (attributeString in e.split(":")[4].split("}"))
+			if (online)
+			{
+				if (Main.multiplayerManager != null)
+				{
+					for (key => value in Main.multiplayerManager.idMap)
+					{
+						if (value == e.split(":")[2])
+						{
+							Main.run.players[i].input = key;
+						}
+					}
+				}
+			}
+			Main.run.players[i].tokens = Std.parseInt(e.split(":")[3]);
+			Main.run.players[i].health = Std.parseFloat(e.split(":")[4]);
+			for (attributeString in e.split(":")[5].split("}"))
 			{
 				trace(attributeString);
 				if (attributeString == "")
@@ -227,6 +264,11 @@ class MidState extends TransitionableState
 			}
 			i++;
 		}
+	}
+
+	public static function readSaveFile()
+	{
+		readArbitrarySaveFile(false, FlxG.save.data);
 	}
 
 	var s = 0.0;
