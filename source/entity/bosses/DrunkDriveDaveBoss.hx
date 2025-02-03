@@ -25,7 +25,7 @@ class DrunkDriveDaveBoss extends HumanoidEntity
 		animation.add("driving", [0]);
 		animation.play("driving");
 		animation.add("crashing", [1]);
-		rewards = new Rewards(FlxG.random.int(6, 9), true);
+		rewards = new Rewards(Main.randomProvider.int(6, 9), true);
 		entityName = Language.get("entity." + typeTranslationKey);
 		furElise.loadEmbedded(AssetPaths.furelise__ogg, true);
 		quietDownFurEliseIsPlaying = true;
@@ -37,10 +37,12 @@ class DrunkDriveDaveBoss extends HumanoidEntity
 		super.createAttributes();
 		attributes.set(Attribute.SIZE_X, new Attribute(4.5, true));
 		attributes.set(Attribute.SIZE_Y, new Attribute(4.5, true));
-		attributes.set(Attribute.MAX_HEALTH, new Attribute(250 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
+		attributes.set(Attribute.MAX_HEALTH,
+			new Attribute(250 + Main.randomProvider.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
 		if (Main.run.roomsTraveled >= 5)
 		{
-			attributes.set(Attribute.CRIT_CHANCE, new Attribute(FlxG.random.int(3 * (Main.run.roomsTraveled - 6), 3 * (Main.run.roomsTraveled - 5)), true));
+			attributes.set(Attribute.CRIT_CHANCE,
+				new Attribute(Main.randomProvider.int(3 * (Main.run.roomsTraveled - 6), 3 * (Main.run.roomsTraveled - 5)), true));
 		}
 	}
 

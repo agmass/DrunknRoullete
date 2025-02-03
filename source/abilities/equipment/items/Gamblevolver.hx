@@ -50,11 +50,11 @@ class Gamblevolver extends Equipment
 			return;
 		if (bullets.length >= maxBullets)
 		{
-			MultiSoundManager.playRandomSound(player, "out_of_ammo", FlxG.random.float(0.9, 1.1));
+			MultiSoundManager.playRandomSound(player, "out_of_ammo", Main.randomProvider.float(0.9, 1.1));
 			return;
 		}
 		var bullet = new BulletProjectile(player.getMidpoint().x, player.getMidpoint().y);
-		if (FlxG.random.bool(20))
+		if (Main.randomProvider.bool(20))
 		{
 			bullet = new CursedBulletProjectile(player.getMidpoint().x, player.getMidpoint().y);
 		}
@@ -77,7 +77,7 @@ class Gamblevolver extends Equipment
 		sound.pitch = 1.8;
 		sound.volume = 0.45;
 		FlxG.camera.shake(0.002, 0.1);
-		MultiSoundManager.playRandomSound(player, "shoot", FlxG.random.float(0.5, 0.7), 1);
+		MultiSoundManager.playRandomSound(player, "shoot", Main.randomProvider.float(0.5, 0.7), 1);
 		super.attack(player);
 	}
 

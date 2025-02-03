@@ -11,6 +11,8 @@ class WheelOfFortune extends SpriteToInteract
 {
 	override function interact(p:PlayerEntity)
 	{
+		if (!p.input.allowedToOpenMenus)
+			return;
 		super.interact(p);
 		FlxG.state.openSubState(new WheelSubState(p));
 	}

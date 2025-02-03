@@ -9,6 +9,8 @@ class SlotMachine extends SpriteToInteract
 {
 	override function interact(p:PlayerEntity)
 	{
+		if (!p.input.allowedToOpenMenus)
+			return;
 		super.interact(p);
 		FlxG.state.openSubState(new SlotsSubState(p));
 	}

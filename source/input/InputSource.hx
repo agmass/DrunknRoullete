@@ -40,8 +40,12 @@ class InputSource {
 	public var ui_accept = false;
 	public var ui_hold_accept = false;
 	public var ui_deny = false;
+	public var ui_hold_deny = false;
 	public var ui_menu = false;
+	public var ui_hold_menu = false;
 	public var lastMovement = new FlxPoint();
+
+	public var allowedToOpenMenus = true;
 
     public function new() {}
 

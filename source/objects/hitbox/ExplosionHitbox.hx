@@ -29,7 +29,7 @@ class ExplosionHitbox extends Hitbox
 		particles.lifespan.set(0.9, 1.1);
 		particles.start(true, 0, 40);
 		updateHitbox();
-		MultiSoundManager.playRandomSoundByItself(x, y, "explosion", FlxG.random.float(0.9, 1.1));
+		MultiSoundManager.playRandomSoundByItself(x, y, "explosion", Main.randomProvider.float(0.9, 1.1));
 	}
 
 	var timeLived = 0.0;

@@ -21,6 +21,9 @@ class MenuState extends TransitionableState
 {
 	var title:FlxText = new FlxText(0, 0, 0, "Drunk'n'Roullete", 64);
 	var play:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.start"), 32);
+	var multiplayer:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.online"), 32);
+	var newGame:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.newGame"), 32);
+	var back:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.back"), 32);
 	var continueButton:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.continue"), 32, () ->
 	{
 		MidState.readSaveFile();
@@ -41,6 +44,7 @@ class MenuState extends TransitionableState
 	#if cpp
 	var video = new FlxVideoSprite(0, 0);
 	#end
+	var basicSelectables = [];
 
 	override function create()
 	{
@@ -63,6 +67,22 @@ class MenuState extends TransitionableState
 			video.play();
 			#end
 		};
+		multiplayer.onUsed = () ->
+		{
+			FlxG.switchState(new MultiplayerState());
+		};
+		newGame.onUsed = () ->
+		{
+			if (waitForFadeOut < 0)
+			{
+				FlxG.switchState(new PlayState());
+			}
+		};
+		back.onUsed = () ->
+		{
+			selection = 0;
+			menuSelectables = basicSelectables;
+		};
 		play.onUsed = () ->
 		{
 			if (!FlxG.save.data.seenIntro)
@@ -78,9 +98,13 @@ class MenuState extends TransitionableState
 			}
 			else
 			{
-				if (waitForFadeOut < 0)
+				if (FlxG.save.data.run == null)
 				{
-					FlxG.switchState(new PlayState());
+					menuSelectables = [newGame, multiplayer, back];
+				}
+				else
+				{
+					menuSelectables = [newGame, continueButton, multiplayer, back];
 				}
 
 			}
@@ -103,7 +127,11 @@ class MenuState extends TransitionableState
 		add(connectedPlayers);
 		add(continueButton);
 		add(credits);
-		menuSelectables = [play, continueButton, options, fullscreen, credits, intro];
+		add(newGame);
+		add(back);
+		add(multiplayer);
+		menuSelectables = [play, options, fullscreen, credits, intro];
+		basicSelectables = menuSelectables;
 		highScore.color = FlxColor.LIME;
 		if (FlxG.save.data.highestTokens != null)
 		{
@@ -167,28 +195,19 @@ class MenuState extends TransitionableState
 				{
 					FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
 					selection += 1;
-					if (FlxG.save.data.run == null)
-					{
-						if (selection == 1)
-						{
-							selection = 2;
-						}
-					}
 				}
 				if (i.getMovementVector().y == -1)
 				{
 					FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
 					selection -= 1;
-					if (FlxG.save.data.run == null)
-					{
-						if (selection == 1)
-						{
-							selection = 0;
-						}
-					}
 				}
 			}
 			i.lastMovement.y = i.getMovementVector().y;
+			if (i.ui_deny)
+			{
+				selection = 0;
+				menuSelectables = basicSelectables;
+			}
 			if (i.ui_accept)
 			{
 				FlxG.sound.play(AssetPaths.menu_accept__ogg, Main.UI_VOLUME);
@@ -237,7 +256,7 @@ class MenuState extends TransitionableState
 		else
 		{
 			intro.visible = false;
-			if (selection >= 5)
+			if (selection >= menuSelectables.length)
 			{
 				selection = 0;
 			}
@@ -245,29 +264,17 @@ class MenuState extends TransitionableState
 
 		play.screenCenter();
 		continueButton.visible = FlxG.save.data.run != null;
-		if (FlxG.save.data.run == null)
+		var i = 0;
+		forEachOfType(MenuTextButton, (mtb) ->
 		{
-			options.screenCenter();
-			options.y += 64;
-			fullscreen.screenCenter();
-			fullscreen.y += 128;
-			credits.screenCenter();
-			credits.y += 128 + 64;
-			intro.screenCenter();
-			intro.y += 128 + 64 + 64;
-		}
-		else
+			mtb.visible = false;
+		});
+		for (button in menuSelectables)
 		{
-			continueButton.screenCenter();
-			continueButton.y += 64;
-			options.screenCenter();
-			options.y += 128;
-			fullscreen.screenCenter();
-			fullscreen.y += 128 + 64;
-			credits.screenCenter();
-			credits.y += 128 + 64 + 64;
-			intro.screenCenter();
-			intro.y += 128 + 64 + 64 + 64;
+			i++;
+			button.visible = true;
+			button.screenCenter();
+			button.y += 64 * i;
 		}
 		super.update(elapsed);
 	}

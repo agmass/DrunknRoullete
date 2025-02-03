@@ -70,7 +70,7 @@ class WheelSubState extends FlxSubState {
     var portion = 0;
     var nextAngleSwitch = 45;
 	var gambaTime = -1.0;
-	var p:PlayerEntity;
+	public var p:PlayerEntity;
 
     override function destroy() {
         FlxTween.cancelTweensOf(point);
@@ -84,7 +84,8 @@ class WheelSubState extends FlxSubState {
 			portion = Math.round((wheel.angle) / 45) * 45;
 			nextAngleSwitch = portion + 45;
 			point.angle = -11;
-			MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "wheel", FlxG.random.float(0.9, 1.1), Main.UI_VOLUME - 0.25);
+			MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "wheel", Main.randomProvider.float(0.9, 1.1),
+				Main.UI_VOLUME - 0.25);
 			FlxTween.tween(point, {angle: 0}, 0.25, {ease: FlxEase.sineOut});
 		}
 		var startRoll = false;
@@ -151,7 +152,7 @@ class WheelSubState extends FlxSubState {
 				{
 					p.tokens -= 5;
 				}
-				gambaTime = FlxG.random.float(160, 2000);
+				gambaTime = Main.randomProvider.float(160, 2000);
 				FlxTween.tween(this, {gambaTime: 0}, 5, {
 					ease: FlxEase.smootherStepOut,
 					onComplete: (t) ->

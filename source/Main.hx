@@ -1,15 +1,18 @@
 package;
 
+import entity.PlayerEntity;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxSprite;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.input.gamepad.FlxGamepad;
+import flixel.math.FlxPoint;
 import flixel.sound.FlxSound;
 import flixel.util.FlxColor;
 import input.ControllerSource;
 import input.InputSource;
 import input.KeyboardSource;
+import input.OnlinePlayerSource;
 import input.control.Input;
 import nape.geom.Vec2;
 import nape.space.Space;
@@ -22,6 +25,7 @@ import state.MenuState;
 import substate.InputManagerSubState;
 import util.EnviornmentsLoader;
 import util.Language;
+import util.MultiplayerManager;
 import util.Run;
 import util.SubtitlesBox;
 #if html5
@@ -107,6 +111,7 @@ class Main extends Sprite
 	#if html5
 	public static var linkElement:LinkElement;
 	#end
+	public static var randomProvider = FlxG.random;
 
 	public function new()
 	{
@@ -221,7 +226,7 @@ class Main extends Sprite
 				activeInputs.push(new KeyboardSource());
 			}
 		}
-		if (previousConnectionsSize == 1 && activeInputs.length == 2)
+		if (previousConnectionsSize == 1 && activeInputs.length == 2 && Main.multiplayerManager != null)
 		{
 			Main.connectionsDirty = false;
 			FlxG.state.openSubState(new InputManagerSubState(activeInputs[1]));
@@ -230,6 +235,10 @@ class Main extends Sprite
 		{
 			if (shouldDirty) 
 				connectionsDirty = true;
+		}
+		if (Main.multiplayerManager != null && Main.multiplayerManager.room != null)
+		{
+			Main.multiplayerManager.update();
 		}
 	}
 
@@ -276,6 +285,7 @@ class Main extends Sprite
 			fallenKingdom.play();
 		}
 	}
+	public static var multiplayerManager:MultiplayerManager = null;
 	#else
 	public static function playVideo(url)
 	{

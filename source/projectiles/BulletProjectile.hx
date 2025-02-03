@@ -38,7 +38,7 @@ class BulletProjectile extends Projectile
 		{
 			if (dropTime <= 0.0 && !returnToShooter)
 			{
-				MultiSoundManager.playRandomSound(entity, "pickup_bullet", FlxG.random.float(0.9, 1.2));
+				MultiSoundManager.playRandomSound(entity, "pickup_bullet", Main.randomProvider.float(0.9, 1.2));
 				returnToShooter = true;
 			}
 			return;

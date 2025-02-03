@@ -85,7 +85,7 @@ class Entity extends FlxSprite {
 		health -= amount * attacker.attributes.get(Attribute.ATTACK_DAMAGE).getValue();
 		if (attacker.attributes.exists(Attribute.CRIT_CHANCE))
 		{
-			if (FlxG.random.bool(attacker.attributes.get(Attribute.CRIT_CHANCE).getValue()))
+			if (Main.randomProvider.bool(attacker.attributes.get(Attribute.CRIT_CHANCE).getValue()))
 			{
 				health -= amount * 2;
 				spawnFloatingText("CRITICAL HIT!", FlxColor.GREEN, 24);
@@ -95,7 +95,7 @@ class Entity extends FlxSprite {
 
 	public function spawnFloatingText(text:String, color:FlxColor, size:Int = 18)
 	{
-		var txt = new FlxText(x + FlxG.random.int(0, Math.round(width)), y + FlxG.random.int(0, Math.round(height)), 0, text, size);
+		var txt = new FlxText(x + Main.randomProvider.int(0, Math.round(width)), y + Main.randomProvider.int(0, Math.round(height)), 0, text, size);
 		txt.color = color;
 		floatingTexts.add(txt);
 	}
@@ -169,8 +169,8 @@ class Entity extends FlxSprite {
 			allowCollisions = NONE;
 			ragdoll.color = color;
 			ragdoll.body.space = Main.napeSpaceAmbient;
-			ragdoll.body.rotate(ragdoll.body.position, FlxG.random.float(-180, 180) * FlxAngle.TO_RAD);
-			ragdoll.body.velocity.setxy(FlxG.random.int(-400, 400), FlxG.random.int(-400, 400));
+			ragdoll.body.rotate(ragdoll.body.position, Main.randomProvider.float(-180, 180) * FlxAngle.TO_RAD);
+			ragdoll.body.velocity.setxy(Main.randomProvider.int(-400, 400), Main.randomProvider.int(-400, 400));
 			ragdoll.setBodyMaterial(0.05, 0.9, 1.6, 20, 1);
 			FlxTween.tween(ragdoll, {alpha: 0}, 3);
 		}

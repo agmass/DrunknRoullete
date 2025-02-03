@@ -41,7 +41,7 @@ class HumanoidEntity extends EquippedEntity
 		poofParticles.scale.set(0.8 * sc, 0.8 * sc, 1.2 * sc, 1.2 * sc, 0.2 * sc, 0.2 * sc, 0.2 * sc, 0.2 * sc);
 		poofParticles.launchAngle.set(-180, 0);
 		poofParticles.color.set(FlxColor.WHITE);
-		poofParticles.start(true, 0.1, FlxG.random.int(3, 6));
+		poofParticles.start(true, 0.1, Main.randomProvider.int(3, 6));
 	}
 
 	public function jumpParticleswithColor(color:FlxColor)
@@ -53,7 +53,7 @@ class HumanoidEntity extends EquippedEntity
 		poofParticles.scale.set(0.8 * sc, 0.8 * sc, 1.2 * sc, 1.2 * sc, 0.2 * sc, 0.2 * sc, 0.2 * sc, 0.2 * sc);
 		poofParticles.launchAngle.set(-180, 0);
 		poofParticles.color.set(color);
-		poofParticles.start(true, 0.1, FlxG.random.int(3, 6));
+		poofParticles.start(true, 0.1, Main.randomProvider.int(3, 6));
 	}
 
 	override function update(elapsed:Float)
@@ -68,7 +68,7 @@ class HumanoidEntity extends EquippedEntity
 			poofParticles.speed.set(50 * sc, 50 * sc, 0, 0);
 			poofParticles.scale.set(0.8 * sc, 0.8 * sc, 1.2 * sc, 1.2 * sc, 0.2 * sc, 0.2 * sc, 0.2 * sc, 0.2 * sc);
 			poofParticles.launchAngle.set(180, 0);
-			poofParticles.start(true, 0.1, FlxG.random.int(3, 6));
+			poofParticles.start(true, 0.1, Main.randomProvider.int(3, 6));
 		}
 		wasGrounded = isTouching(FLOOR);
 		super.update(elapsed);
