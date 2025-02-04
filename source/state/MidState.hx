@@ -388,6 +388,40 @@ class MidState extends TransitionableState
 			originalAngle = elevator.angle;
 
 		}
+		if (Main.multiplayerManager != null)
+		{
+			if (!Main.multiplayerManager.isHost)
+			{
+				text.text = Language.get("entity." + Main.run.nextBoss.typeTranslationKey);
+				description.text = Language.get("entity." + Main.run.nextBoss.typeTranslationKey + ".description")
+					+ "\n\n`Health: "
+					+ Main.run.nextBoss.attributes.get(Attribute.MAX_HEALTH).refreshAndGetValue()
+					+ "`\n@Level "
+					+ (Main.run.roomsTraveled + 1)
+					+ " boss@";
+				if (antiEpilepsy < 0)
+				{
+					antiEpilepsy = 0.25;
+					randomColor = Main.randomProvider.color();
+					randomColor2 = Main.randomProvider.color();
+				}
+				description.applyMarkup(description.text, [
+					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.GRAY, false, true), "|"),
+					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.RED, false, false, FlxColor.RED.getDarkened(0.5), false), "`"),
+					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.BLUE, false, false, FlxColor.YELLOW.getDarkened(0.5), false), "@"),
+					new FlxTextFormatMarkerPair(new FlxTextFormat(randomColor, Main.randomProvider.bool(50), Main.randomProvider.bool(50), randomColor2,
+						Main.randomProvider.bool(50)),
+						"#")
+				]);
+				gambleButton.visible = false;
+				continueButton.visible = false;
+				bg.visible = false;
+				combo.text += "\nWaiting for Host..";
+				combo.screenCenter(X);
+				super.update(elapsed);
+				return;
+			}
+		}
 		card.visible = selection != null;
 		if (selection <= -1)
 		{
@@ -460,56 +494,59 @@ class MidState extends TransitionableState
 					elevatorMusic.fadeOut(0.23);
 					TransitionableState.screengrab();
 					PlayState.forcedBg = null;
-					if (Main.run.nextBoss is RobotBoss)
+					if (Main.multiplayerManager == null)
 					{
-						trace(FlxG.save.data.metRobot);
-						if (FlxG.save.data.metRobot == null)
+						if (Main.run.nextBoss is RobotBoss)
 						{
-							#if html5
-							Main.playVideo(AssetPaths.cutscene_robot__mp4);
-							#end
-							#if cpp
-							video.load(AssetPaths.cutscene_robot__mp4);
-							video.play();
-							#end
-							FlxG.save.data.metRobot = true;
-							PlayState.forcedBg = AssetPaths.winbig__png;
-							FlxG.save.flush();
-							return;
+							trace(FlxG.save.data.metRobot);
+							if (FlxG.save.data.metRobot == null)
+							{
+								#if html5
+								Main.playVideo(AssetPaths.cutscene_robot__mp4);
+								#end
+								#if cpp
+								video.load(AssetPaths.cutscene_robot__mp4);
+								video.play();
+								#end
+								FlxG.save.data.metRobot = true;
+								PlayState.forcedBg = AssetPaths.winbig__png;
+								FlxG.save.flush();
+								return;
+							}
 						}
-					}
-					if (Main.run.nextBoss is BIGEVILREDCUBE)
-					{
-						if (FlxG.save.data.metRetirement == null)
+						if (Main.run.nextBoss is BIGEVILREDCUBE)
 						{
-							#if html5
-							Main.playVideo(AssetPaths.cutscene_retirement__mp4);
-							#end
-							#if cpp
-							video.load(AssetPaths.cutscene_retirement__mp4);
-							video.play();
-							#end
-							FlxG.save.data.metRetirement = true;
-							PlayState.forcedBg = AssetPaths.truecity__png;
-							FlxG.save.flush();
-							return;
+							if (FlxG.save.data.metRetirement == null)
+							{
+								#if html5
+								Main.playVideo(AssetPaths.cutscene_retirement__mp4);
+								#end
+								#if cpp
+								video.load(AssetPaths.cutscene_retirement__mp4);
+								video.play();
+								#end
+								FlxG.save.data.metRetirement = true;
+								PlayState.forcedBg = AssetPaths.truecity__png;
+								FlxG.save.flush();
+								return;
+							}
 						}
-					}
-					if (Main.run.nextBoss is RatKingBoss)
-					{
-						if (FlxG.save.data.metRat == null)
+						if (Main.run.nextBoss is RatKingBoss)
 						{
-							#if html5
-							Main.playVideo(AssetPaths.cutscene_rat__mp4);
-							#end
-							#if cpp
-							video.load(AssetPaths.cutscene_rat__mp4);
-							video.play();
-							#end
-							FlxG.save.data.metRat = true;
-							PlayState.forcedBg = AssetPaths.backrooms__png;
-							FlxG.save.flush();
-							return;
+							if (FlxG.save.data.metRat == null)
+							{
+								#if html5
+								Main.playVideo(AssetPaths.cutscene_rat__mp4);
+								#end
+								#if cpp
+								video.load(AssetPaths.cutscene_rat__mp4);
+								video.play();
+								#end
+								FlxG.save.data.metRat = true;
+								PlayState.forcedBg = AssetPaths.backrooms__png;
+								FlxG.save.flush();
+								return;
+							}
 						}
 					}
 					FlxG.switchState(new PlayState());

@@ -1,7 +1,9 @@
 package util;
 
+import entity.Entity;
 import entity.PlayerEntity;
 import flixel.FlxG;
+import flixel.FlxSprite;
 import flixel.math.FlxPoint;
 import flixel.util.FlxTimer;
 import input.InputSource;
@@ -32,10 +34,12 @@ class MultiplayerManager
 		client.joinById(id, [], MyRoomState, multiplayerCode);
 	}
 
+	public var queuedProjectiles:Map<String, Array<Projectile>> = new Map<String, Array<Projectile>>();
+
 	public var ourConnectedInputs:Map<Int, InputSource> = new Map<Int, InputSource>();
 	public var doNotReconnect:Array<InputSource> = [];
 
-	var isHost = false;
+	public var isHost = false;
 	var serverSubstate = "";
 	var serverState = "";
 
@@ -57,6 +61,25 @@ class MultiplayerManager
 		}
 		if (isHost)
 		{
+			if (FlxG.state is MidState && serverState != "mid")
+			{
+				room.send("setState", {state: "mid"});
+				serverState = "mid";
+			}
+			if (FlxG.state is PlayState)
+			{
+				var ps:PlayState = cast(FlxG.state);
+				if (ps.bgName == AssetPaths._city__png)
+				{
+					room.send("setState", {state: ""});
+					serverState = "";
+				}
+				else
+				{
+					room.send("setState", {state: "nextBoss"});
+					serverState = "nextBoss";
+				}
+			} 
 			for (source in doNotReconnect)
 			{
 				source.allowedToOpenMenus = true;
@@ -114,6 +137,7 @@ class MultiplayerManager
 				{
 					if (p.input == value)
 					{
+						Main.multiplayerManager.playerIdMap.set(room.sessionId + "___" + index, p);
 						px = p.x;
 						py = p.y;
 					}
@@ -144,8 +168,11 @@ class MultiplayerManager
 
 	public var initseed = 0;
 	public var curseed = 0;
+	public var queuedEnemiesToAdd:Array<Entity> = [];
+	public var lastEntityID = 0;
 
 	public var idMap:Map<InputSource, String> = new Map();
+	public var playerIdMap:Map<String, PlayerEntity> = new Map();
 
 	public function multiplayerCode(err:HttpException, room:Room<MyRoomState>)
 	{
@@ -171,13 +198,22 @@ class MultiplayerManager
 		});
 		room.state.listen("currentState", (c, p) ->
 		{
-			if (c == "")
+			if (!isHost)
 			{
-				FlxG.switchState(new PlayState());
-			}
-			if (c == "mid")
-			{
-				FlxG.switchState(new MidState());
+				if (c == "")
+				{
+					PlayState.forcedBg = AssetPaths._city__png;
+					FlxG.switchState(new PlayState());
+				}
+				if (c == "nextBoss")
+				{
+					PlayState.forcedBg = null;
+					FlxG.switchState(new PlayState());
+				}
+				if (c == "mid")
+				{
+					FlxG.switchState(new MidState());
+				}
 			}
 			serverState = c;
 		});
@@ -186,13 +222,15 @@ class MultiplayerManager
 		{
 			if (!isHost)
 			{
+				if (!(FlxG.state is MidState))
+				{
+					FlxG.switchState(new MidState());
+				}
 				MidState.readArbitrarySaveFile(true, message);
 			}
 		});
 		room.onMessage("openSubState", (message) ->
 		{
-			if (isHost)
-				return;
 			if (message.state == "close")
 			{
 				FlxG.state.closeSubState();
@@ -241,6 +279,69 @@ class MultiplayerManager
 			}
 		});
 
+		room.state.networkedSprites.onAdd(function(entity, i)
+		{
+			if (!isHost)
+			{
+				var sprite:FlxSprite = Type.createInstance(Type.resolveClass(entity.entityClass), [entity.x, entity.y]);
+				if (sprite is Entity)
+				{
+					var entity2:Entity = cast(sprite);
+					entity2.networked = true;
+					entity2.networkID = i;
+					entity2.networkLerper.enabled = true;
+					if (FlxG.state is PlayState)
+					{
+						var ps:PlayState = cast(FlxG.state);
+						ps.enemyLayer.add(entity2);
+					}
+					else
+					{
+						queuedEnemiesToAdd.push(entity2);
+					}
+					entity.listen("health", (c, p) ->
+					{
+						entity2.health = c;
+					});
+					entity.listen("x", (c, p) ->
+					{
+						entity2.networkLerper.desiredX = c;
+						entity2.networkLerper.travel = 0;
+					});
+					entity.listen("y", (c, p) ->
+					{
+						entity2.networkLerper.desiredY = c;
+						entity2.networkLerper.travel = 0;
+					});
+				}
+				if (sprite is Projectile)
+				{
+					var proj:Projectile = cast(sprite);
+					proj.networked = true;
+					proj.physicsEnabled = false;
+					proj.networkLerper.enabled = true;
+					if (!queuedProjectiles.exists(entity.targetGroup))
+					{
+						queuedProjectiles.set(entity.targetGroup, []);
+					}
+					queuedProjectiles.get(entity.targetGroup).push(proj);
+					entity.listen("x", (c, p) ->
+					{
+						proj.networkLerper.desiredX = c;
+						proj.networkLerper.travel = 0;
+					});
+					entity.listen("y", (c, p) ->
+					{
+						proj.networkLerper.desiredY = c;
+						proj.networkLerper.travel = 0;
+					});
+				}
+				entity.listen("angle", (c, p) ->
+				{
+					sprite.angle = c;
+				});
+			}
+		});
 		room.state.players.onAdd(function(entity, key)
 		{
 			if (!StringTools.startsWith(key, room.sessionId))
@@ -263,6 +364,7 @@ class MultiplayerManager
 								if (p.input == source)
 								{
 									player = p;
+									playerIdMap.set(key, p);
 								}
 							});
 						}
@@ -285,6 +387,7 @@ class MultiplayerManager
 								if (p.input == source)
 								{
 									player = p;
+									playerIdMap.set(key, p);
 								}
 							});
 						}
@@ -339,6 +442,11 @@ class MultiplayerManager
 				{
 					source.attackJustPressedTwo = c;
 					source.attackPressed = c;
+				});
+				entity.listen("altFirePressed", (c, p) ->
+				{
+					source.altFireJustPressedTwo = c;
+					source.altFirePressed = c;
 				});
 				entity.listen("dashPressed", (c, p) ->
 				{

@@ -25,4 +25,7 @@ class Entity extends Schema {
 	@:type("string")
 	public var entityClass: String = "";
 
+	@:type("string")
+	public var targetGroup:String = "";
+
 }

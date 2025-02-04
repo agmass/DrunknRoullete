@@ -3,9 +3,9 @@
 // DO NOT CHANGE IT MANUALLY UNLESS YOU KNOW WHAT YOU'RE DOING
 // 
 // GENERATED USING @colyseus/schema 2.0.36
-// 
-
+//
 package schema;
+
 
 import io.colyseus.serializer.schema.Schema;
 import io.colyseus.serializer.schema.types.*;

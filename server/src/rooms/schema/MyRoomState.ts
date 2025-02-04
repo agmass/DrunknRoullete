@@ -8,6 +8,7 @@ export class Entity extends Schema {
   @type("number") angle: number = 0;
   @type("number") health: number = 100;
   @type("string") entityClass: string = "";
+  @type("string") targetGroup: string = "";
 
 }
 
@@ -31,7 +32,7 @@ export class NetPlayer extends Entity {
 export class MyRoomState extends Schema {
 
   @type({ map: NetPlayer }) players  = new MapSchema<NetPlayer>();
-  @type([ Entity ]) enemies  = new ArraySchema<Entity>();
+  @type({ map: Entity }) networkedSprites  = new MapSchema<Entity>();
 
   @type("number") seed: number = 0;
   @type("number") inseed: number = 0;

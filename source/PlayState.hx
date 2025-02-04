@@ -67,6 +67,7 @@ import substate.WheelSubState;
 import ui.InGameHUD;
 import util.EnviornmentsLoader;
 import util.Language;
+import util.MultiplayerManager;
 import util.Projectile;
 import util.Run;
 import util.SubtitlesBox;
@@ -125,7 +126,7 @@ class PlayState extends TransitionableState
 		Main.napeSpaceAmbient.clear();
 		super.destroy();
 	}
-	var bgName = "";
+	public var bgName = "";
 
 	override function openSubState(SubState:FlxSubState)
 	{
@@ -349,7 +350,7 @@ class PlayState extends TransitionableState
 		if (bgName == AssetPaths.truecity__png)
 		{
 			ground.footstepSoundName = "carpet";
-			FlxG.camera.color = FlxColor.BLUE.getLightened(0.4);
+			gameCam.color = FlxColor.BLUE.getLightened(0.4);
 			customBackgroundItems = new TrueCityBackground();
 		}
 		mapLayer.add(mapLayerBehind);
@@ -575,8 +576,53 @@ class PlayState extends TransitionableState
 				});
 			}
 		}
+		if (Main.multiplayerManager != null)
+		{
+			for (entity in Main.multiplayerManager.queuedEnemiesToAdd)
+			{
+				enemyLayer.add(entity);
+				Main.multiplayerManager.queuedEnemiesToAdd.remove(entity);
+			}
+			for (key => value in Main.multiplayerManager.queuedProjectiles)
+			{
+				if (Main.multiplayerManager.playerIdMap.exists(key))
+				{
+					for (projectile in value)
+					{
+						projectile.returnToShooter = false;
+						projectile.networked = true;
+						if (Main.multiplayerManager.playerIdMap.get(key).handWeapon != null)
+							Main.multiplayerManager.playerIdMap.get(key).handWeapon.addSomeSortOfNetworkedProjectile(projectile);
+						Main.multiplayerManager.playerIdMap.get(key).collideables.add(projectile);
+					}
+					Main.multiplayerManager.queuedProjectiles.remove(key);
+				}
+			}
+		}
 		enemyLayer.forEachOfType(Entity, (p) ->
 		{
+			if (p.networked && Main.multiplayerManager != null && Main.multiplayerManager.isHost)
+			{
+				Main.multiplayerManager.room.send("enemyPos", {
+					id: p.networkID,
+					x: p.x,
+					y: p.y,
+					angle: p.angle,
+					health: p.health
+				});
+			}
+			if (!p.networked && Main.multiplayerManager != null && Main.multiplayerManager.isHost)
+			{
+				Main.multiplayerManager.room.send("addEnemy", {
+					id: p.ID + "",
+					entityClass: Type.getClassName(Type.getClass(p)),
+					targetGroup: ""
+				});
+			}
+			if (!p.networked && Main.multiplayerManager != null && !Main.multiplayerManager.isHost)
+			{
+				enemyLayer.remove(p);
+			}
 			if (!p.alive)
 			{
 				enemyLayer.remove(p, true);
@@ -658,6 +704,7 @@ class PlayState extends TransitionableState
 					part.velocity.set(0, 0);
 				}
 			});
+
 			for (hitbox in p.hitboxes)
 			{
 				FlxG.overlap(hitbox, this, (h, e) ->
@@ -706,6 +753,35 @@ class PlayState extends TransitionableState
 				if (FlxG.keys.justPressed.SIX)
 				{
 					interactable.add(new DroppedItem(p.x, p.y, new BazookaItem(p)));
+				}
+			}
+			if (Main.multiplayerManager != null)
+			{
+				for (pro in p.collideables)
+				{
+					if (pro.networked && Main.multiplayerManager.isHost)
+					{
+						Main.multiplayerManager.room.send("enemyPos", {
+							id: pro.ID + "",
+							x: pro.x,
+							y: pro.y,
+							angle: pro.angle,
+							health: 0
+						});
+					}
+					if (!pro.networked && Main.multiplayerManager.isHost)
+					{
+						pro.networked = true;
+						Main.multiplayerManager.room.send("addEnemy", {
+							id: pro.ID + "",
+							entityClass: Type.getClassName(Type.getClass(pro)),
+							entityGroup: Main.multiplayerManager.idMap.get(p.input)
+						});
+					}
+					if (!pro.networked && !Main.multiplayerManager.isHost)
+					{
+						pro.returnToShooter = true;
+					}
 				}
 			}
 			if (bgName == AssetPaths.backrooms__png)

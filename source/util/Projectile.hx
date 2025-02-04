@@ -12,10 +12,13 @@ class Projectile extends FlxNapeSprite
 {
 	public var shooter:Entity;
 	public var returnToShooter = false;
+	public var networked = false;
+	public var networkLerper:NetworkPositionLerper;
 
 	override public function new(x, y, a, c, e)
 	{
 		super(x, y, a, c, e);
+		networkLerper = new NetworkPositionLerper(this);
 	}
 
 	public function onOverlapWithEntity(entity:Entity) {}

@@ -1,5 +1,5 @@
 import { Room, Client } from "@colyseus/core";
-import { MyRoomState, NetPlayer } from "./schema/MyRoomState";
+import { Entity, MyRoomState, NetPlayer } from "./schema/MyRoomState";
 
 export class MyRoom extends Room<MyRoomState> {
   maxClients = 11;
@@ -7,15 +7,54 @@ export class MyRoom extends Room<MyRoomState> {
   onCreate (options: any) {
     this.setState(new MyRoomState());
 
+    this.onMessage("setState", (client, message) => {
+      if (this.state.hostId==client.sessionId) {
+        this.state.currentState = message.state;
+      }
+    });
+    this.onMessage("shootBullet", (client, message) => {
+      if (this.state.hostId==client.sessionId) {
+         this.broadcast("shootBullet", {
+          key: message.key, 
+          x: message.x,
+          y: message.y,
+          angle: message.angle
+        });
+      }
+    });
+    this.onMessage("enemyPos", (client, message) => {
+      if (this.state.hostId==client.sessionId) {
+        if (this.state.networkedSprites.has(message.id)) {
+          this.state.networkedSprites.get(message.id).x = message.x;
+          this.state.networkedSprites.get(message.id).y = message.y;
+          this.state.networkedSprites.get(message.id).angle = message.angle;
+          this.state.networkedSprites.get(message.id).health = message.health;
+        }
+      }
+    });
+    this.onMessage("addEnemy", (client, message) => {
+      if (this.state.hostId==client.sessionId) {
+        let ent = new Entity();
+        ent.entityClass = message.entityClass;
+        ent.x = 0;
+        ent.y = 0;
+        ent.health = 100;
+        if (message.entityGroup != undefined)
+          ent.targetGroup = message.entityGroup;
+        this.state.networkedSprites.set(message.id, ent);
+      }
+    });
     this.onMessage("refreshFile", (client, message) => {
-      this.broadcast("refreshFile", {
-        roomsTraveled: message.roomsTraveled,
-        combo: message.combo,
-        cheatedThisRun: message.cheatedThisRun,
-        brokeWindow: message.brokeWindow,
-        nextBoss: message.nextBoss,
-        players: message.players,
-      });
+      if (this.state.hostId==client.sessionId) {
+        this.broadcast("refreshFile", {
+          roomsTraveled: message.roomsTraveled,
+          combo: message.combo,
+          cheatedThisRun: message.cheatedThisRun,
+          brokeWindow: message.brokeWindow,
+          nextBoss: message.nextBoss,
+          players: message.players,
+        });
+      }
     });
     this.onMessage("addInput", (client, message) => {
       const player = new NetPlayer();

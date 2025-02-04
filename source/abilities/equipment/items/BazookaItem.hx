@@ -143,6 +143,25 @@ class BazookaItem extends Equipment
 		}
 	}
 
+	override function addSomeSortOfNetworkedProjectile(proj:Projectile)
+	{
+		if (proj is ShellProjectile)
+		{
+			var vel = new FlxPoint(bulletSpeed, 0).rotateByDegrees(proj.angle);
+			proj.body.velocity = new Vec2(vel.x, vel.y);
+			proj.body.rotate(proj.body.position, (proj.angle) * FlxAngle.TO_RAD);
+			proj.shooter = wielder;
+			proj.y -= (proj.height / 2);
+			if (flipX)
+			{
+				proj.x -= proj.width;
+				proj.flipX = true;
+			}
+			bullets.add(cast(proj));
+		}
+		super.addSomeSortOfNetworkedProjectile(proj);
+	}
+
 	override function draw()
 	{
 		bullets.draw();

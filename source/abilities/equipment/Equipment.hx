@@ -7,6 +7,7 @@ import entity.Entity;
 import entity.EquippedEntity;
 import entity.PlayerEntity;
 import flixel.FlxSprite;
+import util.Projectile;
 
 class Equipment extends FlxSprite
 {
@@ -24,6 +25,7 @@ class Equipment extends FlxSprite
 		wielder = entity;
 		createAttributes();
 	}
+	public function addSomeSortOfNetworkedProjectile(proj:Projectile) {}
 	public function canSwapOut():Bool
 	{
 		return false;

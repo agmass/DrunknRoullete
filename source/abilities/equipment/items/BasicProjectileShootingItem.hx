@@ -81,6 +81,19 @@ class BasicProjectileShootingItem extends Equipment
 		super.attack(player);
 	}
 
+	override function addSomeSortOfNetworkedProjectile(proj:Projectile)
+	{
+		if (proj is BulletProjectile)
+		{
+			var vel = new FlxPoint(bulletSpeed, 0).rotateByDegrees(proj.angle);
+			proj.body.velocity = new Vec2(vel.x, vel.y);
+			proj.body.rotate(proj.body.position, (proj.angle) * FlxAngle.TO_RAD);
+			proj.shooter = wielder;
+			bullets.add(cast(proj));
+		}
+		super.addSomeSortOfNetworkedProjectile(proj);
+	}
+
 	override function update(elapsed:Float)
 	{
 		if (bullets.length >= maxBullets)

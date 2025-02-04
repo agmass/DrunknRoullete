@@ -25,6 +25,7 @@ import shader.FadingOut;
 import sound.FootstepManager;
 import state.TransitionableState;
 import util.Language;
+import util.NetworkPositionLerper;
 
 class Entity extends FlxSprite {
 
@@ -46,14 +47,18 @@ class Entity extends FlxSprite {
 
 	var lastHealth = 100.0;
 	public var bossHealthBar = false;
+	public var networked = false;
+	public var networkID = "0";
 	public var rewards:Rewards = null;
 	public var ragdoll:FlxNapeSprite;
+	public var networkLerper:NetworkPositionLerper;
 
 	public var naturalRegeneration = 0.0;
 	public var noclip = false;
     
     public function new(x,y) {
         super(x,y);
+		networkLerper = new NetworkPositionLerper(this);
         createAttributes();
 		health = attributes.get(Attribute.MAX_HEALTH).getValue();
         debugTracker.set("Health", "health");
