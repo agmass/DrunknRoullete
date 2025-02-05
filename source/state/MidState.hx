@@ -290,8 +290,8 @@ class MidState extends TransitionableState
 				new RobotBoss(FlxG.width / 2, FlxG.height / 2),
 				new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2),
 				new RatKingBoss(0, 0)
-			][Main.randomProvider.int(0, 2)];
-			if (Main.randomProvider.bool(5) && FlxG.save.data.hasPlayedOneNormalMatch)
+			][FlxG.random.int(0, 2)];
+			if (FlxG.random.bool(5) && FlxG.save.data.hasPlayedOneNormalMatch)
 			{
 				Main.run.nextBoss = new DrunkDriveDaveBoss(0, 0);
 			}
@@ -340,7 +340,7 @@ class MidState extends TransitionableState
 		makeSureMusicFadesOut += elapsed;
 		pickNextBoss();
 		shader.elapsed.value[0] += elapsed;
-		Main.detectConnections();
+		Main.detectConnections(elapsed);
 		var gamepadAccepted = false;
 		for (i in Main.activeInputs)
 		{
@@ -384,7 +384,7 @@ class MidState extends TransitionableState
 		if (breath >= 1)
 		{
 			breath = 0;
-			targetAngle = Main.randomProvider.float(-8, 8);
+			targetAngle = FlxG.random.float(-8, 8);
 			originalAngle = elevator.angle;
 
 		}
@@ -402,15 +402,15 @@ class MidState extends TransitionableState
 				if (antiEpilepsy < 0)
 				{
 					antiEpilepsy = 0.25;
-					randomColor = Main.randomProvider.color();
-					randomColor2 = Main.randomProvider.color();
+					randomColor = FlxG.random.color();
+					randomColor2 = FlxG.random.color();
 				}
 				description.applyMarkup(description.text, [
 					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.GRAY, false, true), "|"),
 					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.RED, false, false, FlxColor.RED.getDarkened(0.5), false), "`"),
 					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.BLUE, false, false, FlxColor.YELLOW.getDarkened(0.5), false), "@"),
-					new FlxTextFormatMarkerPair(new FlxTextFormat(randomColor, Main.randomProvider.bool(50), Main.randomProvider.bool(50), randomColor2,
-						Main.randomProvider.bool(50)),
+					new FlxTextFormatMarkerPair(new FlxTextFormat(randomColor, FlxG.random.bool(50), FlxG.random.bool(50), randomColor2,
+						FlxG.random.bool(50)),
 						"#")
 				]);
 				gambleButton.visible = false;
@@ -478,15 +478,15 @@ class MidState extends TransitionableState
 				if (antiEpilepsy < 0)
 				{
 					antiEpilepsy = 0.25;
-					randomColor = Main.randomProvider.color();
-					randomColor2 = Main.randomProvider.color();
+					randomColor = FlxG.random.color();
+					randomColor2 = FlxG.random.color();
 				}
 				description.applyMarkup(description.text, [
 					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.GRAY, false, true), "|"),
 					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.RED, false, false, FlxColor.RED.getDarkened(0.5), false), "`"),
 					new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.BLUE, false, false, FlxColor.YELLOW.getDarkened(0.5), false), "@"),
-					new FlxTextFormatMarkerPair(new FlxTextFormat(randomColor, Main.randomProvider.bool(50), Main.randomProvider.bool(50), randomColor2,
-						Main.randomProvider.bool(50)),
+					new FlxTextFormatMarkerPair(new FlxTextFormat(randomColor, FlxG.random.bool(50), FlxG.random.bool(50), randomColor2,
+						FlxG.random.bool(50)),
 						"#")
 				]);
 				if (gamepadAccepted && makeSureMusicFadesOut > 0.25)

@@ -7,6 +7,14 @@ export class MyRoom extends Room<MyRoomState> {
   onCreate (options: any) {
     this.setState(new MyRoomState());
 
+    let prev = Date.now();
+    this.setSimulationInterval(()=>{
+      let elapsed = (Date.now()-prev);
+
+      prev = Date.now();
+      this.state.globalTimer += elapsed;
+    });
+
     this.onMessage("setState", (client, message) => {
       if (this.state.hostId==client.sessionId) {
         this.state.currentState = message.state;
@@ -60,6 +68,14 @@ export class MyRoom extends Room<MyRoomState> {
       const player = new NetPlayer();
       this.state.players.set(client.sessionId + "___" + message, player);
     });
+    this.onMessage("requestSeedChange", (client, message)=> {
+      if (this.state.hostId==client.sessionId) {
+        setTimeout(() => {
+          if (this.state != null)
+            this.state.seed = Math.round(Math.random()*2147435376);
+        }, 300);
+      }
+    })
     this.onMessage("openSubState", (client, message)=> {
       if (this.state.hostId==client.sessionId) {
         console.log(message.state)
@@ -67,9 +83,6 @@ export class MyRoom extends Room<MyRoomState> {
         this.broadcast("openSubState", {state: message.state, playerId: message.playerId})
       }
     })
-    this.setSimulationInterval(()=>{
-      this.state.seed = Math.round(Math.random()*2147435376);
-    },500);
     this.onMessage("inputUpdate", (client, message) => {
       const player = this.state.players.get(client.sessionId + "___" + message.inputID);
       player.jumpPressed = message.jumpPressed;
@@ -88,6 +101,9 @@ export class MyRoom extends Room<MyRoomState> {
       player.angle = message.angle;
       player.x = message.x;
       player.y = message.y;
+      player.lastTimestamp = message.timestamp;
+      player.randomAtLastTimestamp = message.randomTimestamp;
+    
     });
   }
 

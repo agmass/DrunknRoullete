@@ -31,10 +31,10 @@ class RobotBoss extends PlayerEntity
 		super(x, y, Language.get("entity.robot"));
 		color = FlxColor.GRAY;
 		input = modifiable;
-		rewards = new Rewards(Main.randomProvider.int(5, 6), true);
+		rewards = new Rewards(FlxG.random.int(5, 6), true);
 		var array:Array<Class<Equipment>> = [SwordItem, BasicProjectileShootingItem, Gamblevolver];
-		handWeapon = Type.createInstance(array[Main.randomProvider.int(0, 2)], [this]);
-		if (Main.randomProvider.bool(15))
+		handWeapon = Type.createInstance(array[FlxG.random.int(0, 2)], [this]);
+		if (FlxG.random.bool(15))
 		{
 			handWeapon = new BazookaItem(this);
 		}
@@ -47,16 +47,16 @@ class RobotBoss extends PlayerEntity
 	{
 		super.createAttributes();
 		attributes.set(Attribute.ATTACK_SPEED,
-			new Attribute(1 + Main.randomProvider.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
+			new Attribute(1 + FlxG.random.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
 		if (Main.run.roomsTraveled > 2)
 			attributes.set(Attribute.DASH_SPEED,
-				new Attribute(250 + Main.randomProvider.int(40 * (Main.run.roomsTraveled - 1), 40 * (Main.run.roomsTraveled)), true));
+			new Attribute(250 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * (Main.run.roomsTraveled)), true));
 		attributes.set(Attribute.MOVEMENT_SPEED,
-			new Attribute(450 + Main.randomProvider.int(5 * (Main.run.roomsTraveled - 1), 5 * Main.run.roomsTraveled), true));
+		new Attribute(450 + FlxG.random.int(5 * (Main.run.roomsTraveled - 1), 5 * Main.run.roomsTraveled), true));
 		attributes.set(Attribute.MAX_HEALTH,
-			new Attribute(125 + Main.randomProvider.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
+		new Attribute(125 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
 		attributes.set(Attribute.ATTACK_DAMAGE,
-			new Attribute(1.0 + Main.randomProvider.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
+			new Attribute(1.0 + FlxG.random.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
 	}
 
 	var downscale = new AttributeContainer(AttributeOperation.MULTIPLY, 0.5);
@@ -146,7 +146,7 @@ class RobotBoss extends PlayerEntity
 				modifiable.look = getMidpoint().degreesFrom(closest.getMidpoint());
 				if (Math.abs(closest.getPosition().distanceTo(getPosition())) < attackRange && timeUntilAttack <= 0)
 				{
-					if (Main.randomProvider.bool(10))
+					if (FlxG.random.bool(10))
 					{
 						handWeapon.alt_fire(this);
 					}

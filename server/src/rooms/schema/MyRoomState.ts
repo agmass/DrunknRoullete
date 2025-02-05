@@ -12,6 +12,14 @@ export class Entity extends Schema {
 
 }
 
+
+export class NetEquippedEntity extends Schema {
+
+  @type("string") weapon1Class: string = "";
+  @type("string") weapon2Class: string = "";
+
+}
+
 export class NetPlayer extends Entity {
 
   @type("boolean") attackPressed: boolean = false;
@@ -27,6 +35,8 @@ export class NetPlayer extends Entity {
 
   @type("number") movement_x: number = 0;
   @type("number") movement_y: number = 0;
+  @type("number") lastTimestamp: number = 0;
+  @type("number") randomAtLastTimestamp: number = 0;
 }
 
 export class MyRoomState extends Schema {
@@ -37,6 +47,7 @@ export class MyRoomState extends Schema {
   @type("number") seed: number = 0;
   @type("number") inseed: number = 0;
   @type("number") ui_selection: number = 0;
+  @type("number") globalTimer: number = 0;
 
   @type("string") currentState: string = "";
   @type("string") encodedRun: string = "";

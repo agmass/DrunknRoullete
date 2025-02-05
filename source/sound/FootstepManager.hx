@@ -58,7 +58,7 @@ class MultiSoundManager
 	public static function playRandomSoundByItself(x, y, soundName:String, ?pitch = 1.0, ?volume = 1.0)
 	{
 		Main.subtitles.set(Language.get("subtitle." + soundName), 4);
-		var sound = FlxG.sound.play(multiSounds.get(soundName)[Main.randomProvider.int(0, multiSounds.get(soundName).length - 1)]);
+		var sound = FlxG.sound.play(multiSounds.get(soundName)[FlxG.random.int(0, multiSounds.get(soundName).length - 1)]);
 		sound.proximity(x, y, Main.audioPanner, 1920, true);
 		sound.pitch = pitch;
 		if (soundName != "coin" && FlxG.state.subState == null)
@@ -70,7 +70,7 @@ class MultiSoundManager
 	public static function playRandomSound(entity:Entity, soundName:String, ?pitch = 1.0, ?volume = 1.0)
 	{
 		Main.subtitles.set(Language.get("subtitle." + soundName), 4);
-		var sound = FlxG.sound.play(multiSounds.get(soundName)[Main.randomProvider.int(0, multiSounds.get(soundName).length - 1)]);
+		var sound = FlxG.sound.play(multiSounds.get(soundName)[FlxG.random.int(0, multiSounds.get(soundName).length - 1)]);
 		sound.proximity(entity.x, entity.y, Main.audioPanner, 1920, true);
 		sound.pitch = pitch;
 		if (soundName != "coin" && FlxG.state.subState == null)

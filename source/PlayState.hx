@@ -319,7 +319,7 @@ class PlayState extends TransitionableState
 		if (bgName == AssetPaths.winbig__png)
 		{
 			ground.footstepSoundName = "carpet";
-			/*var table = new FootstepChangingSprite(Main.randomProvider.int(300, 1200), ground.y - 16, "wood");
+			/*var table = new FootstepChangingSprite(FlxG.random.int(300, 1200), ground.y - 16, "wood");
 			table.loadGraphic(AssetPaths.table__png);
 			table.createRectangularBody();
 			table.body.space = Main.napeSpace;
@@ -335,9 +335,9 @@ class PlayState extends TransitionableState
 			wall.ambientEdition.body.space = null;
 			wall2.body.space = null;
 			wall2.ambientEdition.body.space = null;
-			for (i in 0...Main.randomProvider.int(32, 64))
+			for (i in 0...FlxG.random.int(32, 64))
 			{
-				var crate = new FootstepChangingSprite(Main.randomProvider.int(0, 1920 - 61), ground.y - 800, "wood");
+				var crate = new FootstepChangingSprite(FlxG.random.int(0, 1920 - 61), ground.y - 800, "wood");
 				crate.loadGraphic(AssetPaths.crate__png);
 				crate.allowCollisions = NONE;
 				crate.createRectangularBody();
@@ -509,7 +509,7 @@ class PlayState extends TransitionableState
 		{
 			Main.napeSpace.step(elapsed);
 		}
-		Main.detectConnections();
+		Main.detectConnections(elapsed);
 		if (Main.connectionsDirty)
 		{
 			for (i in Main.activeInputs)

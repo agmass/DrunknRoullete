@@ -54,7 +54,7 @@ class BasicProjectileShootingItem extends Equipment
 	{
 		if (bullets.length >= maxBullets)
 		{
-			MultiSoundManager.playRandomSound(player, "out_of_ammo", Main.randomProvider.float(0.9, 1.1));
+			MultiSoundManager.playRandomSound(player, "out_of_ammo", FlxG.random.float(0.9, 1.1));
 			return;
 		}
 		var bullet = new BulletProjectile(player.getMidpoint().x, player.getMidpoint().y);
@@ -77,7 +77,7 @@ class BasicProjectileShootingItem extends Equipment
 		sound.pitch = 1.8;
 		sound.volume = 0.45;
 		FlxG.camera.shake(0.002, 0.1);
-		MultiSoundManager.playRandomSound(player, "shoot", Main.randomProvider.float(0.9, 1.1), 1);
+		MultiSoundManager.playRandomSound(player, "shoot", FlxG.random.float(0.9, 1.1), 1);
 		super.attack(player);
 	}
 
@@ -106,7 +106,7 @@ class BasicProjectileShootingItem extends Equipment
 			if (burstCool <= 0)
 			{
 				burstCool = 0.025;
-				angle = angle + burst + Main.randomProvider.float(-30, 30);
+				angle = angle + burst + FlxG.random.float(-30, 30);
 				attack(wielder);
 				burst++;
 			}

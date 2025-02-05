@@ -107,7 +107,7 @@ class PauseSubState extends FlxSubState
 	{
 		if (!locked)
 		{
-			Main.detectConnections();
+			Main.detectConnections(elapsed);
 			var gamepadAccepted = FlxG.mouse.justPressed;
 			for (i in Main.activeInputs)
 			{

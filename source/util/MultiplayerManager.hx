@@ -6,6 +6,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxPoint;
 import flixel.util.FlxTimer;
+import haxe.Timer;
 import input.InputSource;
 import input.ModifiableInputSource;
 import input.OnlinePlayerSource;
@@ -50,8 +51,9 @@ class MultiplayerManager
 
 	static var ociSize = 0;
 
-	public function update()
+	public function update(elapsed:Float)
 	{
+		globalTimer += elapsed * 1000;
 		if (!isHost)
 		{
 			for (source in doNotReconnect)
@@ -160,7 +162,9 @@ class MultiplayerManager
 					movement_y: value.getMovementVector().y,
 					x: px,
 					y: py,
-					angle: value.getLookAngle(new FlxPoint(px, py))
+					angle: value.getLookAngle(new FlxPoint(px, py)),
+					timestamp: globalTimer,
+					randomTimestamp: Main.randomProvider.currentSeed
 				});
 			}
 		}
@@ -170,6 +174,9 @@ class MultiplayerManager
 	public var curseed = 0;
 	public var queuedEnemiesToAdd:Array<Entity> = [];
 	public var lastEntityID = 0;
+	public var elapsedSkip = 0.0;
+	public var globalTimer = 0.0;
+	public var pingDiffServer = 0.0;
 
 	public var idMap:Map<InputSource, String> = new Map();
 	public var playerIdMap:Map<String, PlayerEntity> = new Map();
@@ -183,6 +190,8 @@ class MultiplayerManager
 		}
 
 		this.room = room;
+		globalTimer = room.state.globalTimer;
+		
 
 		room.state.listen("seed", (c, p) ->
 		{
@@ -190,7 +199,7 @@ class MultiplayerManager
 		});
 		room.state.listen("inseed", (c, p) ->
 		{
-			Main.randomProvider.initialSeed = c;
+			FlxG.random.initialSeed = c;
 		});
 		room.state.listen("hostId", (c, p) ->
 		{
@@ -342,6 +351,10 @@ class MultiplayerManager
 				});
 			}
 		});
+		room.state.listen("globalTimer", (c, p) ->
+		{
+			globalTimer = c;
+		});
 		room.state.players.onAdd(function(entity, key)
 		{
 			if (!StringTools.startsWith(key, room.sessionId))
@@ -398,6 +411,47 @@ class MultiplayerManager
 					}
 				});
 
+				var playerPingDiff = 0.0;
+
+				entity.listen("randomAtLastTimestamp", (c, p) ->
+				{
+					if (FlxG.state.subState is SlotsSubState)
+					{
+						var wss:SlotsSubState = cast(FlxG.state.subState);
+						if (wss.p == player)
+						{
+							cast(Main.randomProvider, ServerDecidedRandom).cappedSeed = c;
+						}
+					}
+					if (FlxG.state.subState is WheelSubState)
+					{
+						var wss:WheelSubState = cast(FlxG.state.subState);
+						if (wss.p == player)
+						{
+							cast(Main.randomProvider, ServerDecidedRandom).cappedSeed = c;
+						}
+					}
+				});
+				entity.listen("lastTimestamp", (c, p) ->
+				{
+					playerPingDiff = globalTimer - c;
+					if (FlxG.state.subState is SlotsSubState)
+					{
+						var wss:SlotsSubState = cast(FlxG.state.subState);
+						if (wss.p == player)
+						{
+							elapsedSkip = playerPingDiff;
+						}
+					}
+					if (FlxG.state.subState is WheelSubState)
+					{
+						var wss:WheelSubState = cast(FlxG.state.subState);
+						if (wss.p == player)
+						{
+							elapsedSkip = playerPingDiff;
+						}
+					}
+				});
 				entity.listen("jumpPressed", (c, p) ->
 				{
 					source.jumpPressed = c;

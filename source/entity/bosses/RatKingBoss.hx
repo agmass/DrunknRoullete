@@ -21,7 +21,7 @@ class RatKingBoss extends HumanoidEntity
 		originalSpriteSizeX = 64;
 		originalSpriteSizeY = 64;
 		typeTranslationKey = "rat";
-		rewards = new Rewards(Main.randomProvider.int(6, 9), true);
+		rewards = new Rewards(FlxG.random.int(6, 9), true);
 		entityName = Language.get("entity." + typeTranslationKey);
 	}
 
@@ -31,11 +31,11 @@ class RatKingBoss extends HumanoidEntity
 		attributes.set(Attribute.SIZE_X, new Attribute(6, true));
 		attributes.set(Attribute.SIZE_Y, new Attribute(6, true));
 		attributes.set(Attribute.MAX_HEALTH,
-			new Attribute(600 + Main.randomProvider.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
+		new Attribute(600 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
 		if (Main.run.roomsTraveled >= 5)
 		{
 			attributes.set(Attribute.CRIT_CHANCE,
-				new Attribute(Main.randomProvider.int(3 * (Main.run.roomsTraveled - 6), 3 * (Main.run.roomsTraveled - 5)), true));
+			new Attribute(FlxG.random.int(3 * (Main.run.roomsTraveled - 6), 3 * (Main.run.roomsTraveled - 5)), true));
 		}
 	}
 
@@ -48,7 +48,7 @@ class RatKingBoss extends HumanoidEntity
 	{
 		if (health <= 0 && ragdoll == null)
 		{
-			if (Main.randomProvider.bool(5))
+			if (FlxG.random.bool(5))
 			{
 				if (FlxG.state is PlayState)
 				{
@@ -65,7 +65,7 @@ class RatKingBoss extends HumanoidEntity
 				if (!entity.isOnScreen())
 				{
 					entity.velocity.y = -1250;
-					entity.x = Main.randomProvider.int(500, 1000);
+					entity.x = FlxG.random.int(500, 1000);
 					entity.y = FlxG.height - 100;
 					entity.acceleration.y = 900;
 					entity.maxVelocity.y = 900;
@@ -77,8 +77,8 @@ class RatKingBoss extends HumanoidEntity
 		{
 			if (behaviourState == 0)	
 			{
-				randomRatBirth = Main.randomProvider.float(2, 2.4);
-				for (i in 0...Main.randomProvider.int(1, 3))
+				randomRatBirth = FlxG.random.float(2, 2.4);
+				for (i in 0...FlxG.random.int(1, 3))
 				{
 					if (FlxG.state is PlayState)
 					{
@@ -109,11 +109,11 @@ class RatKingBoss extends HumanoidEntity
 		}
 		if (!isOnScreen())
 		{
-			MultiSoundManager.playRandomSound(this, "dig", Main.randomProvider.float(0.9, 1.1));
+			MultiSoundManager.playRandomSound(this, "dig", FlxG.random.float(0.9, 1.1));
 			FlxG.camera.shake(0.025, 0.1);
 			behaviourState = 0;
 			velocity.y = -1250;
-			x = Main.randomProvider.int(500, 1000);
+			x = FlxG.random.int(500, 1000);
 			y = FlxG.height - 100;
 			acceleration.y = 900;
 			maxVelocity.y = 900;

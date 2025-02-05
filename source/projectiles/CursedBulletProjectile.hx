@@ -24,7 +24,7 @@ class CursedBulletProjectile extends BulletProjectile
 		{
 			if (dropTime <= 0.0 && !returnToShooter)
 			{
-				MultiSoundManager.playRandomSound(entity, "pickup_bullet", Main.randomProvider.float(0.9, 1.2));
+				MultiSoundManager.playRandomSound(entity, "pickup_bullet", FlxG.random.float(0.9, 1.2));
 				returnToShooter = true;
 			}
 			return;
@@ -47,31 +47,31 @@ class CursedBulletProjectile extends BulletProjectile
 
 	public static function roll(p:Entity, shooter:Entity)
 	{
-		var lostOrWon = Main.randomProvider.bool(20);
+		var lostOrWon = FlxG.random.bool(20);
 		if (shooter == p)
 		{
-			lostOrWon = Main.randomProvider.bool(80);
+			lostOrWon = FlxG.random.bool(80);
 		}
 
 		var amount = 0.0;
 
-		var operation:AttributeOperation = [AttributeOperation.ADD, AttributeOperation.MULTIPLY][Main.randomProvider.int(0, 1)];
+		var operation:AttributeOperation = [AttributeOperation.ADD, AttributeOperation.MULTIPLY][FlxG.random.int(0, 1)];
 		var listForBet = [];
 		for (key => value in p.attributes)
 		{
 			listForBet.push(key);
 		}
-		var type = listForBet[Main.randomProvider.int(0, listForBet.length - 1)];
+		var type = listForBet[FlxG.random.int(0, listForBet.length - 1)];
 		if (type == Attribute.SIZE_X || type == Attribute.SIZE_Y || type == Attribute.ATTACK_SPEED || type == Attribute.ATTACK_KNOCKBACK
 			|| type == Attribute.CROUCH_SCALE)
 		{
 			if (shooter == p)
 			{
-				lostOrWon = Main.randomProvider.bool(20);
+				lostOrWon = FlxG.random.bool(20);
 			}
 			else
 			{
-				lostOrWon = Main.randomProvider.bool(80);
+				lostOrWon = FlxG.random.bool(80);
 			}
 		}
 		if (!p.attributes.exists(type))
@@ -97,17 +97,17 @@ class CursedBulletProjectile extends BulletProjectile
 		{
 			if (lostOrWon)
 			{
-				amount = Main.randomProvider.float(1.1, 2);
+				amount = FlxG.random.float(1.1, 2);
 			}
 			else
 			{
-				amount = Main.randomProvider.float(0.4, 0.9);
+				amount = FlxG.random.float(0.4, 0.9);
 			}
 			amount = FlxMath.roundDecimal(amount, 1);
 		}
 		else
 		{
-			amount = [10.0, 10.0, 10.0, 10.0, 10.0, 25.0, 25.0, 25.0, 25.0, 25.0, 50.0, 100.0][Main.randomProvider.int(0, 11)];
+			amount = [10.0, 10.0, 10.0, 10.0, 10.0, 25.0, 25.0, 25.0, 25.0, 25.0, 50.0, 100.0][FlxG.random.int(0, 11)];
 			if (type.additionMultiplier <= 0.001 && amount <= 50)
 			{
 				amount = 100.0;
@@ -115,7 +115,7 @@ class CursedBulletProjectile extends BulletProjectile
 			amount *= type.additionMultiplier;
 			if (type == Attribute.JUMP_COUNT)
 			{
-				amount = [1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0, 4.0][Main.randomProvider.int(0, 13)] *= type.additionMultiplier;
+				amount = [1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0, 4.0][FlxG.random.int(0, 13)] *= type.additionMultiplier;
 			}
 			if (!lostOrWon)
 				amount = -amount;
@@ -143,7 +143,7 @@ class CursedBulletProjectile extends BulletProjectile
 				timeBonus += 3;
 			if (!positive && shooter != p)
 				timeBonus += 3;
-			p.attributes.get(type).addTemporaryOperation(new AttributeContainer(operation, amount), Main.randomProvider.float(5, 8) + timeBonus);
+			p.attributes.get(type).addTemporaryOperation(new AttributeContainer(operation, amount), FlxG.random.float(5, 8) + timeBonus);
 		}
 		if (type == Attribute.MAX_HEALTH)
 		{

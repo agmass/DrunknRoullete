@@ -34,7 +34,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		sw.retirement = true;
 		handWeapon = sw;
 		
-		rewards = new Rewards(Main.randomProvider.int(3, 6), true);
+		rewards = new Rewards(FlxG.random.int(3, 6), true);
 		health = attributes.get(Attribute.MAX_HEALTH).getValue();
 	}
 
@@ -45,17 +45,17 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		attributes.set(Attribute.SIZE_X, new Attribute(2, true));
 		attributes.set(Attribute.SIZE_Y, new Attribute(2, true));
 		attributes.set(Attribute.ATTACK_SPEED,
-			new Attribute(3.5 + Main.randomProvider.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
+			new Attribute(3.5 + FlxG.random.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
 		attributes.set(Attribute.ATTACK_DAMAGE,
-			new Attribute(1.0 + Main.randomProvider.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
+			new Attribute(1.0 + FlxG.random.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
 		attributes.set(Attribute.MOVEMENT_SPEED,
-			new Attribute(FlxMath.bound(100 + Main.randomProvider.int(20 * (Main.run.roomsTraveled - 1), 20 * Main.run.roomsTraveled), 0, 400), true));
+			new Attribute(FlxMath.bound(100 + FlxG.random.int(20 * (Main.run.roomsTraveled - 1), 20 * Main.run.roomsTraveled), 0, 400), true));
 		attributes.set(Attribute.MAX_HEALTH,
-			new Attribute(400 + Main.randomProvider.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
+		new Attribute(400 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
 		if (Main.run.roomsTraveled >= 5)
 		{
 			attributes.set(Attribute.CRIT_CHANCE,
-				new Attribute(Main.randomProvider.int(3 * (Main.run.roomsTraveled - 6), 3 * (Main.run.roomsTraveled - 5)), true));
+			new Attribute(FlxG.random.int(3 * (Main.run.roomsTraveled - 6), 3 * (Main.run.roomsTraveled - 5)), true));
 		}
 	}
 
@@ -118,8 +118,8 @@ class BIGEVILREDCUBE extends HumanoidEntity
 						bit.animation.play("a");
 						bit.updateHitbox();
 						bit.createRectangularBody(47, 51);
-						bit.body.velocity.setxy(Main.randomProvider.float(-800, 800), Main.randomProvider.float(-800, 800));
-						bit.body.rotate(bit.body.position, Main.randomProvider.float(-180, 180));
+						bit.body.velocity.setxy(FlxG.random.float(-800, 800), FlxG.random.float(-800, 800));
+						bit.body.rotate(bit.body.position, FlxG.random.float(-180, 180));
 						bit.body.space = Main.napeSpaceAmbient;
 						bit.setBodyMaterial(0.5, 0.4, 0.7, 0.2, 1);
 						bits.add(bit);

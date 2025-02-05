@@ -80,7 +80,7 @@ class CreditsSubState extends FlxSubState
 			}
 		}
 
-		Main.detectConnections();
+		Main.detectConnections(elapsed);
 		for (i in Main.activeInputs)
 		{
 			if (i.ui_deny)

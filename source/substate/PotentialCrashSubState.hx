@@ -77,7 +77,7 @@ class PotentialCrashSubState extends FlxSubState
 
 	override public function update(elapsed:Float):Void
 	{
-		Main.detectConnections();
+		Main.detectConnections(elapsed);
 		var gamepadAccepted = false;
 		for (i in Main.activeInputs)
 		{

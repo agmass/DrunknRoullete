@@ -18,14 +18,14 @@ class SmallRatEntity extends HumanoidEntity
 	override function createAttributes()
 	{
 		super.createAttributes();
-		var size = Main.randomProvider.float(0.4, 0.6);
+		var size = FlxG.random.float(0.4, 0.6);
 		attributes.set(Attribute.SIZE_X, new Attribute(size, true));
 		attributes.set(Attribute.SIZE_Y, new Attribute(size, true));
 		attributes.set(Attribute.CRIT_CHANCE, new Attribute(5, true));
-		attributes.set(Attribute.MAX_HEALTH, new Attribute(10 + Main.randomProvider.int(10 * Main.run.roomsTraveled, 10 * Main.run.roomsTraveled), true));
+		attributes.set(Attribute.MAX_HEALTH, new Attribute(10 + FlxG.random.int(10 * Main.run.roomsTraveled, 10 * Main.run.roomsTraveled), true));
 		attributes.set(Attribute.ATTACK_DAMAGE,
-			new Attribute(1.0 + Main.randomProvider.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
-		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(400 + Main.randomProvider.int(10 * Main.run.roomsTraveled, 10 * Main.run.roomsTraveled), true));
+			new Attribute(1.0 + FlxG.random.float(-0.005 * (Main.run.roomsTraveled), 0.5 + (-0.005 * (Main.run.roomsTraveled))), true));
+		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(400 + FlxG.random.int(10 * Main.run.roomsTraveled, 10 * Main.run.roomsTraveled), true));
 	}
 
 	var overlappedLastFrame = false;

@@ -181,7 +181,7 @@ class Main extends Sprite
 		subtitlesBox = new SubtitlesBox();
 	}
 
-	public static function detectConnections()
+	public static function detectConnections(elapsed:Float)
 	{
 		var previousConnectionsSize = activeInputs.length;
 		var shouldDirty = false;
@@ -238,7 +238,7 @@ class Main extends Sprite
 		}
 		if (Main.multiplayerManager != null && Main.multiplayerManager.room != null)
 		{
-			Main.multiplayerManager.update();
+			Main.multiplayerManager.update(elapsed);
 		}
 	}
 

@@ -6,6 +6,7 @@
 // 
 package schema;
 
+
 import io.colyseus.serializer.schema.Schema;
 import io.colyseus.serializer.schema.types.*;
 
@@ -24,6 +25,9 @@ class MyRoomState extends Schema {
 
 	@:type("number")
 	public var ui_selection:Dynamic = 0;
+
+	@:type("number")
+	public var globalTimer:Dynamic = 0;
 
 	@:type("string")
 	public var currentState: String = "";

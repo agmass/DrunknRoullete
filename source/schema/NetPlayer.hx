@@ -6,7 +6,6 @@
 //
 package schema;
 
-
 import io.colyseus.serializer.schema.Schema;
 import io.colyseus.serializer.schema.types.*;
 
@@ -43,5 +42,11 @@ class NetPlayer extends Entity {
 
 	@:type("number")
 	public var movement_y: Dynamic = 0;
+
+	@:type("number")
+	public var lastTimestamp:Dynamic = 0;
+
+	@:type("number")
+	public var randomAtLastTimestamp:Dynamic = 0;
 
 }

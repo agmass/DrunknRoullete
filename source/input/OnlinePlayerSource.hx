@@ -12,6 +12,7 @@ class OnlinePlayerSource extends ModifiableInputSource
 	public var ui_acceptTwo = false;
 	public var ui_denyTwo = false;
 	public var ui_menuTwo = false;
+	public var timestamp:Int = 0;
 
 	override public function new()
 	{

@@ -87,7 +87,7 @@ class MultiplayerState extends TransitionableState
 
 	override public function update(elapsed:Float)
 	{
-		Main.detectConnections();
+		Main.detectConnections(elapsed);
 
 		var gamepadAccepted = false;
 		for (i in Main.activeInputs)

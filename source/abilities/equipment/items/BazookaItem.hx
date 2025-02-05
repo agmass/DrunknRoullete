@@ -49,7 +49,7 @@ class BazookaItem extends Equipment
 		altCooldown = 0.5;
 		if (bullets.length >= maxBullets)
 		{
-			MultiSoundManager.playRandomSound(player, "out_of_ammo", Main.randomProvider.float(0.9, 1.1));
+			MultiSoundManager.playRandomSound(player, "out_of_ammo", FlxG.random.float(0.9, 1.1));
 			return;
 		}
 		var bullet = new FriendlyShellProjectile(player.getMidpoint().x, player.getMidpoint().y);
@@ -72,7 +72,7 @@ class BazookaItem extends Equipment
 		sound.pitch = 1.8;
 		sound.volume = 0.45;
 		FlxG.camera.shake(0.002, 0.1);
-		MultiSoundManager.playRandomSound(player, "shoot", Main.randomProvider.float(0.1, 0.25), 1);
+		MultiSoundManager.playRandomSound(player, "shoot", FlxG.random.float(0.1, 0.25), 1);
 		super.attack(player);
 	}
 
@@ -80,7 +80,7 @@ class BazookaItem extends Equipment
 	{
 		if (bullets.length >= maxBullets)
 		{
-			MultiSoundManager.playRandomSound(player, "out_of_ammo", Main.randomProvider.float(0.9, 1.1));
+			MultiSoundManager.playRandomSound(player, "out_of_ammo", FlxG.random.float(0.9, 1.1));
 			return;
 		}
 		var bullet = new ShellProjectile(player.getMidpoint().x, player.getMidpoint().y);
@@ -103,7 +103,7 @@ class BazookaItem extends Equipment
 		sound.pitch = 1.8;
 		sound.volume = 0.45;
 		FlxG.camera.shake(0.002, 0.1);
-		MultiSoundManager.playRandomSound(player, "shoot", Main.randomProvider.float(0.1, 0.25), 1);
+		MultiSoundManager.playRandomSound(player, "shoot", FlxG.random.float(0.1, 0.25), 1);
 		super.attack(player);
 	}
 

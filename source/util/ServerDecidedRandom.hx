@@ -11,6 +11,10 @@ class ServerDecidedRandom extends FlxRandom
 	{
 		currentSeed = cappedSeed;
 		initialSeed = cappedSeed;
+		if (Main.multiplayerManager.room != null && Main.multiplayerManager.isHost)
+		{
+			Main.multiplayerManager.room.send("requestSeedChange");
+		}
 		return super.float(Min, Max, Excludes);
 	}
 
@@ -18,6 +22,10 @@ class ServerDecidedRandom extends FlxRandom
 	{
 		currentSeed = cappedSeed;
 		initialSeed = cappedSeed;
+		if (Main.multiplayerManager.room != null && Main.multiplayerManager.isHost)
+		{
+			Main.multiplayerManager.room.send("requestSeedChange");
+		}
 		return super.int(Min, Max, Excludes);
 	}
 }

@@ -189,7 +189,7 @@ class SettingsSubState extends FlxSubState
 		}
 		FlxG.fullscreen = fullscreen.checked;
 
-		Main.detectConnections();
+		Main.detectConnections(elapsed);
 		var gamepadAccepted = false;
 		for (i in Main.activeInputs)
 		{

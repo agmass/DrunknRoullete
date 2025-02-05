@@ -120,7 +120,7 @@ class SlotsSubState extends FlxSubState
 		add(bg);
 		for (i in -1...1)
 		{
-			var attribute:FlxSprite = new FlxSprite().loadGraphic(attributeIcons[Main.randomProvider.int(0, attributeIcons.length - 1)]);
+			var attribute:FlxSprite = new FlxSprite().loadGraphic(attributeIcons[FlxG.random.int(0, attributeIcons.length - 1)]);
 			attribute.setGraphicSize(168, 286);
 			attribute.updateHitbox();
 			attribute.y += (286 * (i));
@@ -131,7 +131,7 @@ class SlotsSubState extends FlxSubState
 		attributesRollGroup.camera = gamblingCamera;
 		for (i in -1...1)
 		{
-			var attribute:FlxSprite = new FlxSprite().loadGraphic(operationIcons[Main.randomProvider.int(0, operationIcons.length - 1)]);
+			var attribute:FlxSprite = new FlxSprite().loadGraphic(operationIcons[FlxG.random.int(0, operationIcons.length - 1)]);
 			attribute.setGraphicSize(168, 286);
 			attribute.updateHitbox();
 			attribute.x = bg2.x;
@@ -143,7 +143,7 @@ class SlotsSubState extends FlxSubState
 		operationRollGroup.camera = gamblingCamera;
 		for (i in -1...1)
 		{
-			var attribute:FlxText = new FlxText(0, 0, 0, possibleAddNumbers[Main.randomProvider.int(0, possibleAddNumbers.length - 1)] + "", 50);
+			var attribute:FlxText = new FlxText(0, 0, 0, possibleAddNumbers[FlxG.random.int(0, possibleAddNumbers.length - 1)] + "", 50);
 			attribute.updateHitbox();
 			attribute.screenCenter();
 			attribute.x = bg3.x;
@@ -189,6 +189,7 @@ class SlotsSubState extends FlxSubState
 	var shaderLag = 0.0;
 	public var selectedCard = 0;
 	var holdTime = 0.0;
+	public static var resync = false;
 
 	override function destroy()
 	{
@@ -202,9 +203,19 @@ class SlotsSubState extends FlxSubState
 
 	override function update(elapsed:Float)
 	{
+		if (resync)
+		{
+			resync = false;
+			if (Main.multiplayerManager != null)
+			{
+				elapsed += Main.multiplayerManager.elapsedSkip / 1000;
+				if (Main.multiplayerManager.elapsedSkip != 0)
+					Main.multiplayerManager.elapsedSkip = 0;
+			}
+		}
 		gamblingCamera.y = foregroundgamblingCamera.y + 67 * 4.218;
 		gamblingCamera.angle = foregroundgamblingCamera.angle;
-		Main.detectConnections();
+		Main.detectConnections(elapsed);
 		shaderLag += elapsed;
 		if (shaderLag >= 0.1)
 		{
@@ -320,7 +331,7 @@ class SlotsSubState extends FlxSubState
 			sprite.y += elapsed * 3050;
 			if (sprite.y >= middle && sprite.graphic.key == desiredIconOne)
 			{
-				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", Main.randomProvider.float(0.9, 1.1),
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", FlxG.random.float(0.9, 1.1),
 					Main.UI_VOLUME);
 				sprite.y = middle;
 				lockedInState = 1;
@@ -350,7 +361,7 @@ class SlotsSubState extends FlxSubState
 				}
 				else
 				{
-					sprite.loadGraphic(attributeIcons[Main.randomProvider.int(0, attributeIcons.length - 1)]);
+					sprite.loadGraphic(attributeIcons[FlxG.random.int(0, attributeIcons.length - 1)]);
 					sprite.setGraphicSize(168, 286);
 				}
 			}
@@ -376,7 +387,7 @@ class SlotsSubState extends FlxSubState
 			sprite.y += elapsed * 3050;
 			if (sprite.y >= middle && sprite.graphic.key == desiredIconTwo)
 			{
-				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", Main.randomProvider.float(0.9, 1.1),
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", FlxG.random.float(0.9, 1.1),
 					Main.UI_VOLUME);
 				sprite.y = middle;
 				lockedInState = 2;
@@ -402,7 +413,7 @@ class SlotsSubState extends FlxSubState
 				}
 				else
 				{
-					sprite.loadGraphic(operationIcons[Main.randomProvider.int(0, operationIcons.length - 1)]);
+					sprite.loadGraphic(operationIcons[FlxG.random.int(0, operationIcons.length - 1)]);
 					sprite.setGraphicSize(168, 286);
 				}
 			}
@@ -431,7 +442,7 @@ class SlotsSubState extends FlxSubState
 			text.y += elapsed * 3050;
 			if (text.y >= middle + ((bg1.height - 50) / 2) && text.text == desiredIconThree)
 			{
-				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", Main.randomProvider.float(0.9, 1.1),
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "slots_hit", FlxG.random.float(0.9, 1.1),
 					Main.UI_VOLUME);
 				text.y = middle + ((bg1.height - 50) / 2);
 				lockedInState = 3;
@@ -446,7 +457,7 @@ class SlotsSubState extends FlxSubState
 				}
 				else
 				{
-					text.text = possibleAddNumbers[Main.randomProvider.int(0, possibleAddNumbers.length - 1)] + "";
+					text.text = possibleAddNumbers[FlxG.random.int(0, possibleAddNumbers.length - 1)] + "";
 				}
 			}
 		}
@@ -487,7 +498,7 @@ class SlotsSubState extends FlxSubState
 		{
 			if (gambaTime >= 2.0)
 			{
-				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "lever_pull", Main.randomProvider.float(0.9, 1.1),
+				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "lever_pull", FlxG.random.float(0.9, 1.1),
 					Main.UI_VOLUME);
 				slotsMachine.animation.play("pullBack");
 				gambaTime = -1;
@@ -524,7 +535,7 @@ class SlotsSubState extends FlxSubState
 							});
 						}
 					});
-					MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "lever_pull", Main.randomProvider.float(0.9, 1.1),
+					MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "lever_pull", FlxG.random.float(0.9, 1.1),
 						Main.UI_VOLUME);
 					roll();
 				}
@@ -542,19 +553,20 @@ class SlotsSubState extends FlxSubState
 
 	public function roll()
 	{
+		resync = true;
 		slotsMachine.animation.play("pull");
 		gambaTime = 0.0;
-		var lostOrWon = Main.randomProvider.bool(80);
+		var lostOrWon = FlxG.random.bool(80);
 		
 		var amount = 0.0;
 
-		var operation:AttributeOperation = [AttributeOperation.ADD, AttributeOperation.MULTIPLY][Main.randomProvider.int(0, 1)];
+		var operation:AttributeOperation = [AttributeOperation.ADD, AttributeOperation.MULTIPLY][FlxG.random.int(0, 1)];
 		var listForBet = Attribute.attributesList;
-		var type = listForBet[Main.randomProvider.int(0, listForBet.length - 1)];
+		var type = listForBet[FlxG.random.int(0, listForBet.length - 1)];
 		if (type == Attribute.SIZE_X || type == Attribute.SIZE_Y || type == Attribute.ATTACK_SPEED || type == Attribute.ATTACK_KNOCKBACK
 			|| type == Attribute.CROUCH_SCALE)
 		{
-			lostOrWon = Main.randomProvider.bool(20);
+			lostOrWon = FlxG.random.bool(20);
 		}
 		if (!p.attributes.exists(type))
 		{
@@ -579,11 +591,11 @@ class SlotsSubState extends FlxSubState
 		{
 			if (lostOrWon)
 			{
-				amount = Main.randomProvider.float(1.1, 1.5);
+				amount = FlxG.random.float(1.1, 1.5);
 			}
 			else
 			{
-				amount = Main.randomProvider.float(0.5, 0.9);
+				amount = FlxG.random.float(0.5, 0.9);
 			}
 			amount = FlxMath.roundDecimal(amount, 1);
 		}
@@ -591,7 +603,7 @@ class SlotsSubState extends FlxSubState
 		{
 			amount = [
 				10.0, 10.0, 10.0, 10.0, 10.0, 25.0, 25.0, 25.0, 25.0, 25.0, 50.0, 50.0, 50.0, 50.0, 100.0, 100.0, 100.0, 250.0, 250.0, 500.0
-			][Main.randomProvider.int(0, 19)];
+			][FlxG.random.int(0, 19)];
 			if (type.additionMultiplier <= 0.001 && amount <= 50)
 			{
 				amount = 100.0;
@@ -599,7 +611,7 @@ class SlotsSubState extends FlxSubState
 			amount *= type.additionMultiplier;
 			if (type == Attribute.JUMP_COUNT)
 			{
-				amount = [1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0, 4.0][Main.randomProvider.int(0, 13)] *= type.additionMultiplier;
+				amount = [1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0, 4.0][FlxG.random.int(0, 13)] *= type.additionMultiplier;
 			}
 			if (!lostOrWon)
 				amount = -amount;

@@ -6,6 +6,7 @@
 // 
 package schema;
 
+
 import io.colyseus.serializer.schema.Schema;
 import io.colyseus.serializer.schema.types.*;
 

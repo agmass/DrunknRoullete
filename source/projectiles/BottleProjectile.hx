@@ -33,7 +33,7 @@ class BottleProjectile extends Projectile
 			return;
 		broken = true;
 		FlxG.camera.shake(0.0025, 0.2);
-		MultiSoundManager.playRandomSoundByItself(x, y, "glass_break", Main.randomProvider.float(0.8, 1.2));
+		MultiSoundManager.playRandomSoundByItself(x, y, "glass_break", FlxG.random.float(0.8, 1.2));
 		shards.start(true, 0.1, 0);
 	}
 
@@ -56,7 +56,7 @@ class BottleProjectile extends Projectile
 		broken = true;
 		FlxG.camera.shake(0.0025, 0.2);
 		hitEntity = true;
-		MultiSoundManager.playRandomSoundByItself(x, y, "glass_break", Main.randomProvider.float(0.8, 1.2));
+		MultiSoundManager.playRandomSoundByItself(x, y, "glass_break", FlxG.random.float(0.8, 1.2));
 		shards.start(true, 0.1, 0);
 		super.onOverlapWithEntity(entity);
 	}

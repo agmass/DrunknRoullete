@@ -23,7 +23,7 @@ class DroppedItem extends SpriteToInteract
 		visual.y = y;
 		visual.body.position.setxy(x, y);
 		visual.body.space = Main.napeSpace;
-		visual.body.rotate(visual.body.position, Main.randomProvider.float(0, 360));
+		visual.body.rotate(visual.body.position, FlxG.random.float(0, 360));
 		visual.setBodyMaterial(0.05, 0.3, 0.3, 4, 0.001);
 	}
 

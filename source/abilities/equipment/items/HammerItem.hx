@@ -106,7 +106,7 @@ class HammerItem extends Equipment
 				}
 				hammer.shooter = wielder;
 				wielder.hitboxes.add(hammer);
-				MultiSoundManager.playRandomSound(wielder, "toyhammer", Main.randomProvider.float(0.9, 1.1), 0.4);
+				MultiSoundManager.playRandomSound(wielder, "toyhammer", FlxG.random.float(0.9, 1.1), 0.4);
 			}
 			lastangle = angle;
 			lastWielderPos = wielder.getPosition();

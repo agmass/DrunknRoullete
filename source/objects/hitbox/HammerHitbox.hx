@@ -13,7 +13,7 @@ class HammerHitbox extends Hitbox
 	override public function new(x, y)
 	{
 		super(x, y);
-		damage = Main.randomProvider.int(10, 13);
+		damage = FlxG.random.int(10, 13);
 		makeGraphic(120, 120, FlxColor.TRANSPARENT);
 		x -= 12;
 		y -= 12;
