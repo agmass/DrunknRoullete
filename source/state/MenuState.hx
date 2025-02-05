@@ -7,9 +7,11 @@ import flixel.input.gamepad.FlxGamepadInputID;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import flixel.util.FlxSave;
 import openfl.display.BitmapData;
 import shader.AttributesSlotTextShader;
 import substate.CreditsSubState;
+import substate.PotentialCrashSubState;
 import substate.SettingsSubState;
 import ui.MenuTextButton;
 import util.Language;
@@ -21,16 +23,10 @@ class MenuState extends TransitionableState
 {
 	var title:FlxText = new FlxText(0, 0, 0, "Drunk'n'Roullete", 64);
 	var play:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.start"), 32);
-	var continueButton:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.continue"), 32, () ->
-	{
-		MidState.readSaveFile();
-		FlxG.switchState(new MidState());
-	});
-	var intro:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.intro"), 32);
-	var fullscreen:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.fullscreen"), 32, () ->
-	{
-		FlxG.fullscreen = !FlxG.fullscreen;
-	});
+	var newGame:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.newGame"), 32);
+	var storyMode:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.storyMode"), 32);
+	var back:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.back"), 32);
+	var continueButton:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.continue"), 32);
 	var options:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.options"), 32);
 	var credits:MenuTextButton = new MenuTextButton(0, 0, 0, Language.get("button.credits"), 32);
 	var connectedPlayers:FlxText = new FlxText(20, 20, 0, "No Players Connected", 16);
@@ -41,6 +37,7 @@ class MenuState extends TransitionableState
 	#if cpp
 	var video = new FlxVideoSprite(0, 0);
 	#end
+	var basicSelectables = [];
 
 	override function create()
 	{
@@ -55,35 +52,68 @@ class MenuState extends TransitionableState
 			var tempState:SettingsSubState = new SettingsSubState();
 			openSubState(tempState);
 		}
-		intro.onUsed = () -> {
-			#if html5
-			Main.playVideo(AssetPaths.intro__mp4);
-			#end
-			#if cpp
-			video.play();
-			#end
+		continueButton.onUsed = () ->
+		{
+			if (FlxG.save.data.run != Main.saveFileVersion)
+			{
+				openSubState(new PotentialCrashSubState(FlxG.save));
+				return;
+			}
+			MidState.readSaveFile(FlxG.save);
+			FlxG.switchState(new MidState());
+		};
+		storyMode.onUsed = () ->
+		{
+			if (waitForFadeOut < 0)
+			{
+				var storyModeSaveFile:FlxSave = new FlxSave();
+				storyModeSaveFile.bind("dnr_story");
+				PlayState.storyMode = true;
+				if (storyModeSaveFile.data.run != null)
+				{
+					if (storyModeSaveFile.data.run != Main.saveFileVersion)
+					{
+						openSubState(new PotentialCrashSubState(storyModeSaveFile));
+						return;
+					}
+					MidState.readSaveFile(storyModeSaveFile);
+					FlxG.switchState(new MidState());
+				}
+				else
+				{
+					#if html5
+					Main.playVideo(AssetPaths.intro__mp4);
+					#end
+					#if cpp
+					video.play();
+					#end
+					FlxG.switchState(new PlayState());
+				}
+			}
+		};
+		newGame.onUsed = () ->
+		{
+			if (waitForFadeOut < 0)
+			{
+				FlxG.switchState(new PlayState());
+			}
+		};
+		back.onUsed = () ->
+		{
+			selection = 0;
+			menuSelectables = basicSelectables;
 		};
 		play.onUsed = () ->
 		{
-			if (!FlxG.save.data.seenIntro)
+			if (FlxG.save.data.run == null)
 			{
-				FlxG.save.data.seenIntro = true;
-				FlxG.save.flush();
-				#if html5
-				Main.playVideo(AssetPaths.intro__mp4);
-				#end
-				#if cpp
-				video.play();
-				#end
+				menuSelectables = [storyMode, newGame, back];
 			}
 			else
 			{
-				if (waitForFadeOut < 0)
-				{
-					FlxG.switchState(new PlayState());
-				}
-
+				menuSelectables = [storyMode, newGame, continueButton, back];
 			}
+
 		};
 		FlxG.save.bind("brj2025");
 		Main.run = null;
@@ -98,12 +128,14 @@ class MenuState extends TransitionableState
 		title.y -= 128;
 		add(play);
 		add(options);
-		add(intro);
-		add(fullscreen);
 		add(connectedPlayers);
 		add(continueButton);
 		add(credits);
-		menuSelectables = [play, continueButton, options, fullscreen, credits, intro];
+		add(newGame);
+		add(back);
+		add(storyMode);
+		menuSelectables = [play, options, credits];
+		basicSelectables = menuSelectables;
 		highScore.color = FlxColor.LIME;
 		if (FlxG.save.data.highestTokens != null)
 		{
@@ -167,28 +199,19 @@ class MenuState extends TransitionableState
 				{
 					FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
 					selection += 1;
-					if (FlxG.save.data.run == null)
-					{
-						if (selection == 1)
-						{
-							selection = 2;
-						}
-					}
 				}
 				if (i.getMovementVector().y == -1)
 				{
 					FlxG.sound.play(AssetPaths.menu_select__ogg, Main.UI_VOLUME);
 					selection -= 1;
-					if (FlxG.save.data.run == null)
-					{
-						if (selection == 1)
-						{
-							selection = 0;
-						}
-					}
 				}
 			}
 			i.lastMovement.y = i.getMovementVector().y;
+			if (i.ui_deny)
+			{
+				selection = 0;
+				menuSelectables = basicSelectables;
+			}
 			if (i.ui_accept)
 			{
 				FlxG.sound.play(AssetPaths.menu_accept__ogg, Main.UI_VOLUME);
@@ -230,44 +253,20 @@ class MenuState extends TransitionableState
 		{
 			continueButton.visible = true;
 		}
-		if (FlxG.save.data.seenIntro)
-		{
-			intro.visible = true;
-		}
-		else
-		{
-			intro.visible = false;
-			if (selection >= 5)
-			{
-				selection = 0;
-			}
-		}
 
 		play.screenCenter();
 		continueButton.visible = FlxG.save.data.run != null;
-		if (FlxG.save.data.run == null)
+		var i = 0;
+		forEachOfType(MenuTextButton, (mtb) ->
 		{
-			options.screenCenter();
-			options.y += 64;
-			fullscreen.screenCenter();
-			fullscreen.y += 128;
-			credits.screenCenter();
-			credits.y += 128 + 64;
-			intro.screenCenter();
-			intro.y += 128 + 64 + 64;
-		}
-		else
+			mtb.visible = false;
+		});
+		for (button in menuSelectables)
 		{
-			continueButton.screenCenter();
-			continueButton.y += 64;
-			options.screenCenter();
-			options.y += 128;
-			fullscreen.screenCenter();
-			fullscreen.y += 128 + 64;
-			credits.screenCenter();
-			credits.y += 128 + 64 + 64;
-			intro.screenCenter();
-			intro.y += 128 + 64 + 64 + 64;
+			i++;
+			button.visible = true;
+			button.screenCenter();
+			button.y += 64 * i;
 		}
 		super.update(elapsed);
 	}

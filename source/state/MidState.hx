@@ -15,6 +15,7 @@ import flixel.sound.FlxSound;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import flixel.util.FlxSave;
 import flixel.util.FlxTimer;
 import haxe.xml.Check.Attrib;
 import input.InputSource;
@@ -84,7 +85,16 @@ class MidState extends TransitionableState
 		add(autosavingText);
 		FlxTween.tween(autosavingText, {alpha: 0}, 1);
 		pickNextBoss();
-		saveFile();
+		if (PlayState.storyMode)
+		{
+			var storyModeSaveFile:FlxSave = new FlxSave();
+			storyModeSaveFile.bind("dnr_story");
+			saveFile(storyModeSaveFile);
+		}
+		else
+		{
+			saveFile(FlxG.save);
+		}
 		FlxG.save.flush();
 		#if cpp
 		video.active = false;
@@ -93,13 +103,13 @@ class MidState extends TransitionableState
 		#end
 	}
 
-	public static function saveFile()
+	public static function saveFile(savefile:FlxSave)
 	{
-		FlxG.save.data.run = Main.saveFileVersion;
-		FlxG.save.data.roomsTraveled = Main.run.roomsTraveled;
-		FlxG.save.data.cheatedThisRun = Main.run.cheatedThisRun;
-		FlxG.save.data.combo = Main.run.combo;
-		FlxG.save.data.nextBoss = Type.getClassName(Type.getClass(Main.run.nextBoss));
+		savefile.data.run = Main.saveFileVersion;
+		savefile.data.roomsTraveled = Main.run.roomsTraveled;
+		savefile.data.cheatedThisRun = Main.run.cheatedThisRun;
+		savefile.data.combo = Main.run.combo;
+		savefile.data.nextBoss = Type.getClassName(Type.getClass(Main.run.nextBoss));
 		var serializedPlayers = "";
 		for (entity in Main.run.players)
 		{
@@ -139,10 +149,11 @@ class MidState extends TransitionableState
 			builder += ",";
 			serializedPlayers += builder;
 		}
-		FlxG.save.data.players = serializedPlayers;
+		savefile.data.players = serializedPlayers;
+		savefile.flush();
 	}
 
-	public static function readSaveFile()
+	public static function readSaveFile(savefile:FlxSave)
 	{
 		Main.run = new Run();
 		if (Main.activeInputs.length == 0)
@@ -151,12 +162,12 @@ class MidState extends TransitionableState
 			Main.connectionsDirty = true;
 			Main.activeInputs.push(new KeyboardSource());
 		}
-		Main.run.roomsTraveled = FlxG.save.data.roomsTraveled;
-		Main.run.combo = FlxG.save.data.combo;
-		Main.run.cheatedThisRun = FlxG.save.data.cheatedThisRun;
+		Main.run.roomsTraveled = savefile.data.roomsTraveled;
+		Main.run.combo = savefile.data.combo;
+		Main.run.cheatedThisRun = savefile.data.cheatedThisRun;
 		Main.run.brokeWindow = true;
-		Main.run.nextBoss = Type.createInstance(Type.resolveClass(FlxG.save.data.nextBoss), [0, 0]);
-		var pArrayString:String = FlxG.save.data.players;
+		Main.run.nextBoss = Type.createInstance(Type.resolveClass(savefile.data.nextBoss), [0, 0]);
+		var pArrayString:String = savefile.data.players;
 		var i = 0;
 		for (e in pArrayString.split(","))
 		{
@@ -241,20 +252,28 @@ class MidState extends TransitionableState
 
 	function pickNextBoss()
 	{
-
-		if (Main.run.nextBoss == null || Main.run.nextBoss.ragdoll != null || !Main.run.nextBoss.alive)
+		if (PlayState.storyMode)
 		{
-			Main.run.nextBoss = [
-				new RobotBoss(FlxG.width / 2, FlxG.height / 2),
-				new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2),
-				new RatKingBoss(0, 0)
-			][FlxG.random.int(0, 2)];
-			if (FlxG.random.bool(5) && FlxG.save.data.hasPlayedOneNormalMatch)
-			{
-				Main.run.nextBoss = new DrunkDriveDaveBoss(0, 0);
+			if (Main.run.progression == 0) {
+
 			}
-			FlxG.save.data.hasPlayedOneNormalMatch = true;
-			FlxG.save.flush();
+		}
+		else
+		{
+			if (Main.run.nextBoss == null || Main.run.nextBoss.ragdoll != null || !Main.run.nextBoss.alive)
+			{
+				Main.run.nextBoss = [
+					new RobotBoss(FlxG.width / 2, FlxG.height / 2),
+					new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2),
+					new RatKingBoss(0, 0)
+				][FlxG.random.int(0, 2)];
+				if (FlxG.random.bool(5) && FlxG.save.data.hasPlayedOneNormalMatch)
+				{
+					Main.run.nextBoss = new DrunkDriveDaveBoss(0, 0);
+				}
+				FlxG.save.data.hasPlayedOneNormalMatch = true;
+				FlxG.save.flush();
+			}
 		}
 	}
 
@@ -419,8 +438,7 @@ class MidState extends TransitionableState
 					PlayState.forcedBg = null;
 					if (Main.run.nextBoss is RobotBoss)
 					{
-						trace(FlxG.save.data.metRobot);
-						if (FlxG.save.data.metRobot == null)
+						if (FlxG.save.data.metRobot == null || PlayState.storyMode)
 						{
 							#if html5
 							Main.playVideo(AssetPaths.cutscene_robot__mp4);
@@ -437,7 +455,7 @@ class MidState extends TransitionableState
 					}
 					if (Main.run.nextBoss is BIGEVILREDCUBE)
 					{
-						if (FlxG.save.data.metRetirement == null)
+						if (FlxG.save.data.metRetirement == null || PlayState.storyMode)
 						{
 							#if html5
 							Main.playVideo(AssetPaths.cutscene_retirement__mp4);
@@ -454,7 +472,7 @@ class MidState extends TransitionableState
 					}
 					if (Main.run.nextBoss is RatKingBoss)
 					{
-						if (FlxG.save.data.metRat == null)
+						if (FlxG.save.data.metRat == null || PlayState.storyMode)
 						{
 							#if html5
 							Main.playVideo(AssetPaths.cutscene_rat__mp4);

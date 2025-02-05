@@ -35,6 +35,7 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import flixel.util.FlxSave;
 import flixel.util.FlxTimer;
 import input.ControllerSource;
 import input.KeyboardSource;
@@ -140,8 +141,13 @@ class PlayState extends TransitionableState
 	}
 	var customBackgroundItems:FlxTypedGroup<FlxSprite> = new FlxTypedGroup();
 
+	public static var storyMode = false;
+
+	public var storyModeSaveFile:FlxSave = new FlxSave();
+
 	override public function create()
 	{
+		storyModeSaveFile.bind("dnr_story");
 		bgName = EnviornmentsLoader.enviornments[FlxG.random.int(0, EnviornmentsLoader.enviornments.length - 1)];
 		if (forcedBg != null)
 		{
@@ -169,6 +175,10 @@ class PlayState extends TransitionableState
 			Main.run = new Run();
 			bgName = AssetPaths._city__png;
 			playersSpawned = true;
+			if (storyMode)
+			{
+				Main.run.progression = 0;
+			}
 		}
 		else
 		{
@@ -873,8 +883,11 @@ class PlayState extends TransitionableState
 		if (alivePlayers <= 0 && playersSpawned)
 		{
 			Main.run = new Run();
-			FlxG.save.data.run = null;
-			FlxG.save.flush();
+			if (!storyMode)
+			{
+				FlxG.save.data.run = null;
+				FlxG.save.flush();
+			}
 			FlxG.switchState(new MenuState());
 		}
 		noEpilepsy -= elapsed;
