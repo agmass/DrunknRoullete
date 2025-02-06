@@ -177,6 +177,7 @@ class PlayState extends TransitionableState
 			playersSpawned = true;
 			if (storyMode)
 			{
+				bgName = AssetPaths._lobby__png;
 				Main.run.progression = 0;
 			}
 		}
@@ -311,7 +312,7 @@ class PlayState extends TransitionableState
 			wheel.updateHitbox();
 			wheel.immovable = true;
 			if (!FlxG.save.data.shadersDisabled)
-			wheel.shader = slotsShader;
+				wheel.shader = slotsShader;
 			interactable.add(wheel);
 			music_track_gambling.play(false);
 			music_track_gambling_in_menu.play(false);

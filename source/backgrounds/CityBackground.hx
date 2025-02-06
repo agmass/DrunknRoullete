@@ -14,6 +14,12 @@ class CityBackground extends FlxTypedGroup<FlxSprite>
 		window.loadGraphic(AssetPaths.window__png, true, 145, 63);
 		window.animation.add("fixed", [0]);
 		window.animation.add("broken", [1]);
+		if (PlayState.storyMode)
+		{
+			window.loadGraphic(AssetPaths.window_hidden__png, true, 149, 69);
+			window.animation.add("fixed", [0]);
+			window.animation.add("broken", [0]);
+		}
 		window.scale.set(1.5, 1.5);
 		window.animation.play("fixed");
 		window.updateHitbox();

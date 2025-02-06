@@ -255,7 +255,15 @@ class MidState extends TransitionableState
 		if (PlayState.storyMode)
 		{
 			if (Main.run.progression == 0) {
-
+				Main.run.nextBoss = new BIGEVILREDCUBE(FlxG.width / 2, FlxG.height / 2);
+			}
+			if (Main.run.progression == 1)
+			{
+				Main.run.nextBoss = new RobotBoss(FlxG.width / 2, FlxG.height / 2);
+			}
+			if (Main.run.progression == 2)
+			{
+				Main.run.nextBoss = new RatKingBoss(FlxG.width / 2, FlxG.height / 2);
 			}
 		}
 		else
