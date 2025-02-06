@@ -10,6 +10,7 @@ import abilities.equipment.items.HammerItem;
 import abilities.equipment.items.RatGun;
 import abilities.equipment.items.SwordItem;
 import backgrounds.CityBackground;
+import backgrounds.LobbyBackground;
 import backgrounds.TrueCityBackground;
 import entity.Entity;
 import entity.EquippedEntity;
@@ -57,6 +58,7 @@ import openfl.geom.Point;
 import openfl.geom.Rectangle;
 import shader.AttributesSlotTextShader;
 import shader.ChromaticShader;
+import shader.GlowInTheDarkShader;
 import sound.FootstepManager.MultiSoundManager;
 import state.MenuState;
 import state.TransitionableState;
@@ -183,15 +185,15 @@ class PlayState extends TransitionableState
 		}
 		else
 		{
+			if (Main.run.nextBoss != null && bgName != AssetPaths._city__png)
+			{
+				Main.run.nextBoss.x = elevator.x + 1024;
+				Main.run.nextBoss.y = 400;
+				enemyLayer.add(Main.run.nextBoss);
+				Main.run.roomsTraveled++;
+			}
 			if (Main.run.players.length > 0)
 			{
-				if (Main.run.nextBoss != null && bgName != AssetPaths._city__png)
-				{
-					Main.run.nextBoss.x = elevator.x + 1024;
-					Main.run.nextBoss.y = 400;
-					enemyLayer.add(Main.run.nextBoss);
-					Main.run.roomsTraveled++;
-				}
 				for (player in Main.run.players)
 				{
 					if (player.input != null)
@@ -325,6 +327,10 @@ class PlayState extends TransitionableState
 		}
 		if (!FlxG.save.data.shadersDisabled)
 			gameCam.filters = [new ShaderFilter(chrome)];
+		if (bgName == AssetPaths._lobby__png)
+		{
+			customBackgroundItems = new LobbyBackground();
+		}
 		if (bgName == AssetPaths.winbig__png)
 		{
 			ground.footstepSoundName = "carpet";

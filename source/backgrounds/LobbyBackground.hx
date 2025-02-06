@@ -1,0 +1,78 @@
+package backgrounds;
+
+import entity.PlayerEntity;
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.group.FlxGroup.FlxTypedGroup;
+import objects.SpriteToInteract;
+import openfl.filters.ShaderFilter;
+import shader.GlowInTheDarkShader;
+import shader.SuperGlowInTheDarkShader;
+
+class LobbyBackground extends FlxTypedGroup<FlxSprite>
+{
+	var glowinthedark:ShaderFilter = new ShaderFilter(new GlowInTheDarkShader());
+	var superglowinthedark:ShaderFilter = new ShaderFilter(new SuperGlowInTheDarkShader());
+
+	public static var state = -1;
+	public static var elapsedTimeInState = 0.0;
+
+	override public function new()
+	{
+		super();
+		state = -1;
+		elapsedTimeInState = 0.0;
+		var button = new BigRedButton(0, 0, AssetPaths.bigRedButton__png);
+		button.screenCenter();
+		button.y += 350;
+		cast(FlxG.state, PlayState).interactable.add(button);
+	}
+
+	override function update(elapsed:Float)
+	{
+		elapsedTimeInState += elapsed;
+		if (LobbyBackground.state == 1 && elapsedTimeInState >= 38 && elapsedTimeInState <= 45)
+		{
+			if (!FlxG.camera.filters.contains(superglowinthedark))
+			{
+				FlxG.camera.filters.push(superglowinthedark);
+			}
+		}
+		else
+		{
+			if (FlxG.camera.filters.contains(superglowinthedark))
+			{
+				FlxG.camera.filters.remove(superglowinthedark);
+			}
+		}
+		if (state == -1)
+		{
+			if (!FlxG.camera.filters.contains(glowinthedark))
+			{
+				FlxG.camera.filters.push(glowinthedark);
+			}
+		}
+		else
+		{
+			if (FlxG.camera.filters.contains(glowinthedark))
+			{
+				FlxG.camera.filters.remove(glowinthedark);
+			}
+		}
+
+		super.update(elapsed);
+	}
+}
+
+class BigRedButton extends SpriteToInteract
+{
+	override function interact(p:PlayerEntity)
+	{
+		if (LobbyBackground.state == -1)
+		{
+			FlxG.camera.shake(0.05, 0.5);
+			LobbyBackground.state = 1;
+		}
+		super.interact(p);
+	}
+}

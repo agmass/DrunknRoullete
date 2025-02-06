@@ -1,5 +1,6 @@
 package state;
 
+import entity.bosses.TutorialBoss;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -15,6 +16,7 @@ import substate.PotentialCrashSubState;
 import substate.SettingsSubState;
 import ui.MenuTextButton;
 import util.Language;
+import util.Run;
 #if cpp
 import hxvlc.flixel.FlxVideoSprite;
 #end
@@ -87,6 +89,10 @@ class MenuState extends TransitionableState
 					#if cpp
 					video.play();
 					#end
+					PlayState.forcedBg = AssetPaths._lobby__png;
+					Main.run = new Run();
+					Main.run.progression = 0;
+					Main.run.nextBoss = new TutorialBoss(0, 0);
 					FlxG.switchState(new PlayState());
 				}
 			}
