@@ -4,7 +4,7 @@
 
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="BossRushJam2025" file="BossRushJam2025" main="Main" version="0.0.1" company="HaxeFlixel" />
+	<app title="Drunk'n'Roulette" file="DrunknRoulette" main="Main" version="0.0.1" company="agmas" />
 
 	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
@@ -49,6 +49,11 @@
 	<section if="cpp">
 		<haxelib name="hxvlc" if="desktop || mobile" />
 	</section>
+
+	 <!-- Replace the question marks with your Steam App ID -->
+   	<setenv name="STEAM_APP_ID" value="3520760" />
+   
+  	<haxelib name="steamwrap"/>
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 

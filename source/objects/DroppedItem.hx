@@ -35,17 +35,37 @@ class DroppedItem extends SpriteToInteract
 		super.update(elapsed);
 	}
 
+	override function destroy()
+	{
+		visual.body.position.setxy(-1000, -1000);
+		super.destroy();
+	}
+
 	override function interact(p:PlayerEntity)
 	{
+		item.wielder = p;
 		if (p.handWeapon != null)
 		{
-			if (FlxG.state is PlayState)
+			if (p.holsteredWeapon == null)
 			{
-				var ps:PlayState = cast(FlxG.state);
-				ps.interactable.add(new DroppedItem(p.x, p.y, p.handWeapon));
-				p.handWeapon = item;
-				ps.interactable.remove(this);
-				destroy();
+				p.holsteredWeapon = item;
+				if (FlxG.state is PlayState)
+				{
+					var ps:PlayState = cast(FlxG.state);
+					ps.interactable.remove(this);
+					destroy();
+				}
+			}
+			else
+			{
+				if (FlxG.state is PlayState)
+				{
+					var ps:PlayState = cast(FlxG.state);
+					ps.interactable.add(new DroppedItem(p.x, p.y, p.handWeapon));
+					p.handWeapon = item;
+					ps.interactable.remove(this);
+					destroy();
+				}
 			}
 		}
 		else

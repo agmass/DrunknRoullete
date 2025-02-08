@@ -19,6 +19,7 @@ import util.Language;
 import util.Run;
 #if cpp
 import hxvlc.flixel.FlxVideoSprite;
+import steamwrap.api.Steam;
 #end
 
 class MenuState extends TransitionableState
@@ -93,12 +94,14 @@ class MenuState extends TransitionableState
 					Main.run = new Run();
 					Main.run.progression = 0;
 					Main.run.nextBoss = new TutorialBoss(0, 0);
-					FlxG.switchState(new PlayState());
 				}
 			}
 		};
 		newGame.onUsed = () ->
 		{
+			#if cpp
+			Steam.setAchievement("ENDLESS_UNLOCK_AND_PLAY");
+			#end
 			if (waitForFadeOut < 0)
 			{
 				FlxG.switchState(new PlayState());

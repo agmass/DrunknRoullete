@@ -6,7 +6,9 @@ import flixel.FlxSprite;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.input.gamepad.FlxGamepad;
 import flixel.sound.FlxSound;
+import flixel.system.debug.FlxDebugger;
 import flixel.util.FlxColor;
+import haxe.Log;
 import input.ControllerSource;
 import input.InputSource;
 import input.KeyboardSource;
@@ -24,6 +26,9 @@ import util.EnviornmentsLoader;
 import util.Language;
 import util.Run;
 import util.SubtitlesBox;
+#if cpp
+import steamwrap.api.Steam;
+#end
 #if html5
 import js.Browser;
 import js.html.Console;
@@ -111,6 +116,9 @@ class Main extends Sprite
 	public function new()
 	{
 		super();
+		#if cpp
+		Steam.init(3520760);
+		#end
 		FlxG.save.bind("brj2025");
 		trace(attribution);
 		FPS = new FPS(0, 20, FlxColor.WHITE);
@@ -178,6 +186,7 @@ class Main extends Sprite
 
 	public static function detectConnections()
 	{
+		Steam.onEnterFrame();
 		var previousConnectionsSize = activeInputs.length;
 		var shouldDirty = false;
 		#if html5

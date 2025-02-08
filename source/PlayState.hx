@@ -403,6 +403,7 @@ class PlayState extends TransitionableState
 
 	override function startOutro(onOutroComplete:() -> Void)
 	{
+		Main.gameMusic.pitch = 1;
 		super.startOutro(onOutroComplete);
 	}
 

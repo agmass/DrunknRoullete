@@ -11,11 +11,16 @@ import shader.SuperGlowInTheDarkShader;
 
 class LobbyBackground extends FlxTypedGroup<FlxSprite>
 {
+	var window:FlxSprite;
 	var glowinthedark:ShaderFilter = new ShaderFilter(new GlowInTheDarkShader());
 	var superglowinthedark:ShaderFilter = new ShaderFilter(new SuperGlowInTheDarkShader());
 
 	public static var state = -1;
 	public static var elapsedTimeInState = 0.0;
+	public static var goalToContinue:Void->Bool = () ->
+	{
+		return false;
+	};
 
 	override public function new()
 	{
@@ -26,12 +31,40 @@ class LobbyBackground extends FlxTypedGroup<FlxSprite>
 		button.screenCenter();
 		button.y += 350;
 		cast(FlxG.state, PlayState).interactable.add(button);
+		window = new FlxSprite(184 * 1.5, 10 * 1.5);
+		window.loadGraphic(AssetPaths.window_lobby__png, true, 145, 63);
+		window.animation.add("fixed", [0]);
+		window.animation.add("broken", [1]);
+		if (!PlayState.storyMode)
+		{
+			window.loadGraphic(AssetPaths.window_hidden__png, true, 149, 69);
+			window.animation.add("fixed", [0]);
+			window.animation.add("broken", [0]);
+		}
+		window.scale.set(1.5, 1.5);
+		window.animation.play("fixed");
+		window.updateHitbox();
+		add(window);
 	}
 
 	override function update(elapsed:Float)
 	{
-		elapsedTimeInState += elapsed;
-		if (LobbyBackground.state == 1 && elapsedTimeInState >= 38 && elapsedTimeInState <= 45)
+		if (Main.run.brokeWindow)
+		{
+			window.animation.play("broken");
+		}
+		if (LobbyBackground.state == 2)
+		{
+			if (goalToContinue())
+			{
+				LobbyBackground.state = 1;
+			}
+		}
+		else
+		{
+			elapsedTimeInState += elapsed;
+		}
+		if (LobbyBackground.state == 1 && elapsedTimeInState >= 39 && elapsedTimeInState <= 50)
 		{
 			if (!FlxG.camera.filters.contains(superglowinthedark))
 			{
@@ -54,6 +87,7 @@ class LobbyBackground extends FlxTypedGroup<FlxSprite>
 		}
 		else
 		{
+
 			if (FlxG.camera.filters.contains(glowinthedark))
 			{
 				FlxG.camera.filters.remove(glowinthedark);
@@ -66,6 +100,14 @@ class LobbyBackground extends FlxTypedGroup<FlxSprite>
 
 class BigRedButton extends SpriteToInteract
 {
+	override function update(elapsed:Float)
+	{
+		if (LobbyBackground.state != -1)
+		{
+			tooltipSprite.alpha = 0;
+		}
+		super.update(elapsed);
+	}
 	override function interact(p:PlayerEntity)
 	{
 		if (LobbyBackground.state == -1)

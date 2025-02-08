@@ -1,141 +1,223 @@
 package entity.bosses;
 
+import abilities.attributes.Attribute;
+import abilities.equipment.items.Gamblevolver;
+import abilities.equipment.items.SwordItem;
 import backgrounds.LobbyBackground;
 import flixel.FlxG;
 import flixel.addons.text.FlxTypeText;
+import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.text.FlxText;
+import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import objects.DroppedItem;
+import objects.hitbox.ExplosionHitbox;
+import objects.hitbox.Hitbox;
+import openfl.filters.ShaderFilter;
+import shader.CRTLinesShader;
 
 class TutorialBoss extends Entity
 {
-	var dialouge:FlxTypeText = new FlxTypeText(0, 0, 0, "", 48);
+	var dialouge:FlxTypeText = new FlxTypeText(0, 0, 0, "", 28);
 	var face:FlxText = new FlxText(0, 0, 0, "z_z", 100);
 
+	public var hitboxes:FlxTypedSpriteGroup<Hitbox> = new FlxTypedSpriteGroup();
 	var lastState = 0;
+	var speed = 0.25;
 
 	override public function new(x, y)
 	{
 		super(x, y);
+		manuallyUpdateSize = true;
 		makeGraphic(750, 500, FlxColor.BLACK);
+		face.shader = new CRTLinesShader();
+		setSize(750, 500);
 	}
 	var breathing:Float = 0.0;
-	var timeDialougeMap:Map<Int, String> = new Map();
+	var timeDialougeMap:Map<Int, Void->Void> = new Map();
 
+	override function createAttributes()
+	{
+		super.createAttributes();
+		attributes.set(Attribute.MAX_HEALTH, new Attribute(550, true));
+	}
+
+	var dying = false;
+
+	override function damage(amount:Float, attacker:Entity)
+	{
+		if (!dying)
+			super.damage(amount, attacker);
+	}
+
+	var explosionCooldown = 0.2;
 	override function update(elapsed:Float)
 	{
+		if (health <= 0 && ragdoll == null)
+		{
+			health = 600;
+			dying = true;
+			face.text = "X_X";
+		}
+		if (dying)
+		{
+			explosionCooldown -= elapsed;
+			if (explosionCooldown <= 0)
+			{
+				speed += 1;
+				explosionCooldown = 0.2;
+				var explosion:ExplosionHitbox = new ExplosionHitbox(FlxG.random.float(x, x + width), FlxG.random.float(y, y + height), 0);
+				hitboxes.add(explosion);
+			}
+		}
+		hitboxes.update(elapsed);
+
+		for (hitbox in hitboxes)
+		{
+			if (hitbox.inactive)
+			{
+				hitboxes.remove(hitbox);
+				hitbox.destroy();
+			}
+		}
+		velocity.x = velocity.y = 0;
 		if (lastState == -1 && LobbyBackground.state == 1)
 		{
 			LobbyBackground.elapsedTimeInState = 0;
 			dialouge.size = 96;
 			dialouge.resetText("HUH?");
 			dialouge.start(0.015);
-			timeDialougeMap.set(1500, "ahem.");
-			timeDialougeMap.set(2000, "Well, hello, uh, whoever you are.");
-			timeDialougeMap.set(6500, "This casino is closed now. Please go away.");
-			timeDialougeMap.set(9500, "Come back tommorow.");
-			timeDialougeMap.set(11500, "Or something.");
-			timeDialougeMap.set(17000, "I notice you haven't left yet.");
-			timeDialougeMap.set(20000, "...");
-			timeDialougeMap.set(25000, "Look, i'm bored as hell.");
-			timeDialougeMap.set(27500, "I've been stuck in this shitty casino,");
-			timeDialougeMap.set(29000, "I haven't seen anybody new come in for the past 4 years,");
-			timeDialougeMap.set(34000, "Something happened inside those floors.");
-			timeDialougeMap.set(36000, "I'm not entirely sure why, but I've seen some people come in");
-			timeDialougeMap.set(38000, "And never come back out.");
-		}
-		if (LobbyBackground.state == 1 && LobbyBackground.elapsedTimeInState >= 1.5)
-		{
-			dialouge.size = 48;
-			dialouge.delay = 0.05;
+			var gilbert = new EquippedEntity(-100, -100);
+			timeDialougeMap.set(0, () ->
+			{
+				face.text = "O_O";
+				speed = 25;
+			});
+			timeDialougeMap.set(2000, () ->
+			{
+				speed = 0.25;
+				dialouge.resetText("Give Weapon 1");
+				face.text = "@_@";
+				dialouge.size = 28;
+				dialouge.start(0.05);
+				var ps:PlayState = cast(FlxG.state);
+				ps.interactable.add(new DroppedItem(getMidpoint().x, getMidpoint().y, new SwordItem(gilbert)));
+				LobbyBackground.goalToContinue = () ->
+				{
+					var result = false;
+					ps.playerLayer.forEachOfType(PlayerEntity, (p) ->
+					{
+						if (p.handWeapon is SwordItem)
+							result = true;
+					});
+					return result;
+				};
+				LobbyBackground.state = 2;
+			});
+			timeDialougeMap.set(2500, () ->
+			{
+				dialouge.resetText("Weapon 2");
+				face.text = "^_^";
+				dialouge.start(0.05);
+				var ps:PlayState = cast(FlxG.state);
+				ps.interactable.add(new DroppedItem(getMidpoint().x, getMidpoint().y, new Gamblevolver(gilbert)));
+				LobbyBackground.goalToContinue = () ->
+				{
+					var result = false;
+					ps.playerLayer.forEachOfType(PlayerEntity, (p) ->
+					{
+						if (p.holsteredWeapon is Gamblevolver)
+							result = true;
+					});
+					return result;
+				};
+				LobbyBackground.state = 2;
+			});
+			timeDialougeMap.set(3000, () ->
+			{
+				dialouge.resetText("Swap weapons with backslot");
+				face.text = ":)";
+				dialouge.start(0.05);
+				var ps:PlayState = cast(FlxG.state);
+				LobbyBackground.goalToContinue = () ->
+				{
+					var result = false;
+					ps.playerLayer.forEachOfType(PlayerEntity, (p) ->
+					{
+						if (p.input.backslotJustPressed)
+							result = true;
+					});
+					return result;
+				};
+				LobbyBackground.state = 2;
+			});
+			timeDialougeMap.set(3500, () ->
+			{
+				dialouge.resetText("Try out alt fire");
+				face.text = ">:3";
+				dialouge.start(0.05);
+				var ps:PlayState = cast(FlxG.state);
+				LobbyBackground.goalToContinue = () ->
+				{
+					var result = false;
+					ps.playerLayer.forEachOfType(PlayerEntity, (p) ->
+					{
+						if (p.input.altFireJustPressed)
+							result = true;
+					});
+					return result;
+				};
+				LobbyBackground.state = 2;
+			});
+			timeDialougeMap.set(4000, () ->
+			{
+				dialouge.resetText("Wow I'm am so proud of you");
+				face.text = ":D";
+				dialouge.start(0.05);
+			});
+			timeDialougeMap.set(4500, () ->
+			{
+				dialouge.resetText("Now die hahahahahahahahahahahahahahahahahahaha");
+				face.text = "-w-";
+				dialouge.start(0.075);
+				bossHealthBar = true;
+				healthBar.alpha = 0;
+
+				FlxTween.tween(healthBar, {alpha: 1}, 2);
+				LobbyBackground.state = 3;
+				LobbyBackground.elapsedTimeInState = 0;
+			});
 		}
 		for (i => s in timeDialougeMap)
 		{
 			if (Math.round(LobbyBackground.elapsedTimeInState * 1000) >= i)
 			{
-				dialouge.resetText(timeDialougeMap.get(i));
-				dialouge.start(0.05);
+				timeDialougeMap.get(i)();
 				timeDialougeMap.remove(i);
 			}
 		}
 		lastState = LobbyBackground.state;
-		y = 200;
+		y = 0;
 		face.x = x + ((width - face.width) / 2);
 		face.y = y + 100 + (((height - face.height) / 2));
-		breathing += elapsed / 4;
+		breathing += elapsed * speed;
 		face.y += (Math.sin(breathing) * 15);
 		dialouge.update(elapsed);
 		screenCenter(X);
 		super.update(elapsed);
-		facialExpressions();
 	}
 
 	override function draw()
 	{
 		super.draw();
+		hitboxes.draw();
 		dialouge.screenCenter();
+		dialouge.y += (Math.sin(breathing) * 4);
+		dialouge.y += 40;
+		dialouge.alpha = 0.95 - (Math.sin(breathing) / 10);
 		dialouge.draw();
 		if (face.visible)
 			face.draw();
 	}
 
-	function facialExpressions()
-	{
-		// Look.. performance doesn't matter in this scene... just.. sorry...
-		if (LobbyBackground.state == 1 && LobbyBackground.elapsedTimeInState >= 38)
-		{
-			face.text = "-.-";
-		}
-		else if (LobbyBackground.state == 1 && LobbyBackground.elapsedTimeInState >= 36)
-		{
-			face.text = "o_o";
-		}
-		else if (LobbyBackground.state == 1 && LobbyBackground.elapsedTimeInState >= 34)
-		{
-			face.text = "O_O";
-		}
-		else if (LobbyBackground.state == 1 && LobbyBackground.elapsedTimeInState >= 29)
-		{
-			face.text = "#_#";
-		}
-		else if (LobbyBackground.state == 1 && LobbyBackground.elapsedTimeInState >= 27.5)
-		{
-			face.text = ">:(";
-		}
-		else if (LobbyBackground.state == 1 && LobbyBackground.elapsedTimeInState >= 25)
-		{
-			face.text = ";-;";
-			face.visible = true;
-		}
-		else if (LobbyBackground.state == 1 && LobbyBackground.elapsedTimeInState >= 20)
-		{
-			face.text = ". . .";
-			face.visible = Math.floor(Math.round(LobbyBackground.elapsedTimeInState * 1000) / 500) % 2 == 0;
-		}
-		else if (LobbyBackground.state == 1 && LobbyBackground.elapsedTimeInState >= 17)
-		{
-			face.text = "> >";
-		}
-		else if (LobbyBackground.state == 1 && LobbyBackground.elapsedTimeInState >= 11.5)
-		{
-			face.text = "._.";
-			face.visible = true;
-		}
-		else if (LobbyBackground.state == 1 && LobbyBackground.elapsedTimeInState >= 6.5)
-		{
-			face.text = ":(";
-			face.visible = Math.floor(Math.round(LobbyBackground.elapsedTimeInState * 1000) / 500) % 2 == 0;
-		}
-		else if (LobbyBackground.state == 1 && LobbyBackground.elapsedTimeInState >= 2)
-		{
-			face.text = "@_@";
-		}
-		else if (LobbyBackground.state == 1)
-		{
-			face.text = "O_O";
-		}
-		else if (LobbyBackground.state == -1)
-		{
-			face.text = "z_z";
-		}
-	}
 }
