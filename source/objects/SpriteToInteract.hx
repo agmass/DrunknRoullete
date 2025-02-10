@@ -28,6 +28,7 @@ class SpriteToInteract extends FlxSprite
 	override function draw()
 	{
 		super.draw();
-		tooltipSprite.draw();
+		if (tooltipSprite.visible)
+			tooltipSprite.draw();
 	}
 }

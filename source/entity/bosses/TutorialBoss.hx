@@ -15,6 +15,10 @@ import objects.hitbox.ExplosionHitbox;
 import objects.hitbox.Hitbox;
 import openfl.filters.ShaderFilter;
 import shader.CRTLinesShader;
+import util.Language;
+#if cpp
+import steamwrap.api.Steam;
+#end
 
 class TutorialBoss extends Entity
 {
@@ -24,6 +28,8 @@ class TutorialBoss extends Entity
 	public var hitboxes:FlxTypedSpriteGroup<Hitbox> = new FlxTypedSpriteGroup();
 	var lastState = 0;
 	var speed = 0.25;
+	var line = 0;
+	var lastLine = 0;
 
 	override public function new(x, y)
 	{
@@ -32,6 +38,8 @@ class TutorialBoss extends Entity
 		makeGraphic(750, 500, FlxColor.BLACK);
 		face.shader = new CRTLinesShader();
 		setSize(750, 500);
+		typeTranslationKey = "scrimblo";
+		entityName = Language.get("entity." + typeTranslationKey);
 	}
 	var breathing:Float = 0.0;
 	var timeDialougeMap:Map<Int, Void->Void> = new Map();
@@ -44,27 +52,55 @@ class TutorialBoss extends Entity
 
 	var dying = false;
 
+	var fading = false;
+	var died = false;
 	override function damage(amount:Float, attacker:Entity)
 	{
-		if (!dying)
-			super.damage(amount, attacker);
+		if (!dying && !died && LobbyBackground.state == 3)
+			return super.damage(amount, attacker);
+		return false;
 	}
 
 	var explosionCooldown = 0.2;
 	override function update(elapsed:Float)
 	{
+		noEpilepsy -= elapsed;
+		if (noEpilepsy < 0)
+			noEpilepsy = 1;
+		if (died)
+			return;
 		if (health <= 0 && ragdoll == null)
 		{
 			health = 600;
 			dying = true;
+
 			face.text = "X_X";
 		}
-		if (dying)
+		if (dying && !died)
 		{
 			explosionCooldown -= elapsed;
 			if (explosionCooldown <= 0)
 			{
-				speed += 1;
+				FlxG.timeScale += elapsed;
+				if (FlxG.timeScale >= 1.2 && !fading)
+				{
+					fading = true;
+					FlxG.camera.fade(FlxColor.WHITE, 3.5, false, () ->
+					{
+						dying = false;
+						died = true;
+						face.angle = -10;
+						healthBar.alpha = 0;
+						nametag.alpha = 0;
+						#if cpp
+						Steam.setAchievement("DEFEAT_TUTORIAL");
+						#end
+						face.color = FlxColor.GRAY.getDarkened(0.2);
+
+						FlxG.camera.fade(FlxColor.WHITE, 0.25, true);
+						FlxG.timeScale = 1;
+					});
+				}
 				explosionCooldown = 0.2;
 				var explosion:ExplosionHitbox = new ExplosionHitbox(FlxG.random.float(x, x + width), FlxG.random.float(y, y + height), 0);
 				hitboxes.add(explosion);
@@ -85,7 +121,7 @@ class TutorialBoss extends Entity
 		{
 			LobbyBackground.elapsedTimeInState = 0;
 			dialouge.size = 96;
-			dialouge.resetText("HUH?");
+			line++;
 			dialouge.start(0.015);
 			var gilbert = new EquippedEntity(-100, -100);
 			timeDialougeMap.set(0, () ->
@@ -96,10 +132,10 @@ class TutorialBoss extends Entity
 			timeDialougeMap.set(2000, () ->
 			{
 				speed = 0.25;
-				dialouge.resetText("Give Weapon 1");
+				line++;
 				face.text = "@_@";
 				dialouge.size = 28;
-				dialouge.start(0.05);
+				dialouge.delay = 0.05;
 				var ps:PlayState = cast(FlxG.state);
 				ps.interactable.add(new DroppedItem(getMidpoint().x, getMidpoint().y, new SwordItem(gilbert)));
 				LobbyBackground.goalToContinue = () ->
@@ -116,9 +152,8 @@ class TutorialBoss extends Entity
 			});
 			timeDialougeMap.set(2500, () ->
 			{
-				dialouge.resetText("Weapon 2");
+				line++;
 				face.text = "^_^";
-				dialouge.start(0.05);
 				var ps:PlayState = cast(FlxG.state);
 				ps.interactable.add(new DroppedItem(getMidpoint().x, getMidpoint().y, new Gamblevolver(gilbert)));
 				LobbyBackground.goalToContinue = () ->
@@ -135,9 +170,8 @@ class TutorialBoss extends Entity
 			});
 			timeDialougeMap.set(3000, () ->
 			{
-				dialouge.resetText("Swap weapons with backslot");
+				line++;
 				face.text = ":)";
-				dialouge.start(0.05);
 				var ps:PlayState = cast(FlxG.state);
 				LobbyBackground.goalToContinue = () ->
 				{
@@ -153,9 +187,8 @@ class TutorialBoss extends Entity
 			});
 			timeDialougeMap.set(3500, () ->
 			{
-				dialouge.resetText("Try out alt fire");
+				line++;
 				face.text = ">:3";
-				dialouge.start(0.05);
 				var ps:PlayState = cast(FlxG.state);
 				LobbyBackground.goalToContinue = () ->
 				{
@@ -171,18 +204,16 @@ class TutorialBoss extends Entity
 			});
 			timeDialougeMap.set(4000, () ->
 			{
-				dialouge.resetText("Wow I'm am so proud of you");
+				line++;
 				face.text = ":D";
-				dialouge.start(0.05);
 			});
-			timeDialougeMap.set(4500, () ->
+			timeDialougeMap.set(5600, () ->
 			{
-				dialouge.resetText("Now die hahahahahahahahahahahahahahahahahahaha");
-				face.text = "-w-";
-				dialouge.start(0.075);
+				line++;
+				face.text = ":O";
 				bossHealthBar = true;
 				healthBar.alpha = 0;
-
+				dialouge.delay = 0.075;
 				FlxTween.tween(healthBar, {alpha: 1}, 2);
 				LobbyBackground.state = 3;
 				LobbyBackground.elapsedTimeInState = 0;
@@ -204,11 +235,28 @@ class TutorialBoss extends Entity
 		face.y += (Math.sin(breathing) * 15);
 		dialouge.update(elapsed);
 		screenCenter(X);
+		if (lastLine != line)
+		{
+			dialouge.resetText(Language.get("entity.scrimblo.dialouge." + line));
+			dialouge.start(dialouge.delay);
+		}
+		lastLine = line;
 		super.update(elapsed);
 	}
 
+	var noEpilepsy = 1.0;
+
 	override function draw()
 	{
+		if (died)
+		{
+			super.draw();
+			if (noEpilepsy < 0.5)
+			{
+				face.draw();
+			}
+			return;
+		}
 		super.draw();
 		hitboxes.draw();
 		dialouge.screenCenter();

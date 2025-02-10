@@ -503,11 +503,14 @@ class PlayState extends TransitionableState
 				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "coin", 1.2, Main.OTHER_VOLUME);
 			}
 			tokensTime -= elapsed;
+			if (tokensTime <= 0)
+			{
+				FlxG.timeScale = 1;
+			}
 		}
 		else
 		{
 			tokensText.visible = false;
-			FlxG.timeScale = 1;
 		}
 		slotsShader.elapsed.value[0] += elapsed;
 		for (sprite in interactable)

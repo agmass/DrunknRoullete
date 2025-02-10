@@ -34,7 +34,7 @@ class BIGEVILREDCUBE extends HumanoidEntity
 		sw.retirement = true;
 		handWeapon = sw;
 		
-		rewards = new Rewards(FlxG.random.int(3, 6), true);
+		rewards = new Rewards(FlxG.random.int(5, 7), true);
 		health = attributes.get(Attribute.MAX_HEALTH).getValue();
 	}
 
@@ -182,6 +182,14 @@ class BIGEVILREDCUBE extends HumanoidEntity
 						handWeapon.angle = getMidpoint().degreesFrom(closest.getMidpoint()) - 90;
 					}
 				}
+				if (holsteredWeapon != null)
+				{
+					if (switchingAnimation > 0)
+					{
+						holsteredWeapon.angle = FlxMath.lerp(holsteredWeapon.flipX ? 45 : -45, getMidpoint().degreesFrom(closest.getMidpoint()) - 90,
+							switchingAnimation * 2);
+					}
+				}	
 				if (Math.abs(closestDistance) > (32 * 6) + 300)
 				{
 					acceleration.x = -(FlxMath.bound(getPosition().addPoint(closest.getPosition().negateNew()).x, -1, 1) * (SPEED * 3));
@@ -211,14 +219,6 @@ class BIGEVILREDCUBE extends HumanoidEntity
 					wantsToGoDown = false;
 					acceleration.x = 0;
 				}
-			}
-		}
-		if (holsteredWeapon != null)
-		{
-			if (switchingAnimation > 0)
-			{
-				holsteredWeapon.angle = FlxMath.lerp(holsteredWeapon.flipX ? 45 : -45, getMidpoint().degreesFrom(closest.getMidpoint()) - 90,
-					switchingAnimation * 2);
 			}
 		}
 		maxVelocity.x = SPEED;

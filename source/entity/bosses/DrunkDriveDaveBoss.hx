@@ -117,13 +117,13 @@ class DrunkDriveDaveBoss extends HumanoidEntity
 
 		super.update(elapsed);
 	}
-	override function damage(amount:Float, attacker:Entity)
+	override function damage(amount:Float, attacker:Entity):Bool
 	{
 		if (alpha < 0.7)
 		{
-			return;
+			return false;
 		}
-		super.damage(amount, attacker);
+		return super.damage(amount, attacker);
 	}
 
 }

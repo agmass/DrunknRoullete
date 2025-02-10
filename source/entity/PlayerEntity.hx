@@ -368,11 +368,11 @@ class PlayerEntity extends HumanoidEntity
 
 	var trailFadeOut = new FadingOut();
 
-	override function damage(amount:Float, attacker:Entity)
+	override function damage(amount:Float, attacker:Entity):Bool
 	{
 		if (FlxG.save.data.cheats)
-			return;
-		super.damage(amount, attacker);
+			return false;
+		return super.damage(amount, attacker);
 	}
 
     override function toString():String {

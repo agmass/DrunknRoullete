@@ -75,12 +75,12 @@ class Entity extends FlxSprite {
 		healthBar.createColoredFilledBar(FlxColor.RED, true, FlxColor.BLACK, 2);
     }
 
-	public function damage(amount:Float, attacker:Entity)
+	public function damage(amount:Float, attacker:Entity):Bool
 	{
 		if (attacker == null)
 		{
 			health -= amount;
-			return;
+			return true;
 		}
 		health -= amount * attacker.attributes.get(Attribute.ATTACK_DAMAGE).getValue();
 		if (attacker.attributes.exists(Attribute.CRIT_CHANCE))
@@ -91,6 +91,7 @@ class Entity extends FlxSprite {
 				spawnFloatingText("CRITICAL HIT!", FlxColor.GREEN, 24);
 			}
 		}
+		return true;
 	}
 
 	public function spawnFloatingText(text:String, color:FlxColor, size:Int = 18)

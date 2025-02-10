@@ -31,6 +31,7 @@ class LobbyBackground extends FlxTypedGroup<FlxSprite>
 		button.screenCenter();
 		button.y += 350;
 		cast(FlxG.state, PlayState).interactable.add(button);
+		cast(FlxG.state, PlayState).elevator.x -= 800;
 		window = new FlxSprite(184 * 1.5, 10 * 1.5);
 		window.loadGraphic(AssetPaths.window_lobby__png, true, 145, 63);
 		window.animation.add("fixed", [0]);
@@ -116,5 +117,13 @@ class BigRedButton extends SpriteToInteract
 			LobbyBackground.state = 1;
 		}
 		super.interact(p);
+	}
+	override function draw()
+	{
+		if (LobbyBackground.state != -1)
+		{
+			tooltipSprite.visible = false;
+		}
+		super.draw();
 	}
 }

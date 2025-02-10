@@ -37,9 +37,6 @@ class MenuState extends TransitionableState
 	var menuSelectables:Array<MenuTextButton> = [];
 	var wasPlayingVideo = false;
 	var highScore:FlxText = new FlxText(0, FlxG.height - 48, "HIGHEST TOKENS: 0", 32);
-	#if cpp
-	var video = new FlxVideoSprite(0, 0);
-	#end
 	var basicSelectables = [];
 
 	override function create()
@@ -57,6 +54,7 @@ class MenuState extends TransitionableState
 		}
 		continueButton.onUsed = () ->
 		{
+			PlayState.storyMode = false;
 			if (FlxG.save.data.run != Main.saveFileVersion)
 			{
 				openSubState(new PotentialCrashSubState(FlxG.save));
@@ -88,7 +86,10 @@ class MenuState extends TransitionableState
 					Main.playVideo(AssetPaths.intro__mp4);
 					#end
 					#if cpp
-					video.play();
+					FlxG.switchState(new CppVideoState(AssetPaths.intro__mp4, () ->
+					{
+						FlxG.switchState(new PlayState());
+					}));
 					#end
 					PlayState.forcedBg = AssetPaths._lobby__png;
 					Main.run = new Run();
@@ -99,6 +100,7 @@ class MenuState extends TransitionableState
 		};
 		newGame.onUsed = () ->
 		{
+			PlayState.storyMode = false;
 			#if cpp
 			Steam.setAchievement("ENDLESS_UNLOCK_AND_PLAY");
 			#end
@@ -161,12 +163,6 @@ class MenuState extends TransitionableState
 				highScore.color = FlxColor.YELLOW;
 			}
 		}
-		#if cpp
-		video.active = false;
-		video.antialiasing = true;
-		video.load(AssetPaths.intro__mp4);
-		add(video);
-		#end
 		super.create();
 	}
 
@@ -177,13 +173,6 @@ class MenuState extends TransitionableState
 	{
 		s.elapsed.value[0] += elapsed;
 		waitForFadeOut -= elapsed;
-		#if cpp
-		if (video.bitmap.isPlaying)
-		{
-			wasPlayingVideo = true;
-			return;
-		}
-		#end
 		if (Main.playingVideo)
 		{
 			wasPlayingVideo = true;

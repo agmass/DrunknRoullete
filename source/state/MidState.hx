@@ -452,8 +452,10 @@ class MidState extends TransitionableState
 							Main.playVideo(AssetPaths.cutscene_robot__mp4);
 							#end
 							#if cpp
-							video.load(AssetPaths.cutscene_robot__mp4);
-							video.play();
+							FlxG.switchState(new CppVideoState(AssetPaths.cutscene_robot__mp4, () ->
+							{
+								FlxG.switchState(new PlayState());
+							}));
 							#end
 							FlxG.save.data.metRobot = true;
 							PlayState.forcedBg = AssetPaths.winbig__png;
@@ -469,8 +471,10 @@ class MidState extends TransitionableState
 							Main.playVideo(AssetPaths.cutscene_retirement__mp4);
 							#end
 							#if cpp
-							video.load(AssetPaths.cutscene_retirement__mp4);
-							video.play();
+							FlxG.switchState(new CppVideoState(AssetPaths.cutscene_retirement__mp4, () ->
+							{
+								FlxG.switchState(new PlayState());
+							}));
 							#end
 							FlxG.save.data.metRetirement = true;
 							PlayState.forcedBg = AssetPaths.truecity__png;
@@ -486,8 +490,10 @@ class MidState extends TransitionableState
 							Main.playVideo(AssetPaths.cutscene_rat__mp4);
 							#end
 							#if cpp
-							video.load(AssetPaths.cutscene_rat__mp4);
-							video.play();
+							FlxG.switchState(new CppVideoState(AssetPaths.cutscene_rat__mp4, () ->
+							{
+								FlxG.switchState(new PlayState());
+							}));
 							#end
 							FlxG.save.data.metRat = true;
 							PlayState.forcedBg = AssetPaths.backrooms__png;

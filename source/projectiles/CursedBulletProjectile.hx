@@ -38,11 +38,13 @@ class CursedBulletProjectile extends BulletProjectile
 			return;
 		}
 		hitEntities.push(entity.ID);
-		entity.damage(24, shooter);
+		if (entity.damage(24, shooter))
+		{
+			roll(entity, shooter);
+		}
 		FlxG.camera.shake(0.001, 0.05);
 		hitEntity = true;
 		entity.velocity = velocity.scaleNew(shooter.attributes.get(Attribute.ATTACK_KNOCKBACK).getValue()).scalePoint(new FlxPoint(3, 1.5));
-		roll(entity, shooter);
 	}
 
 	public static function roll(p:Entity, shooter:Entity)

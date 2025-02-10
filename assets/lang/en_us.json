@@ -59,5 +59,13 @@
     "hint.slotMachine": "Player: %1\nPress %2 to use!",
     "hint.weaponRequired": "Get a weapon at the Wheel Of Fortune!",
     "area.gamblezone": "The GambleZone",
-    "area.gamblezone.description": "`Return here to heal to full health, but will remove your combo!`\nGamble away all your earned @tokens@ for new @weapons@ and @attributes@!\n\n|*The GambleZone is not responsible for potential health loss, newly created handicaps, enlargement, the breaking of kneecaps, etc.|"
+    "area.gamblezone.description": "`Return here to heal to full health, but will remove your combo!`\nGamble away all your earned @tokens@ for new @weapons@ and @attributes@!\n\n|*The GambleZone is not responsible for potential health loss, newly created handicaps, enlargement, the breaking of kneecaps, etc.|",
+
+    "entity.scrimblo.dialouge.1": "HUH?",
+    "entity.scrimblo.dialouge.2": "give w1",
+    "entity.scrimblo.dialouge.3": "give w2",
+    "entity.scrimblo.dialouge.4": "backslot",
+    "entity.scrimblo.dialouge.5": "alt fire",
+    "entity.scrimblo.dialouge.6": "yayyayyy yippee :3",
+    "entity.scrimblo.dialouge.7": "die >:3"
 }
