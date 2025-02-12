@@ -11,12 +11,16 @@ import abilities.equipment.items.RatGun;
 import abilities.equipment.items.SwordItem;
 import backgrounds.CityBackground;
 import backgrounds.LobbyBackground;
+import backgrounds.PlatformerBackground;
 import backgrounds.TrueCityBackground;
 import entity.Entity;
 import entity.EquippedEntity;
+import entity.HumanoidEntity;
 import entity.PlayerEntity;
 import entity.bosses.BIGEVILREDCUBE;
 import entity.bosses.DrunkDriveDaveBoss;
+import entity.bosses.RatKingBoss;
+import entity.bosses.RobotBoss;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -105,6 +109,7 @@ class PlayState extends TransitionableState
 
 	public var gameHud:InGameHUD = new InGameHUD();
 	public static var forcedBg = null;
+	var platformerStage = false;
 	public var music_track_gambling:FlxSound = new FlxSound();
 	public var music_track_gambling_in_menu:FlxSound = new FlxSound();
 
@@ -175,13 +180,9 @@ class PlayState extends TransitionableState
 		if (Main.run == null)
 		{
 			Main.run = new Run();
-			bgName = AssetPaths._city__png;
+			if (!storyMode)
+				bgName = AssetPaths._city__png;
 			playersSpawned = true;
-			if (storyMode)
-			{
-				bgName = AssetPaths._lobby__png;
-				Main.run.progression = 0;
-			}
 		}
 		else
 		{
@@ -248,6 +249,7 @@ class PlayState extends TransitionableState
 		FlxG.cameras.add(HUDCam, false);
 		var bg = new FlxSprite(0, 0, AssetPaths.test_bg__png);
 		bg.alpha = 0.2;
+		bg.scrollFactor.set(0, 0);
 		add(bg);
 		var ground = new ImmovableFootstepChangingSprite(FlxG.width / 2, 1080, "concrete");
 		ground.makeGraphic(1920, 250, FlxColor.TRANSPARENT);
@@ -272,14 +274,45 @@ class PlayState extends TransitionableState
 		{
 			frames.push(i);
 		}
-		enviornment.loadGraphic(bgName, true, 1280, 720);
-		enviornment.setGraphicSize(1920, 1080);
+		if (bgName == AssetPaths._platformer__png)
+		{
+			wall2.body.position.setxy(6000, wall2.body.position.y);
+
+			mapLayerFront.remove(ground);
+			mapLayerFront.remove(roof);
+
+			ground = new ImmovableFootstepChangingSprite(3000, 1080, "concrete");
+			ground.makeGraphic(6000, 250, FlxColor.TRANSPARENT);
+			ground.immovable = true;
+			mapLayerFront.add(ground);
+			roof = new ImmovableFootstepChangingSprite(3000, 0, "concrete");
+			roof.makeGraphic(6000, 250, FlxColor.TRANSPARENT);
+			roof.immovable = true;
+			mapLayerFront.add(roof);
+			platformerStage = true;
+
+			FlxG.camera.setScrollBounds(0, 6000, 0, 1080);
+			HUDCam.setScrollBounds(0, 6000, 0, 1080);
+			customBackgroundItems = new PlatformerBackground();
+		}
+
+		if (platformerStage)
+		{
+			frames = [];
+			for (i in 0...Math.ceil(enviornment.width / 4000))
+			{
+				frames.push(i);
+			}
+		}
+		enviornment.loadGraphic(bgName, true, platformerStage ? 4000 : 1280, 720);
+		enviornment.scale.set(1.5, 1.5);
 		enviornment.updateHitbox();
 		enviornment.animation.add("idle", frames, 2);
 		enviornment.animation.play("idle");
 		var enviornmentbg = new FlxSprite(0, 0);
-		enviornmentbg.loadGraphic(StringTools.replace(StringTools.replace(bgName, "enviorments", "backgrounds"), ".png", "_back.png"), true, 1280, 720);
-		enviornmentbg.setGraphicSize(1920, 1080);
+		enviornmentbg.loadGraphic(StringTools.replace(StringTools.replace(bgName, "enviorments", "backgrounds"), ".png", "_back.png"), true,
+			platformerStage ? 4000 : 1280, 720);
+		enviornmentbg.scale.set(1.5, 1.5);
 		enviornmentbg.updateHitbox();
 		enviornmentbg.animation.add("idle", frames, 2);
 		enviornmentbg.animation.play("idle");
@@ -431,6 +464,10 @@ class PlayState extends TransitionableState
 
 	override public function update(elapsed:Float)
 	{
+		if (platformerStage)
+		{
+			FlxG.worldBounds.set(FlxG.camera.scroll.x, FlxG.camera.scroll.y, FlxG.width, FlxG.height);
+		}
 		if (FlxG.timeScale == 0.2)
 		{
 			musicChanger += elapsed;
@@ -545,7 +582,7 @@ class PlayState extends TransitionableState
 						player.x = 236 * 1.5;
 						player.y = -player.height;
 						player.noclip = true;
-						player.attributes.get(Attribute.MOVEMENT_SPEED).addTemporaryOperation(new AttributeContainer(AttributeOperation.MULTIPLY, 0.05), 1.5);
+						player.attributes.get(Attribute.MOVEMENT_SPEED).addTemporaryOperation(new AttributeContainer(AttributeOperation.MULTIPLY, 0.05), 0.15);
 					}
 				}
 			}
@@ -577,7 +614,6 @@ class PlayState extends TransitionableState
 			add(Main.subtitlesBox);
 			
 		FlxG.fixedTimestep = false;
-		FlxG.autoPause = false;
 		var showPlayerMarker = playerLayer.length > 1;
 		gameCam.pixelPerfectRender = true;
 		playerDebugText.text = "";
@@ -793,6 +829,7 @@ class PlayState extends TransitionableState
 			{
 				c.onOverlapWithMap();
 			});
+			p.doNotUncrouch = FlxG.overlap(p.crouchChecker, mapLayer);
 			if (bgName == AssetPaths._city__png && p.alive)
 			{
 				if (p.handWeapon != null || p.holsteredWeapon != null)
@@ -862,7 +899,7 @@ class PlayState extends TransitionableState
 			if (FlxG.save.data.playerInfoShown)
 				playerDebugText.text += p.toString() + "\n\n";
 		});
-		if (FlxG.save.data.cheats && FlxG.keys.pressed.U)
+		if (FlxG.save.data.cheats && FlxG.keys.pressed.U || platformerStage)
 		{
 			FlxG.camera.follow(playerLayer.getFirstAlive());
 			HUDCam.follow(playerLayer.getFirstAlive());

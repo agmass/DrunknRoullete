@@ -1,9 +1,11 @@
 package backgrounds;
 
 import entity.PlayerEntity;
+import entity.bosses.TutorialBoss;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.util.FlxColor;
 import objects.SpriteToInteract;
 import openfl.filters.ShaderFilter;
 import shader.GlowInTheDarkShader;
@@ -96,6 +98,51 @@ class LobbyBackground extends FlxTypedGroup<FlxSprite>
 		}
 
 		super.update(elapsed);
+	}
+}
+
+class Door extends SpriteToInteract
+{
+	override public function new(x, y)
+	{
+		super(x, y);
+		makeGraphic(80, 100);
+	}
+
+	override function update(elapsed:Float)
+	{
+		var scrimbloAlive = false;
+
+		cast(FlxG.state, PlayState).enemyLayer.forEachOfType(TutorialBoss, (p) ->
+		{
+			if (!p.died)
+				scrimbloAlive = true;
+		});
+		if (scrimbloAlive)
+		{
+			color = FlxColor.GRAY;
+		}
+		else
+		{
+			color = FlxColor.BLACK;
+		}
+		super.update(elapsed);
+	}
+
+	override function interact(p:PlayerEntity)
+	{
+		var scrimbloAlive = false;
+
+		cast(FlxG.state, PlayState).enemyLayer.forEachOfType(TutorialBoss, (p) ->
+		{
+			if (!p.died)
+				scrimbloAlive = true;
+		});
+		if (scrimbloAlive)
+		{
+			PlayState.forcedBg = AssetPaths._platformer__png;
+		}
+		super.interact(p);
 	}
 }
 

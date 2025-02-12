@@ -1,12 +1,12 @@
 package;
 
+import entity.Entity;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxSprite;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.input.gamepad.FlxGamepad;
 import flixel.sound.FlxSound;
-import flixel.system.debug.FlxDebugger;
 import flixel.util.FlxColor;
 import haxe.Log;
 import input.ControllerSource;
@@ -21,6 +21,7 @@ import openfl.display.StageQuality;
 import openfl.display.StageScaleMode;
 import sound.FootstepManager;
 import state.MenuState;
+import state.MidState;
 import substate.InputManagerSubState;
 import util.EnviornmentsLoader;
 import util.Language;
@@ -182,11 +183,30 @@ class Main extends Sprite
 		});
 		#end
 		subtitlesBox = new SubtitlesBox();
+		FlxG.console.registerClass(MidState);
+		FlxG.console.registerClass(PlayState);
+		FlxG.console.registerFunction("restart", () ->
+		{
+			FlxG.resetState();
+		});
+		FlxG.console.registerFunction("kill", () ->
+		{
+			for (sprite in cast(FlxG.state, PlayState).playerLayer)
+			{
+				cast(sprite, Entity).health = 0;
+			}
+		});
+		FlxG.console.registerFunction("cheats", () ->
+		{
+			FlxG.save.data.cheats = !FlxG.save.data.cheats;
+		});
 	}
 
 	public static function detectConnections()
 	{
+		#if cpp
 		Steam.onEnterFrame();
+		#end
 		var previousConnectionsSize = activeInputs.length;
 		var shouldDirty = false;
 		#if html5

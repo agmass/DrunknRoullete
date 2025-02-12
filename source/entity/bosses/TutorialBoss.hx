@@ -53,7 +53,7 @@ class TutorialBoss extends Entity
 	var dying = false;
 
 	var fading = false;
-	var died = false;
+	public var died = false;
 	override function damage(amount:Float, attacker:Entity)
 	{
 		if (!dying && !died && LobbyBackground.state == 3)

@@ -43,6 +43,7 @@ class MidState extends TransitionableState
 
 	override function create()
 	{
+		FlxG.timeScale = 1;
 		elevatorMusic.loadEmbedded(AssetPaths.elevatormusic__ogg, true);
 		elevatorMusic.play();
 		elevatorMusic.fadeIn(0.1);

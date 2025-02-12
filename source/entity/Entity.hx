@@ -65,11 +65,10 @@ class Entity extends FlxSprite {
 		debugTracker.set("Footstep Sound Step", "footstepCount");
 		debugTracker.set("Pixels until Footstep", "pxTillFootstep");
 		blood.makeParticles(6, 6, FlxColor.RED);
-		blood.launchAngle.set(120, 60);
 		blood.lifespan.set(15, 20);
-		blood.acceleration.set(0, 900);
+		blood.acceleration.set(-900, 900, 900, 900, 0, 0);
 		blood.alpha.set(1, 1, 0, 0);
-		blood.speed.set(900, 300, 0, 0);
+		blood.speed.set(400, 400, 0, 0);
 		blood.allowCollisions = ANY;
 		healthBar.createColoredEmptyBar(FlxColor.BLACK, true, FlxColor.BLACK, 2);
 		healthBar.createColoredFilledBar(FlxColor.RED, true, FlxColor.BLACK, 2);

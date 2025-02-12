@@ -82,6 +82,11 @@ class MenuState extends TransitionableState
 				}
 				else
 				{
+					PlayState.forcedBg = AssetPaths._lobby__png;
+					PlayState.storyMode = true;
+					Main.run = new Run();
+					Main.run.progression = 0;
+					Main.run.nextBoss = new TutorialBoss(0, 0);
 					#if html5
 					Main.playVideo(AssetPaths.intro__mp4);
 					#end
@@ -91,10 +96,6 @@ class MenuState extends TransitionableState
 						FlxG.switchState(new PlayState());
 					}));
 					#end
-					PlayState.forcedBg = AssetPaths._lobby__png;
-					Main.run = new Run();
-					Main.run.progression = 0;
-					Main.run.nextBoss = new TutorialBoss(0, 0);
 				}
 			}
 		};

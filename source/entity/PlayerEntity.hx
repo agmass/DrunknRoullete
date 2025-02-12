@@ -3,6 +3,7 @@ package entity;
 import abilities.attributes.Attribute;
 import abilities.attributes.AttributeContainer;
 import abilities.equipment.items.BasicProjectileShootingItem;
+import abilities.equipment.items.KeyItem;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.effects.FlxTrail;
@@ -45,10 +46,10 @@ class PlayerEntity extends HumanoidEntity
 
 	public var GRAPHIC_X = 64;
 	public var GRAPHIC_Y = 80;
+	public var crouchChecker:FlxSprite = new FlxSprite();
 	override public function new(x, y, username)
 	{
-        super(x,y);
-		// makeGraphic(32, 32, FlxColor.WHITE);
+		super(x, y);
 		usePlayerVolume = true;
 		loadGraphic(AssetPaths.gooberDeluxe__png, true, 80, 80);
 		animation.add("idle", [6, 7, 8, 9, 10, 11], 11);
@@ -57,24 +58,30 @@ class PlayerEntity extends HumanoidEntity
 		debugTracker.set("Can Dash", "canDash");
 		trail = new FlxTrail(this, null, 4, 4, 0.8, 0.25);
 
+		// makeGraphic(32, 32, FlxColor.WHITE);
 		// color = FlxColor.BLUE;
 
 		manuallyUpdateSize = true;
 		typeTranslationKey = "player";
 		entityName = username;
+		crouchChecker.makeGraphic(1, 1);
+
 		// holsteredWeapon = new BasicProjectileShootingItem(this);
+		// handWeapon = new KeyItem(this);
     }
 
 
+	public var doNotUncrouch = false;
     override function createAttributes() {
 		super.createAttributes();
 		// attributes.set(Attribute.DASH_SPEED, new Attribute(250));
 		attributes.set(Attribute.JUMP_HEIGHT, new Attribute(500));
-		attributes.set(Attribute.CROUCH_SCALE, new Attribute(0.75));
+		attributes.set(Attribute.CROUCH_SCALE, new Attribute(0.6));
 		attributes.set(Attribute.JUMP_COUNT, new Attribute(1));
     }
 
 	var trailFade = 0.0;
+	public var timeSinceFloorTouch = 0.0;
 	var madeRagdollSmaller = false;
 
 	override function update(elapsed:Float)
@@ -99,6 +106,7 @@ class PlayerEntity extends HumanoidEntity
         // call update() for children here
 		// my ex-wife still wont let me see the kids -adi
 
+		crouchChecker.update(elapsed);
 		if (trail != null)
 			trail.update(elapsed);
 
@@ -146,6 +154,7 @@ class PlayerEntity extends HumanoidEntity
 		var newHeight = (HITBOX_Y * attributes.get(Attribute.SIZE_Y).getValue());
 
 
+		var oldNewHeight = newHeight;
 
 		if (crouching)
 		{
@@ -154,6 +163,16 @@ class PlayerEntity extends HumanoidEntity
 		y += height - newHeight;
 		x += (width - newWidth) / 2;
 		setSize(newWidth, newHeight);
+		crouchChecker.setGraphicSize(newWidth, (oldNewHeight - newHeight));
+		if ((oldNewHeight - newHeight) == 0)
+		{
+			crouchChecker.scale.x = 0;
+			crouchChecker.scale.y = 0;
+			doNotUncrouch = false;
+		}
+		crouchChecker.updateHitbox();
+		crouchChecker.x = x;
+		crouchChecker.y = (y - (oldNewHeight - newHeight));
 		centerOrigin();
 		squash(isTouching(FLOOR), elapsed);
 		offset.set(-0.5 * (newWidth - frameWidth), (-0.5 * (newHeight - frameHeight)) - 1);
@@ -193,26 +212,30 @@ class PlayerEntity extends HumanoidEntity
 
 
 		var JUMP_COUNT = attributes.get(Attribute.JUMP_COUNT).getValue();
+		timeSinceFloorTouch += elapsed;
+		if (timeSinceFloorTouch > 1)
+			timeSinceFloorTouch = 1;
 		if (isTouching(FLOOR))
 		{
 			jumps = Math.floor(JUMP_COUNT);
 			canDash = true;
-			angle = 0;
+			angle = FlxMath.lerp(angle, 0, timeSinceFloorTouch);
 		}
 		else
 		{
+			timeSinceFloorTouch = 0.0;
 			angle = (velocity.x + dashMovement.x + extraVelocity.x) / 100;
 		}
 
 		// cro uch :3
 
-		if (isTouching(FLOOR) && inputVelocity.y > 0.1)
+		if (inputVelocity.y > 0.1)
 		{
 			crouching = true;
 			attributes.get(Attribute.MOVEMENT_SPEED).addOperation(crouchAttribute_speed);
 			attributes.get(Attribute.JUMP_HEIGHT).addOperation(crouchAttribute_speed);
 		}
-		else if (crouching)
+		else if (crouching && !doNotUncrouch)
 		{
 			crouching = false;
 			attributes.get(Attribute.MOVEMENT_SPEED).removeOperation(crouchAttribute_speed);
@@ -244,7 +267,7 @@ class PlayerEntity extends HumanoidEntity
             velocity.y = maxVelocity.y;
             maxVelocity.y = 1200;
         } else {
-            maxVelocity.y = 900;
+			maxVelocity.y = 900;
         }
 
         // Dash Code
@@ -300,6 +323,7 @@ class PlayerEntity extends HumanoidEntity
             dashMovement.x -= dashMovement.x*(elapsed*8);
 			dashMovement.y -= dashMovement.y * (elapsed * 8);
 		}
+
     }
 
 
@@ -308,32 +332,31 @@ class PlayerEntity extends HumanoidEntity
 	{
 		var SCALE_X = attributes.get(Attribute.SIZE_X).getValue();
 		var SCALE_Y = attributes.get(Attribute.SIZE_Y).getValue();
+		if (FlxG.save.data.cheats)
+		{
+			scale.set(SCALE_X, SCALE_Y);
+			return;
+		}
 		var crouchSquish = 1.0;
 		if (crouching)
 			crouchSquish = 1 + ((attributes.get(Attribute.CROUCH_SCALE).getValue()) * 0.5);
-		if (grounded) {
-			if (elapsed == -9) {
-				scale.set(SCALE_X, SCALE_Y);
-				// reused taglayer code so this is left here until i implement online
-			}
-			else
+		if (grounded)
+		{
+			if (scale.x > SCALE_X)
 			{
-				if (scale.x > SCALE_X)
+				scale.x = FlxMath.lerp(scale.x, (width / HITBOX_X) * crouchSquish, elapsed * 11);
+			}
+			if (scale.x < SCALE_X)
+			{
+				scale.x = FlxMath.lerp(scale.x, (width / HITBOX_X) * crouchSquish, elapsed * 11);
+			}
+			if (scale.y > SCALE_Y)
 				{
-					scale.x = FlxMath.lerp(scale.x, (width / HITBOX_X) * crouchSquish, elapsed * 11);
-				}
-				if (scale.x < SCALE_X)
-				{
-					scale.x = FlxMath.lerp(scale.x, (width / HITBOX_X) * crouchSquish, elapsed * 11);
-				}
-				if (scale.y > SCALE_Y)
-				{
-					scale.y = FlxMath.lerp(scale.y, height / HITBOX_Y, elapsed * 11);
-				}
-				if (scale.y < SCALE_Y)
-				{
-					scale.y = FlxMath.lerp(scale.y, height / HITBOX_Y, elapsed * 11);
-				}
+				scale.y = FlxMath.lerp(scale.y, height / HITBOX_Y, elapsed * 11);
+			}
+			if (scale.y < SCALE_Y)
+			{
+				scale.y = FlxMath.lerp(scale.y, height / HITBOX_Y, elapsed * 11);
 			}
 		} else {
 			if (dashMovement.x > 70 || dashMovement.y > 70)
@@ -346,8 +369,8 @@ class PlayerEntity extends HumanoidEntity
 				if (velocity.y > 0)
 				{
 					scale.set(
-					FlxMath.lerp(scale.x, SCALE_X / 1.25, elapsed * (Math.abs(velocity.y) / 100)),
-						FlxMath.lerp(scale.y, SCALE_Y * 1.25, elapsed * (Math.abs(velocity.y) / 100)));
+					FlxMath.lerp(scale.x, (SCALE_X / 1.25) * crouchSquish, elapsed * (Math.abs(velocity.y) / 100)),
+						FlxMath.lerp(scale.y, (SCALE_Y * 1.25), elapsed * (Math.abs(velocity.y) / 100)));
 				}
 			}
 		}
@@ -390,6 +413,7 @@ class PlayerEntity extends HumanoidEntity
 			healthBar.scale.set(0.25, 0.25);
 			healthBar.updateHitbox();
 		}
+		crouchChecker.draw();
 		if (showPlayerMarker && alive)
 		{
 			playerMarker.x = getMidpoint().x - (14 / 2);

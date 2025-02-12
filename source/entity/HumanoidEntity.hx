@@ -10,12 +10,13 @@ class HumanoidEntity extends EquippedEntity
 {
 	public var poofParticles = new FlxEmitter();
 	public var wasGrounded = false;
+	public var extraGroundedTime = 3;
 
 	override public function new(x, y)
 	{
 		super(x, y);
 
-		acceleration.y = 900;
+		acceleration.y = 1200;
 		maxVelocity.y = 900;
 		drag.x = 1200;
 		poofParticles.makeParticles(13, 13);
@@ -58,6 +59,11 @@ class HumanoidEntity extends EquippedEntity
 
 	override function update(elapsed:Float)
 	{
+		if (extraGroundedTime >= 0)
+		{
+			extraGroundedTime--;
+			wasGrounded = true;
+		}
 		poofParticles.update(elapsed);
 		if (isTouching(FLOOR) && !wasGrounded)
 		{
