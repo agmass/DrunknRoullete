@@ -439,6 +439,13 @@ class PlayState extends TransitionableState
 		Main.gameMusic.pitch = 1;
 		super.startOutro(onOutroComplete);
 	}
+	override function onFocusLost()
+	{
+		var tempState:PauseSubState = new PauseSubState();
+		openSubState(tempState);
+
+		super.onFocusLost();
+	}
 
 	override function closeSubState()
 	{
@@ -942,6 +949,7 @@ class PlayState extends TransitionableState
 		if (gambaTime != -1)
 			gambaTime += elapsed;
 		super.update(elapsed);
+		if (FlxG.autoPause)
 		playerLayer.forEachOfType(Entity, (e) ->
 		{
 			if (!e.noclip)
