@@ -413,7 +413,6 @@ class PlayerEntity extends HumanoidEntity
 			healthBar.scale.set(0.25, 0.25);
 			healthBar.updateHitbox();
 		}
-		crouchChecker.draw();
 		if (showPlayerMarker && alive)
 		{
 			playerMarker.x = getMidpoint().x - (14 / 2);

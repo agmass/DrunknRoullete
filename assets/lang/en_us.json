@@ -61,11 +61,41 @@
     "area.gamblezone": "The GambleZone",
     "area.gamblezone.description": "`Return here to heal to full health, but will remove your combo!`\nGamble away all your earned @tokens@ for new @weapons@ and @attributes@!\n\n|*The GambleZone is not responsible for potential health loss, newly created handicaps, enlargement, the breaking of kneecaps, etc.|",
 
+    "entity.scrimblo": "Scrimblo",
     "entity.scrimblo.dialouge.1": "HUH?",
     "entity.scrimblo.dialouge.2": "give w1",
     "entity.scrimblo.dialouge.3": "give w2",
     "entity.scrimblo.dialouge.4": "backslot",
     "entity.scrimblo.dialouge.5": "alt fire",
     "entity.scrimblo.dialouge.6": "yayyayyy yippee :3",
-    "entity.scrimblo.dialouge.7": "die >:3"
+    "entity.scrimblo.dialouge.7": "die >:3",
+
+    "input.keyboard": "Keyboard",
+
+    "options.subtitles": "Subtitles",
+    "options.nokeyboard": "No Keyboard",
+    "options.friendlyFire": "Friendly Fire",
+    "options.performance": "Performance Mode",
+    "options.noChroma": "No Chromatic Abberation",
+    "options.debugFPS": "Debug Info (FPS Counter)",
+    "options.debugPlayer": "Debug Info (PlayerInfo)",
+    "options.cheats": "CHEATER!!! >:C",
+    "options.nearestNeighbour": "html5: Nearest Neighbour Scaling (no smoothing)",
+    "options.fullscreen": "Fullscreen",
+    "options.controls.keyboard": "Right Click (Unselected) to Clear Inputs\nEscape to leave recording",
+    "options.controls.controller": "Start (Unselected) to Clear Inputs\nStart to leave recording",
+
+
+    "key.shoot": "Shoot",
+    "key.alt_fire": "Alt Fire",
+    "key.W": "Up",
+    "key.A": "Down",
+    "key.S": "Left",
+    "key.D": "Right",
+    "key.interact": "Interact",
+    "key.backslot": "Backslot",
+    "key.accept": "Accept",
+    "key.deny": "Deny",
+    "key.dash": "Dash",
+    "key.menu": "Menu"
 }

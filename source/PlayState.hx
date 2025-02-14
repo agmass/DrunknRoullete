@@ -76,6 +76,9 @@ import util.Language;
 import util.Projectile;
 import util.Run;
 import util.SubtitlesBox;
+#if cpp
+import steamwrap.api.Steam;
+#end
 
 class PlayState extends TransitionableState
 {
@@ -192,6 +195,18 @@ class PlayState extends TransitionableState
 				Main.run.nextBoss.y = 400;
 				enemyLayer.add(Main.run.nextBoss);
 				Main.run.roomsTraveled++;
+				#if cpp
+				Steam.setRichPresence("boss", Language.get("entity." + Main.run.nextBoss.typeTranslationKey));
+				Steam.setRichPresence("combo", Main.run.combo + "");
+				if (storyMode)
+				{
+					Steam.setRichPresence("steam_display", "#Status_Story");
+				}
+				else
+				{
+					Steam.setRichPresence("steam_display", "#Status_FightingBoss");
+				}
+				#end
 			}
 			if (Main.run.players.length > 0)
 			{
@@ -323,6 +338,9 @@ class PlayState extends TransitionableState
 		slotsShader.modulo.value = [9999.99];
 		if (bgName == AssetPaths._city__png)
 		{
+			#if cpp
+			Steam.setRichPresence("steam_display", "#Status_Gambling");
+			#end
 			ground.footstepSoundName = "wood";
 			elevator.x = 939 * 1.5;
 			var slotMachine = new FlxSprite(160 * 1.5, 546 * 1.5);
@@ -441,9 +459,11 @@ class PlayState extends TransitionableState
 	}
 	override function onFocusLost()
 	{
-		var tempState:PauseSubState = new PauseSubState();
-		openSubState(tempState);
-
+		if (subState == null)
+		{
+			var tempState:PauseSubState = new PauseSubState();
+			openSubState(tempState);
+		}
 		super.onFocusLost();
 	}
 
@@ -949,7 +969,7 @@ class PlayState extends TransitionableState
 		if (gambaTime != -1)
 			gambaTime += elapsed;
 		super.update(elapsed);
-		if (FlxG.autoPause)
+		FlxG.autoPause = false;
 		playerLayer.forEachOfType(Entity, (e) ->
 		{
 			if (!e.noclip)

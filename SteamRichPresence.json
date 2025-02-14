@@ -1,0 +1,12 @@
+"lang"
+{
+	"Language"	"english"
+	"Tokens"
+	{
+		"#Status_MainMenu"	"In the main menu"
+		"#Status_Elevator"	"Idling in the Elevator"
+		"#Status_FightingBoss"	"Fighting %BOSS% (Combo: %COMBO%)"
+		"#Status_Story"	"Fighting %BOSS% (Story)"
+		"#Status_Gambling" "Gambling"
+	}
+}

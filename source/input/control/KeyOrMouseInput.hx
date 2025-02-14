@@ -7,6 +7,7 @@ import flixel.input.mouse.FlxMouseButton;
 class KeyOrMouseInput implements Input{
     public var key:Array<FlxKey>;
     public var mouse:Array<FlxMouseButton>;
+	public var hiddenFromControls:Bool = false;
 
     public function new(?key:Array<FlxKey>, ?mouse:Array<FlxMouseButton>) {
         this.key = key;
@@ -29,6 +30,7 @@ class KeyOrMouseInput implements Input{
         return false;
     }
 
+
     public function pressed():Bool {
         if (FlxG.keys.anyPressed(key)) {
             return true;
@@ -40,4 +42,17 @@ class KeyOrMouseInput implements Input{
         }
         return false;
     }
+	public function name():String
+	{
+		var txt = "";
+		for (d in key)
+		{
+			txt += FlxKey.toStringMap.get(d) + ", ";
+		}
+		for (d in mouse)
+		{
+			txt += "MOUSE" + d.ID + ", ";
+		}
+		return txt;
+	}
 }

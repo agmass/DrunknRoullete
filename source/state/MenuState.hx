@@ -164,6 +164,9 @@ class MenuState extends TransitionableState
 				highScore.color = FlxColor.YELLOW;
 			}
 		}
+		#if cpp
+		Steam.setRichPresence("steam_display", "#Status_MainMenu");
+		#end
 		super.create();
 	}
 

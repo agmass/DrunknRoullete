@@ -38,6 +38,8 @@ class InputSource {
 	public var interactJustPressed = false;
 
 	public var ui_accept = false;
+	public var ui_left = false;
+	public var ui_right = false;
 	public var ui_hold_accept = false;
 	public var ui_deny = false;
 	public var ui_menu = false;

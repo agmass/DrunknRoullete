@@ -27,6 +27,7 @@ import util.Language;
 import util.Run;
 #if cpp
 import hxvlc.flixel.FlxVideoSprite;
+import steamwrap.api.Steam;
 #end
 
 class MidState extends TransitionableState
@@ -43,6 +44,9 @@ class MidState extends TransitionableState
 
 	override function create()
 	{
+		#if cpp
+		Steam.setRichPresence("steam_display", "#Status_Elevator");
+		#end
 		FlxG.timeScale = 1;
 		elevatorMusic.loadEmbedded(AssetPaths.elevatormusic__ogg, true);
 		elevatorMusic.play();

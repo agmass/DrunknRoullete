@@ -11,13 +11,13 @@ import flixel.input.mouse.FlxMouseButton;
 class ButtonControllerInput implements Input {
     public var positiveKey:Array<FlxGamepadInputID> = new Array();
     var gamepad:FlxGamepad;
+	public var hiddenFromControls:Bool = false;
 
-    public function new(gamepad, ?positiveKey:Array<FlxGamepadInputID>) {
+	public function new(gamepad, ?positiveKey:Array<FlxGamepadInputID>)
+	{
         this.positiveKey = positiveKey;
         this.gamepad = gamepad;
-    }
-    
-
+	}
     public function value():Bool {
         return pressed();
     }
@@ -30,4 +30,13 @@ class ButtonControllerInput implements Input {
     }
 
 
+	public function name():String
+	{
+		var txt = "";
+		for (d in positiveKey)
+		{
+			txt += FlxGamepadInputID.toStringMap.get(d) + ", ";
+		}
+		return txt;
+	}
 }

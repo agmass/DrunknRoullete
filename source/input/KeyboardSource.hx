@@ -44,6 +44,9 @@ class KeyboardSource extends InputSource {
 		ui_hold_accept = accept.pressed();
 		ui_deny = deny.justPressed();
 		ui_menu = menu.justPressed();
+		ui_right = A.justPressed();
+		ui_left = D.justPressed();
+		menu.hiddenFromControls = true;
         super.update();
     }
 
