@@ -35,7 +35,7 @@ class CreditsSubState extends FlxSubState
 		bg.resize(FlxG.width / 3, (FlxG.height - 100) / 1.75);
 		bg.screenCenter();
 		add(bg);
-		var attributions:FlxText = new FlxText(bg.x + 4, bg.y + 4, 350, Main.attribution, 8);
+		var attributions:FlxText = new FlxText(bg.x + 4, bg.y + 4, 0, StringTools.replace(Main.attribution, "\\n", ""), 8);
 		attributions.applyMarkup(attributions.text, [
 			new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.GREEN.getLightened(0.2)), "$"),
 			new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.PINK), "`"),
