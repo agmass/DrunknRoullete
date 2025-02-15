@@ -38,6 +38,7 @@ class DrunkDriveDaveBoss extends HumanoidEntity
 		attributes.set(Attribute.SIZE_X, new Attribute(4.5, true));
 		attributes.set(Attribute.SIZE_Y, new Attribute(4.5, true));
 		attributes.set(Attribute.MAX_HEALTH, new Attribute(250 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
+		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(450 + FlxG.random.int(5 * (Main.run.roomsTraveled - 1), 5 * Main.run.roomsTraveled), true));
 		if (Main.run.roomsTraveled >= 5)
 		{
 			attributes.set(Attribute.CRIT_CHANCE, new Attribute(FlxG.random.int(3 * (Main.run.roomsTraveled - 6), 3 * (Main.run.roomsTraveled - 5)), true));

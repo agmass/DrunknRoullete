@@ -11,6 +11,7 @@ import abilities.equipment.items.RatGun;
 import abilities.equipment.items.SwordItem;
 import backgrounds.CityBackground;
 import backgrounds.LobbyBackground;
+import backgrounds.LuxuryBackground;
 import backgrounds.PlatformerBackground;
 import backgrounds.TrueCityBackground;
 import entity.Entity;
@@ -413,6 +414,11 @@ class PlayState extends TransitionableState
 				mapLayerBehind.add(crate);
 			}
 		}
+		if (bgName == AssetPaths.luxury__png) {
+			ground.footstepSoundName = "carpet";
+			customBackgroundItems = new LuxuryBackground();
+			FlxG.camera.color = FlxColor.ORANGE.getLightened(0.7);
+		}
 		if (bgName == AssetPaths.truecity__png)
 		{
 			ground.footstepSoundName = "carpet";
@@ -738,7 +744,10 @@ class PlayState extends TransitionableState
 				if (p2 is FlxParticle)
 				{
 					var part:FlxParticle = cast(p2);
-					part.velocity.set(0, 0);
+					part.velocity.set(0, part.velocity.y);
+					if (part.isTouching(FLOOR)) {
+						part.velocity.set(0,0);
+					}
 				}
 			});
 			for (hitbox in p.hitboxes)
@@ -1038,4 +1047,4 @@ class PlayState extends TransitionableState
 		});
 		Main.run.players = newPlayerList;
 	}
-}
+}	

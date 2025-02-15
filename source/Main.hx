@@ -43,6 +43,7 @@ class Main extends Sprite
 		`Programming by agmas`
 		$Art by moi$
 		^Music by [[LUCA]]^
+		^this^ $by itsdoodlemaster$
 
 		-----------
 		Attribution

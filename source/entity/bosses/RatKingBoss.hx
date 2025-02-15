@@ -4,6 +4,7 @@ import abilities.attributes.Attribute;
 import abilities.equipment.items.RatGun;
 import flixel.FlxG;
 import flixel.group.FlxSpriteGroup;
+import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import objects.DroppedItem;
 import sound.FootstepManager.MultiSoundManager;
@@ -31,6 +32,7 @@ class RatKingBoss extends HumanoidEntity
 		attributes.set(Attribute.SIZE_X, new Attribute(6, true));
 		attributes.set(Attribute.SIZE_Y, new Attribute(6, true));
 		attributes.set(Attribute.MAX_HEALTH, new Attribute(600 + FlxG.random.int(40 * (Main.run.roomsTraveled - 1), 40 * Main.run.roomsTraveled), true));
+		attributes.set(Attribute.MOVEMENT_SPEED, new Attribute(450 + FlxG.random.int(5 * (Main.run.roomsTraveled - 1), 5 * Main.run.roomsTraveled), true));
 		if (Main.run.roomsTraveled >= 5)
 		{
 			attributes.set(Attribute.CRIT_CHANCE, new Attribute(FlxG.random.int(3 * (Main.run.roomsTraveled - 6), 3 * (Main.run.roomsTraveled - 5)), true));
@@ -41,6 +43,7 @@ class RatKingBoss extends HumanoidEntity
 
 	var behaviourState = 0;
 	var randomRatBirth = 0.1;
+	var overlappedLastFrame = [];
 
 	override function update(elapsed:Float)
 	{
@@ -100,22 +103,66 @@ class RatKingBoss extends HumanoidEntity
 			velocity.y = -500;
 			noclip = true;
 		}
+		if (damageUntilStateSwitch <= 0 && behaviourState == 2)
+		{
+			FlxG.camera.shake(0.025, 0.1);
+			behaviourState = 0;
+			x = FlxG.random.int(500, 1000);
+			velocity.y = -1400;
+			acceleration.y = 900;
+			acceleration.x = 0;
+			damageUntilStateSwitch = 100;
+			maxVelocity.y = 900;
+			noclip = false;
+		}
 		if (behaviourState == 1)
 		{
 			acceleration.y = acceleration.y * (1 + elapsed);
 			maxVelocity.y = acceleration.y;
 		}
-		if (!isOnScreen())
+		var newOverlaps = [];
+		if (behaviourState == 2)
+		{
+			var closest:PlayerEntity = null;
+			var closestDistance = 900000.0;
+			if (FlxG.state is PlayState)
+			{
+				var ps:PlayState = cast(FlxG.state);
+				ps.playerLayer.forEachOfType(PlayerEntity, (p) ->
+				{
+					if (!p.alive && !p.isTouching(FLOOR))
+						return;
+					if (closestDistance > p.getMidpoint().distanceTo(getMidpoint()))
+					{
+						closestDistance = p.getMidpoint().distanceTo(getMidpoint());
+						closest = p;
+					}
+				});
+				if (closest != null)
+				{
+					acceleration.x = -(FlxMath.bound(getPosition().addPoint(closest.getPosition().negateNew()).x, -1,
+						1) * attributes.get(Attribute.MOVEMENT_SPEED).getValue());
+				}
+				FlxG.overlap(this, ps.playerLayer, (r, pl:Entity) ->
+				{
+					newOverlaps.push(pl);
+					if (!overlappedLastFrame.contains(pl))
+						pl.damage(25, this);
+				});
+			}
+		}
+		overlappedLastFrame = newOverlaps;
+		if (!isOnScreen() && y > 0)
 		{
 			MultiSoundManager.playRandomSound(this, "dig", FlxG.random.float(0.9, 1.1));
 			FlxG.camera.shake(0.025, 0.1);
-			behaviourState = 0;
-			velocity.y = -1250;
-			x = FlxG.random.int(500, 1000);
-			y = FlxG.height - 100;
+			behaviourState = 2;
+			x = FlxG.random.int(300, 800);
+			y = -600;
 			acceleration.y = 900;
+			damageUntilStateSwitch = 1;
 			maxVelocity.y = 900;
-			noclip = false;
+			noclip = true;
 		}
 		super.update(elapsed);
 	}

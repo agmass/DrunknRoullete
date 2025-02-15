@@ -17,6 +17,7 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
+import flixel.util.helpers.FlxRangeBounds;
 import haxe.ds.HashMap;
 import haxe.xml.Check.Attrib;
 import nape.geom.Vec2;
@@ -44,7 +45,7 @@ class Entity extends FlxSprite {
 	public var nametag:FlxText = new FlxText(0, 0, 0, "", 24);
 	public var floatingTexts:FlxSpriteGroup = new FlxSpriteGroup();
 
-	var lastHealth = 100.0;
+	var lastHealth = 0.0;
 	public var bossHealthBar = false;
 	public var rewards:Rewards = null;
 	public var ragdoll:FlxNapeSprite;
@@ -64,11 +65,12 @@ class Entity extends FlxSprite {
 		debugTracker.set("Stepping On", "steppingOn");
 		debugTracker.set("Footstep Sound Step", "footstepCount");
 		debugTracker.set("Pixels until Footstep", "pxTillFootstep");
-		blood.makeParticles(6, 6, FlxColor.RED);
+		blood.makeParticles(6, 6, FlxColor.RED, 600);
 		blood.lifespan.set(15, 20);
-		blood.acceleration.set(-900, 900, 900, 900, 0, 0);
+		blood.acceleration.set(-1400, 1400, 1400, 1400, 0, 0);
 		blood.alpha.set(1, 1, 0, 0);
-		blood.speed.set(400, 400, 0, 0);
+		blood.speed.set(800, 800, 0, 0);
+		blood.angle.set(0, 360, 0, 360);
 		blood.allowCollisions = ANY;
 		healthBar.createColoredEmptyBar(FlxColor.BLACK, true, FlxColor.BLACK, 2);
 		healthBar.createColoredFilledBar(FlxColor.RED, true, FlxColor.BLACK, 2);
@@ -109,7 +111,8 @@ class Entity extends FlxSprite {
 			spawnFloatingText(Math.round(health - lastHealth) + "", FlxColor.RED);
 			blood.start(true, 0, Math.ceil(lastHealth - health));
 			MultiSoundManager.playRandomSound(this, "hit");
-			naturalRegeneration = 5;
+			if (attributes.exists(Attribute.REGENERATION))
+				naturalRegeneration = 5 - Math.min(attributes.get(Attribute.REGENERATION).getValue(), 4.5);
 		}
 		for (sprite in floatingTexts)
 		{
@@ -229,10 +232,9 @@ class Entity extends FlxSprite {
 			pxTillFootstep = 80;
 			MultiSoundManager.playFootstepForEntity(this);
 		}
-
 		health = Math.min(health, attributes.get(Attribute.MAX_HEALTH).getValue());
         super.update(elapsed);
-    }
+	} 
 
 	public var originalSpriteSizeX = 32;
 	public var originalSpriteSizeY = 32;

@@ -14,6 +14,8 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxSave;
 import input.KeyboardSource;
+import state.CppVideoState;
+import state.MenuState;
 
 class CreditsSubState extends FlxSubState
 {
@@ -68,6 +70,8 @@ class CreditsSubState extends FlxSubState
 
 	override public function update(elapsed:Float):Void
 	{
+		if (Main.playingVideo)
+			return;
 		back.color = FlxColor.WHITE;
 		back.scale.set(1, 1);
 		if (FlxG.mouse.overlaps(back, uicam))
@@ -78,6 +82,18 @@ class CreditsSubState extends FlxSubState
 			{
 				close();
 			}
+		}
+		if (FlxG.mouse.justPressed && FlxG.mouse.x > 419 && FlxG.mouse.x < 453 && FlxG.mouse.y > 149 && FlxG.mouse.y < 165)
+		{
+			#if html5
+			Main.playVideo(AssetPaths.thespinningwheel__mp4);
+			#end
+			#if cpp
+			FlxG.switchState(new CppVideoState(AssetPaths.thespinningwheel__mp4, () ->
+			{
+				FlxG.switchState(new MenuState());
+			}));
+			#end
 		}
 
 		Main.detectConnections();
