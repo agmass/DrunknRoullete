@@ -29,6 +29,8 @@ import util.Run;
 import util.SubtitlesBox;
 #if cpp
 import steamwrap.api.Steam;
+import sys.io.File;
+import sys.io.FileOutput;
 #end
 #if html5
 import js.Browser;
@@ -136,6 +138,17 @@ class Main extends Sprite
 		MultiSoundManager.footstepVolume.set("wood", 0.75);
 		addChild(new FlxGame(0, 0, MenuState));
 		#if cpp
+		if (Sys.args().contains("-log"))
+		{
+			var fileOutput:FileOutput = File.write(Sys.getCwd() + "/dnr_latest.log");
+			var oldTrace = haxe.Log.trace; // store old function
+			haxe.Log.trace = function(v, ?infos)
+			{
+				oldTrace(v, infos);
+				fileOutput.writeString(v + "\n");
+				fileOutput.flush();
+			}
+		}
 		FlxG.drawFramerate = 240;
 		FlxG.updateFramerate = 240;
 		#end
