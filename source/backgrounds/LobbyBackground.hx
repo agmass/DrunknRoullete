@@ -18,6 +18,7 @@ class LobbyBackground extends FlxTypedGroup<FlxSprite>
 	var superglowinthedark:ShaderFilter = new ShaderFilter(new SuperGlowInTheDarkShader());
 
 	public static var state = -1;
+	var lobbyDoor:LobbyDoor = new LobbyDoor(930 * 1.5, 482 * 1.5);
 	public static var elapsedTimeInState = 0.0;
 	public static var goalToContinue:Void->Bool = () ->
 	{
@@ -48,6 +49,9 @@ class LobbyBackground extends FlxTypedGroup<FlxSprite>
 		window.animation.play("fixed");
 		window.updateHitbox();
 		add(window);
+		lobbyDoor.scale.set(1.5, 1.5);
+		lobbyDoor.updateHitbox();
+		cast(FlxG.state, PlayState).interactable.add(lobbyDoor);
 	}
 
 	override function update(elapsed:Float)
@@ -97,55 +101,55 @@ class LobbyBackground extends FlxTypedGroup<FlxSprite>
 			}
 		}
 
+		if (FlxG.state is PlayState)
+		{
+			var ps:PlayState = cast(FlxG.state);
+			ps.enemyLayer.forEachOfType(TutorialBoss, (p) ->
+			{
+				scrimbloDead = p.died;
+			});
+		}
 		super.update(elapsed);
 	}
+	public static var scrimbloDead = false;
 }
 
-class Door extends SpriteToInteract
+class LobbyDoor extends SpriteToInteract
 {
 	override public function new(x, y)
 	{
 		super(x, y);
-		makeGraphic(80, 100);
+		loadGraphic(AssetPaths.lobby_door__png, true, 207, 152);
+		animation.add("0", [0]);
+		animation.add("1", [1]);
+		animation.play("0");
 	}
 
 	override function update(elapsed:Float)
 	{
-		var scrimbloAlive = false;
-
-		cast(FlxG.state, PlayState).enemyLayer.forEachOfType(TutorialBoss, (p) ->
+		if (LobbyBackground.scrimbloDead)
 		{
-			if (!p.died)
-				scrimbloAlive = true;
-		});
-		if (scrimbloAlive)
-		{
-			color = FlxColor.GRAY;
+			animation.play("1");
+			tooltipSprite.visible = true;
 		}
 		else
 		{
-			color = FlxColor.BLACK;
+			animation.play("0");
+			tooltipSprite.visible = false;
 		}
 		super.update(elapsed);
 	}
-
 	override function interact(p:PlayerEntity)
 	{
-		var scrimbloAlive = false;
-
-		cast(FlxG.state, PlayState).enemyLayer.forEachOfType(TutorialBoss, (p) ->
-		{
-			if (!p.died)
-				scrimbloAlive = true;
-		});
-		if (scrimbloAlive)
-		{
-			PlayState.forcedBg = AssetPaths._platformer__png;
-		}
 		super.interact(p);
+		if (LobbyBackground.scrimbloDead)
+		{
+			Main.run.nextBoss = null;
+			PlayState.forcedBg = AssetPaths._platformer__png;
+			FlxG.switchState(new PlayState());
+		}
 	}
 }
-
 class BigRedButton extends SpriteToInteract
 {
 	override function update(elapsed:Float)

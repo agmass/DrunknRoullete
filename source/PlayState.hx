@@ -33,6 +33,7 @@ import flixel.addons.plugin.screengrab.FlxScreenGrab;
 import flixel.effects.particles.FlxParticle;
 import flixel.graphics.frames.FlxFrame;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.group.FlxGroup;
 import flixel.group.FlxSpriteGroup;
 import flixel.input.gamepad.mappings.SwitchProMapping;
 import flixel.math.FlxMath;
@@ -102,6 +103,7 @@ class PlayState extends TransitionableState
 	public var mapLayerFront:FlxSpriteGroup = new FlxSpriteGroup();
 	public var mapLayerMiddle:FlxSpriteGroup = new FlxSpriteGroup();
 	public var mapLayerBehind:FlxSpriteGroup = new FlxSpriteGroup();
+	public var enemyLeftovers:FlxGroup = new FlxGroup();
 	public var interactable:FlxSpriteGroup = new FlxSpriteGroup();
 	public var mapLayer:FlxSpriteGroup = new FlxSpriteGroup();
 	public var playerLayer:FlxSpriteGroup = new FlxSpriteGroup();
@@ -132,6 +134,10 @@ class PlayState extends TransitionableState
 		{
 			Main.gameMusic.pause();
 		});
+		if (members.contains(Main.run.nextBoss))
+		{
+			Main.run.nextBoss = null;
+		}
 		Main.napeSpace.clear();
 		Main.napeSpaceAmbient.clear();
 		super.destroy();
@@ -436,7 +442,9 @@ class PlayState extends TransitionableState
 		add(mapLayerBehind);
 		add(mapLayerMiddle);
 		add(interactable);
+		add(enemyLeftovers);
 		add(enemyLayer);
+		add(enemyLeftovers);
 		add(playerLayer);
 		add(mapLayerFront);
 		add(enviornment);
@@ -687,6 +695,18 @@ class PlayState extends TransitionableState
 				currentBarHeight += p.healthBar.height;
 				p.healthBar.camera = HUDCam;
 				p.nametag.camera = HUDCam;
+			}
+		});
+		FlxG.collide(mapLayer, enemyLeftovers, (m, p2) ->
+		{
+			if (p2 is FlxParticle)
+			{
+				var part:FlxParticle = cast(p2);
+				part.velocity.set(0, part.velocity.y);
+				if (part.isTouching(FLOOR))
+				{
+					part.velocity.set(0, 0);
+				}
 			}
 		});
 		enemyLayer.forEachOfType(EquippedEntity, (p) ->

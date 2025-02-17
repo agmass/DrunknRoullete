@@ -17,6 +17,7 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
+import flixel.util.FlxTimer;
 import flixel.util.helpers.FlxRangeBounds;
 import haxe.ds.HashMap;
 import haxe.xml.Check.Attrib;
@@ -52,6 +53,7 @@ class Entity extends FlxSprite {
 
 	public var naturalRegeneration = 0.0;
 	public var noclip = false;
+	var bleeds = true;
     
     public function new(x,y) {
         super(x,y);
@@ -183,6 +185,16 @@ class Entity extends FlxSprite {
 			ragdoll.update(elapsed);
 			if (ragdoll.alpha == 0)
 			{
+				if (FlxG.state is PlayState)
+				{
+					var ps:PlayState = cast(FlxG.state);
+					ps.enemyLeftovers.add(blood);
+					new FlxTimer().start(8, (t) ->
+					{
+						if (blood != null)
+							ps.enemyLeftovers.remove(blood);
+					});
+				}
 				ragdoll.body.position.set(new Vec2(-100, -100));
 				kill();
 			}
@@ -190,7 +202,7 @@ class Entity extends FlxSprite {
 		}
 		blood.x = getGraphicMidpoint().x;
 		blood.y = getGraphicMidpoint().y;
-		blood.scale.set(scale.x, scale.y);
+		blood.scale.set(getGraphicBounds().width / 60, getGraphicBounds().width / 60);
 		lastHealth = health;
 		if (attributes.exists(Attribute.REGENERATION))
 		{
