@@ -127,6 +127,7 @@ class Main extends Sprite
 		trace(attribution);
 		FPS = new FPS(0, 20, FlxColor.WHITE);
 		addChild(FPS);
+		FlxG.sound.cacheAll();
 		napeSpace = new Space(new Vec2(0, 1200));
 		napeSpaceAmbient = new Space(new Vec2(0, 1200));
 		MultiSoundManager.loadMultiSounds();

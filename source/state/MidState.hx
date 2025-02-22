@@ -8,6 +8,7 @@ import entity.bosses.BIGEVILREDCUBE;
 import entity.bosses.DrunkDriveDaveBoss;
 import entity.bosses.RatKingBoss;
 import entity.bosses.RobotBoss;
+import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxMath;
@@ -21,7 +22,9 @@ import haxe.xml.Check.Attrib;
 import input.InputSource;
 import input.KeyboardSource;
 import objects.Elevator;
+import openfl.filters.ShaderFilter;
 import shader.AttributesSlotTextShader;
+import shader.WavyShader;
 import ui.ElevatorButton;
 import util.Language;
 import util.Run;
@@ -41,6 +44,8 @@ class MidState extends TransitionableState
 	var combo:FlxText = new FlxText(0, 0, 0, "COMBO x0", 32);
 	var description:FlxText = new FlxText(0, 0, 240 * 1.5, "", 13);
 	var elevatorMusic:FlxSound = new FlxSound();
+	var elevatorCam:FlxCamera = new FlxCamera(0, 0, 0, 0, 0);
+	var wavy:WavyShader = new WavyShader();
 
 	override function create()
 	{
@@ -48,11 +53,16 @@ class MidState extends TransitionableState
 		Steam.setRichPresence("steam_display", "#Status_Elevator");
 		#end
 		FlxG.timeScale = 1;
+		elevatorCam.bgColor.alpha = 0;
+		FlxG.cameras.add(elevatorCam, false);
 		elevatorMusic.loadEmbedded(AssetPaths.elevatormusic__ogg, true);
 		elevatorMusic.play();
 		elevatorMusic.fadeIn(0.1);
 		FlxG.save.bind("brj2025");
 		add(elevator);
+		combo.camera = elevatorCam;
+		if (!FlxG.save.data.shadersDisabled)
+			elevatorCam.filters = [new ShaderFilter(wavy)];
 		elevator.screenCenter();
 		elevator.scale.set(2.485436893, 2.485436893);
 		elevator.updateHitbox();
@@ -302,6 +312,7 @@ class MidState extends TransitionableState
 
 	override function update(elapsed:Float)
 	{
+		wavy.elapsed.value[0] += elapsed;
 		#if cpp
 		if (video.bitmap.isPlaying)
 		{

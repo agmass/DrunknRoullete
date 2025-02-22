@@ -65,6 +65,7 @@ import openfl.geom.Rectangle;
 import shader.AttributesSlotTextShader;
 import shader.ChromaticShader;
 import shader.GlowInTheDarkShader;
+import shader.WavyShader;
 import sound.FootstepManager.MultiSoundManager;
 import state.MenuState;
 import state.TransitionableState;
@@ -110,7 +111,13 @@ class PlayState extends TransitionableState
 	public static var unlockCamera = false;
 	public var enemyLayer:FlxSpriteGroup = new FlxSpriteGroup();
 	public var gameCam:FlxCamera = new FlxCamera();
+<<<<<<< Updated upstream
 	public var HUDCam:FlxCamera = new FlxCamera();
+=======
+	var HUDCam:FlxCamera = new FlxCamera();
+	var WavyHUDCam:FlxCamera = new FlxCamera();
+	var wavy:WavyShader = new WavyShader();
+>>>>>>> Stashed changes
 	public var playersSpawned = false;
 	public var elevator:Elevator = new Elevator(0, 0);
 
@@ -271,6 +278,8 @@ class PlayState extends TransitionableState
 		FlxG.cameras.reset(gameCam);
 		HUDCam.bgColor.alpha = 0;
 		FlxG.cameras.add(HUDCam, false);
+		WavyHUDCam.bgColor.alpha = 0;
+		FlxG.cameras.add(WavyHUDCam, false);
 		var bg = new FlxSprite(0, 0, AssetPaths.test_bg__png);
 		bg.alpha = 0.2;
 		bg.scrollFactor.set(0, 0);
@@ -454,8 +463,9 @@ class PlayState extends TransitionableState
 		add(playerDebugText);
 		gameHud.camera = HUDCam;
 		add(gameHud);
-		tokensText.camera = HUDCam;
+		tokensText.camera = WavyHUDCam;
 		add(tokensText);
+		WavyHUDCam.filters = [new ShaderFilter(wavy)];
 		super.create();
 	}
 	public var takenInputs = [];
@@ -507,6 +517,7 @@ class PlayState extends TransitionableState
 
 	override public function update(elapsed:Float)
 	{
+		wavy.elapsed.value[0] += elapsed * 12.0;
 		if (platformerStage)
 		{
 			FlxG.worldBounds.set(FlxG.camera.scroll.x, FlxG.camera.scroll.y, FlxG.width, FlxG.height);
@@ -553,12 +564,14 @@ class PlayState extends TransitionableState
 			FlxG.timeScale = 0.2;
 			tokensText.visible = true;
 			tokensText.color = FlxColor.CYAN;
-			tokensText.screenCenter();
 			if (tokensTime == 0.75)
 			{
 				tokensState = 0;
 				tokensText.text = originalTokens + " TOKENS";
-				HUDCam.shake(0.0015, 0.1);
+				WavyHUDCam.shake(0.0015, 0.1);
+				FlxG.camera.shake(0.0015, 0.1);
+				tokensText.size = 96;
+				FlxTween.tween(tokensText, {size: 64}, 0.075, {ease: FlxEase.sineOut});
 				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "coin", 0.8, Main.OTHER_VOLUME);
 			}
 			if (tokensTime <= 0.5 && tokensState == 0)
@@ -571,7 +584,10 @@ class PlayState extends TransitionableState
 				{
 					tokensText.text = "COMBO x" + Main.run.combo;
 					tokensState = 1;
-					HUDCam.shake(0.0015, 0.1);
+					tokensText.size = 96;
+					FlxTween.tween(tokensText, {size: 64}, 0.075, {ease: FlxEase.sineOut});
+					WavyHUDCam.shake(0.0015, 0.1);
+					FlxG.camera.shake(0.0015, 0.1);
 					MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "coin", 1, Main.OTHER_VOLUME);
 				}
 			}
@@ -579,7 +595,10 @@ class PlayState extends TransitionableState
 			{
 				tokensText.text = (originalTokens * Main.run.combo) + " TOKENS";
 				tokensState = 2;
-				HUDCam.shake(0.0015, 0.1);
+				tokensText.size = 96;
+				FlxTween.tween(tokensText, {size: 64}, 0.075, {ease: FlxEase.sineOut});
+				WavyHUDCam.shake(0.0015, 0.1);
+				FlxG.camera.shake(0.0015, 0.1);
 				MultiSoundManager.playRandomSoundByItself(Main.audioPanner.x, Main.audioPanner.y, "coin", 1.2, Main.OTHER_VOLUME);
 			}
 			tokensTime -= elapsed;
@@ -587,6 +606,7 @@ class PlayState extends TransitionableState
 			{
 				FlxG.timeScale = 1;
 			}
+			tokensText.screenCenter();
 		}
 		else
 		{
