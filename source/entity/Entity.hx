@@ -22,11 +22,13 @@ import flixel.util.helpers.FlxRangeBounds;
 import haxe.ds.HashMap;
 import haxe.xml.Check.Attrib;
 import nape.geom.Vec2;
+import objects.hitbox.Hitbox;
 import openfl.display.BitmapData;
 import shader.FadingOut;
 import sound.FootstepManager;
 import state.TransitionableState;
 import util.Language;
+import util.Projectile;
 
 class Entity extends FlxSprite {
 
@@ -38,6 +40,8 @@ class Entity extends FlxSprite {
 	public var manuallyUpdateSize = false;
 	public var steppingOn = "concrete";
 	public var footstepCount = 0;
+	public var hitboxes:FlxTypedSpriteGroup<Hitbox> = new FlxTypedSpriteGroup();
+	public var collideables:FlxTypedSpriteGroup<Projectile> = new FlxTypedSpriteGroup();
 
 	public var pxTillFootstep = 80.0;
 	public var blood:FlxEmitter = new FlxEmitter();
@@ -48,12 +52,12 @@ class Entity extends FlxSprite {
 
 	var lastHealth = 0.0;
 	public var bossHealthBar = false;
+	public var bleeds = true;
 	public var rewards:Rewards = null;
 	public var ragdoll:FlxNapeSprite;
 
 	public var naturalRegeneration = 0.0;
 	public var noclip = false;
-	var bleeds = true;
     
     public function new(x,y) {
         super(x,y);
@@ -108,10 +112,12 @@ class Entity extends FlxSprite {
 	public var usePlayerVolume = false;
 
     override function update(elapsed:Float) {
+
 		if (lastHealth > health && ragdoll == null)
 		{
 			spawnFloatingText(Math.round(health - lastHealth) + "", FlxColor.RED);
-			blood.start(true, 0, Math.ceil(lastHealth - health));
+			if (bleeds)
+				blood.start(true, 0, Math.ceil(lastHealth - health));
 			MultiSoundManager.playRandomSound(this, "hit");
 			if (attributes.exists(Attribute.REGENERATION))
 				naturalRegeneration = 5 - Math.min(attributes.get(Attribute.REGENERATION).getValue(), 4.5);
@@ -124,6 +130,17 @@ class Entity extends FlxSprite {
 			{
 				sprite.destroy();
 				floatingTexts.remove(sprite);
+			}
+		}
+		hitboxes.update(elapsed);
+		collideables.update(elapsed);
+
+		for (hitbox in hitboxes)
+		{
+			if (hitbox.inactive)
+			{
+				hitboxes.remove(hitbox);
+				hitbox.destroy();
 			}
 		}
 		if (attributes.exists(Attribute.ATTACK_SPEED))
@@ -272,6 +289,8 @@ class Entity extends FlxSprite {
 			healthBar.draw();
 			nametag.draw();
 		}
+		hitboxes.draw();
+		collideables.draw();
     }
     
 	var translatedTypeName = "";

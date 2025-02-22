@@ -30,6 +30,17 @@ class AnalogControllerInput implements Input {
         this.gamepad = gamepad;
     }
 
+	public function nameWithOr():String
+	{
+		var txt = "";
+		for (d in stick)
+		{
+			txt += FlxGamepadInputID.toStringMap.get(d) + " or ";
+		}
+		txt = txt.substring(0, txt.length - 4);
+		return txt;
+	} // we dont change positive or negative keys because i really dont want to make a more complicated input changing system so uhh sowwy :3
+    
 	public function name():String
 	{
 		var txt = "";
@@ -37,6 +48,7 @@ class AnalogControllerInput implements Input {
 		{
 			txt += FlxGamepadInputID.toStringMap.get(d) + ", ";
 		}
+		txt = txt.substring(0, txt.length - 2);
 		return txt;
 	} // we dont change positive or negative keys because i really dont want to make a more complicated input changing system so uhh sowwy :3
 

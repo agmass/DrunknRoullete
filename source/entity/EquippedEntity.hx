@@ -15,8 +15,6 @@ class EquippedEntity extends Entity
 {
 	public var handWeapon:Equipment;
 	public var holsteredWeapon:Equipment;
-	public var hitboxes:FlxTypedSpriteGroup<Hitbox> = new FlxTypedSpriteGroup();
-	public var collideables:FlxTypedSpriteGroup<Projectile> = new FlxTypedSpriteGroup<Projectile>();
 
 	public var switchingAnimation = 0.0;
 	public var timeUntilAttack = 0.0;
@@ -40,16 +38,6 @@ class EquippedEntity extends Entity
 	override function update(elapsed:Float)
 	{
 		switchingAnimation -= elapsed * (1 + (switchingAnimation * 3));
-		hitboxes.update(elapsed);
-
-		for (hitbox in hitboxes)
-		{
-			if (hitbox.inactive)
-			{
-				hitboxes.remove(hitbox);
-				hitbox.destroy();
-			}
-		}
 		timeUntilAttack -= elapsed;
 		if (handWeapon != null)
 		{
@@ -132,7 +120,6 @@ class EquippedEntity extends Entity
 			if (switchingAnimation > 0.25)
 				handWeapon.draw();
 		}
-		hitboxes.draw();
 		super.draw();
 		if (handWeapon != null)
 		{

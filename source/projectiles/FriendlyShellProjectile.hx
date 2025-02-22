@@ -23,15 +23,11 @@ class FriendlyShellProjectile extends ShellProjectile
 
 	override function onOverlapWithMap()
 	{
-		if (shooter is EquippedEntity)
-		{
-			var eq:EquippedEntity = cast(shooter);
 			FlxG.camera.shake(0.0025, 0.1);
 			var explosion = new FriendlyExplosionHitbox(x - (196 / 2), y - (196 / 2), 0);
 			explosion.damage = 0;
 			returnToShooter = true;
-			eq.hitboxes.add(explosion);
-		}
+		shooter.hitboxes.add(explosion);
 	}
 
 	override function onOverlapWithEntity(entity:Entity)
@@ -39,13 +35,9 @@ class FriendlyShellProjectile extends ShellProjectile
 		if (entity == shooter)
 			return;
 		FlxG.camera.shake(0.005, 0.1);
-		if (shooter is EquippedEntity)
-		{
-			var eq:EquippedEntity = cast(shooter);
-			var explosion = new FriendlyExplosionHitbox(x - (196 / 2), y - (196 / 2), 0);
-			returnToShooter = true;
-			explosion.damage = 0;
-			eq.hitboxes.add(explosion);
-		}
+		var explosion = new FriendlyExplosionHitbox(x - (196 / 2), y - (196 / 2), 0);
+		returnToShooter = true;
+		explosion.damage = 0;
+		shooter.hitboxes.add(explosion);
 	}
 }

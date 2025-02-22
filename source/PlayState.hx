@@ -107,9 +107,10 @@ class PlayState extends TransitionableState
 	public var interactable:FlxSpriteGroup = new FlxSpriteGroup();
 	public var mapLayer:FlxSpriteGroup = new FlxSpriteGroup();
 	public var playerLayer:FlxSpriteGroup = new FlxSpriteGroup();
+	public static var unlockCamera = false;
 	public var enemyLayer:FlxSpriteGroup = new FlxSpriteGroup();
 	public var gameCam:FlxCamera = new FlxCamera();
-	var HUDCam:FlxCamera = new FlxCamera();
+	public var HUDCam:FlxCamera = new FlxCamera();
 	public var playersSpawned = false;
 	public var elevator:Elevator = new Elevator(0, 0);
 
@@ -164,6 +165,7 @@ class PlayState extends TransitionableState
 
 	override public function create()
 	{
+		unlockCamera = false;
 		storyModeSaveFile.bind("dnr_story");
 		bgName = EnviornmentsLoader.enviornments[FlxG.random.int(0, EnviornmentsLoader.enviornments.length - 1)];
 		if (forcedBg != null)
@@ -709,7 +711,7 @@ class PlayState extends TransitionableState
 				}
 			}
 		});
-		enemyLayer.forEachOfType(EquippedEntity, (p) ->
+		enemyLayer.forEachOfType(Entity, (p) ->
 		{
 			if (bgName == AssetPaths.backrooms__png)
 			{
@@ -900,7 +902,6 @@ class PlayState extends TransitionableState
 
 			if (p.alive)
 				alivePlayers++;
-			p.healthBar.camera = HUDCam;
 			FlxG.collide(mapLayer, p.blood, (m, p2) ->
 			{
 				if (p2 is FlxParticle)
@@ -955,19 +956,22 @@ class PlayState extends TransitionableState
 			if (FlxG.save.data.playerInfoShown)
 				playerDebugText.text += p.toString() + "\n\n";
 		});
-		if (FlxG.save.data.cheats && FlxG.keys.pressed.U || platformerStage)
+		if (!unlockCamera)
 		{
-			FlxG.camera.follow(playerLayer.getFirstAlive());
-			HUDCam.follow(playerLayer.getFirstAlive());
-		}
-		else
-		{
-			FlxG.camera.target = null;
-			HUDCam.target = null;
-			FlxG.camera.scroll.x = 0;
-			FlxG.camera.scroll.y = 0;
-			HUDCam.scroll.x = 0;
-			HUDCam.scroll.y = 0;
+			if (FlxG.save.data.cheats && FlxG.keys.pressed.U || platformerStage)
+			{
+				FlxG.camera.follow(playerLayer.getFirstAlive());
+				HUDCam.follow(playerLayer.getFirstAlive());
+			}
+			else
+			{
+				FlxG.camera.target = null;
+				HUDCam.target = null;
+				FlxG.camera.scroll.x = 0;
+				FlxG.camera.scroll.y = 0;
+				HUDCam.scroll.x = 0;
+				HUDCam.scroll.y = 0;
+			}
 		}
 		if (alivePlayers == 1 && playerHealth <= 50 && !FlxG.save.data.disableChroma)
 		{

@@ -45,14 +45,30 @@ class KeyOrMouseInput implements Input{
 	public function name():String
 	{
 		var txt = "";
-		for (d in key)
-		{
-			txt += FlxKey.toStringMap.get(d) + ", ";
-		}
 		for (d in mouse)
 		{
 			txt += "MOUSE" + d.ID + ", ";
 		}
+		for (d in key)
+		{
+			txt += FlxKey.toStringMap.get(d) + ", ";
+		}
+		txt = txt.substring(0, txt.length - 2);
+		return txt;
+	}
+
+	public function nameWithOr():String
+	{
+		var txt = "";
+		for (d in mouse)
+		{
+			txt += "MOUSE" + d.ID + " or ";
+		}
+		for (d in key)
+		{
+			txt += FlxKey.toStringMap.get(d) + " or ";
+		}
+		txt = txt.substring(0, txt.length - 4);
 		return txt;
 	}
 }

@@ -159,6 +159,8 @@ class RatKingBoss extends HumanoidEntity
 			behaviourState = 2;
 			x = FlxG.random.int(300, 800);
 			y = -600;
+			acceleration.x = 0;
+			velocity.x = 0;
 			acceleration.y = 900;
 			damageUntilStateSwitch = 1;
 			maxVelocity.y = 900;

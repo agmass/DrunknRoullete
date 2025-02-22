@@ -16,11 +16,22 @@ class MouthwashingFadeOutEffect extends FlxShader
 
         uniform float level;
 
+		float random(vec2 st) {
+			st *= 150.0;
+			st = floor(st);
+			return fract(sin(dot(st.xy,
+								 vec2(12.9898,78.233)))*
+				43758.5453123);
+		}
 void main()
 {
 	vec4 color = flixel_texture2D(bitmap, openfl_TextureCoordv);
-	if (color.r <= level && color.g <= level && color.b <= level) {
-    	gl_FragColor = vec4(color.r*level,color.g*level,color.b*level,color.a*level);
+	bool fadeBright = (color.r+color.g+color.b+random(vec2(openfl_TextureCoordv.x, openfl_TextureCoordv.y)))/5.0 >= level;
+	bool fadeDark = (color.r+color.g+color.b+random(vec2(openfl_TextureCoordv.x, openfl_TextureCoordv.y)))/5.0 <= 1.0-level;
+	if (fadeDark || fadeBright) {
+    	gl_FragColor = vec4(0,0,0,0);
+	} else {
+        gl_FragColor = vec4(color.r,color.g,color.b,color.a);
 	}
 		
 }

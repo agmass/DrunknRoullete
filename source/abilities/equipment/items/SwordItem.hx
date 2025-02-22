@@ -44,7 +44,7 @@ class SwordItem extends Equipment
 		if (bottle == null)
 		{
 			bottle = new BottleProjectile(x, y, this);
-			var add = new FlxPoint(800, 0).rotateByDegrees(angle - 90);
+			var add = new FlxPoint(1100, 0).rotateByDegrees(angle - 90);
 			bottle.body.velocity.setxy(add.x, add.y);
 			bottle.body.rotate(bottle.body.position, angle * FlxAngle.TO_RAD);
 			bottle.shooter = player;
@@ -74,11 +74,12 @@ class SwordItem extends Equipment
 			swordSweep.flipX = true;
 		}
 		player.hitboxes.add(swordSweep);
-		lastSwing = new FlxPoint(80, 0).rotateByDegrees(angle - 90).negate();
-		var add = new FlxPoint(50, 0).rotateByDegrees(angle - 90).negate();
+		var pv = Math.abs(player.velocity.x / 10) + Math.abs(player.velocity.y / 10);
+		lastSwing = new FlxPoint(80 + pv, 0).rotateByDegrees(angle - 90).negate();
+		var add = new FlxPoint(50 + pv, 0).rotateByDegrees(angle - 90).negate();
 		player.extraVelocity = lastSwing.scaleNew(1.2).negateNew();
 		swordSweep.y += -add.y;
-		swordSweep.velocity = new FlxPoint(300, 0).rotateByDegrees(angle - 90);
+		swordSweep.velocity = new FlxPoint(300 + pv, 0).rotateByDegrees(angle - 90);
 		if (player.isTouching(FLOOR))
 		{
 			var sound = FlxG.sound.play(AssetPaths.critswing__ogg);

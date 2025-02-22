@@ -14,8 +14,10 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxSave;
 import input.KeyboardSource;
-import state.CppVideoState;
 import state.MenuState;
+#if cpp
+import state.CppVideoState;
+#end
 
 class CreditsSubState extends FlxSubState
 {

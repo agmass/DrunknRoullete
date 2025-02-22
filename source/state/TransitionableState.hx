@@ -3,12 +3,14 @@ package state;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.system.FlxAssets.FlxShader;
 import openfl.display.BitmapData;
+import shader.MonochromeOut;
 import shader.MouthwashingFadeOutEffect;
 
 class TransitionableState extends FlxState
 {
-	public var mouthwashFadeOut:MouthwashingFadeOutEffect;
+	public var shaderToApply:FlxShader;
 
 	public var fadeIn = false;
 
@@ -16,24 +18,27 @@ class TransitionableState extends FlxState
 
 	public static var bitmapData:BitmapData;
 
+	override public function new() {
+		super();
+		shaderToApply = new MonochromeOut();
+	}
 	override function create()
 	{
 		super.create();
 
 		if (bitmapData != null)
 		{
-			mouthwashFadeOut = new MouthwashingFadeOutEffect();
-			// mouthwashFadeOut.level.value = [0.0];
 			oldSprite.makeGraphic(FlxG.width, FlxG.height);
 			oldSprite.graphic.bitmap = bitmapData;
 			if (!FlxG.save.data.shadersDisabled)
-				oldSprite.shader = mouthwashFadeOut;
+				oldSprite.shader = shaderToApply;
 			add(oldSprite);
 		}
 	}
 
 	override function startOutro(onOutroComplete:() -> Void)
 	{
+		oldSprite.alpha = 0;
 		TransitionableState.screengrab();
 		super.startOutro(onOutroComplete);
 	}
@@ -46,7 +51,7 @@ class TransitionableState extends FlxState
 
 	override function update(elapsed:Float)
 	{
-		if (mouthwashFadeOut != null && oldSprite.alive)
+		if (shaderToApply != null && oldSprite.alive)
 		{
 			if (FlxG.save.data.shadersDisabled)
 			{
@@ -54,11 +59,11 @@ class TransitionableState extends FlxState
 			}
 			else
 			{
-				if (fadeIn)
-				{
-					if (mouthwashFadeOut.level.value[0] > 0.0)
+				if (shaderToApply is MonochromeOut) {
+					var shaderCasted:MonochromeOut = cast(shaderToApply);
+					if (shaderCasted.level.value[0] < 1.0)
 					{
-						mouthwashFadeOut.level.value[0] -= elapsed;
+						shaderCasted.level.value[0] += elapsed*1.9;
 					}
 					else
 					{
@@ -67,11 +72,11 @@ class TransitionableState extends FlxState
 						oldSprite.shader = null;
 					}
 				}
-				else
-				{
-					if (mouthwashFadeOut.level.value[0] > 0.0)
+				if (shaderToApply is MouthwashingFadeOutEffect) {
+					var shaderCasted:MouthwashingFadeOutEffect = cast(shaderToApply);
+					if (shaderCasted.level.value[0] > 0.0)
 					{
-						mouthwashFadeOut.level.value[0] -= elapsed;
+						shaderCasted.level.value[0] -= elapsed;
 					}
 					else
 					{

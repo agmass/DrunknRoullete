@@ -11,6 +11,7 @@ import flixel.util.FlxColor;
 import flixel.util.FlxSave;
 import openfl.display.BitmapData;
 import shader.AttributesSlotTextShader;
+import shader.MouthwashingFadeOutEffect;
 import substate.CreditsSubState;
 import substate.PotentialCrashSubState;
 import substate.SettingsSubState;
@@ -78,7 +79,9 @@ class MenuState extends TransitionableState
 						return;
 					}
 					MidState.readSaveFile(storyModeSaveFile);
-					FlxG.switchState(new MidState());
+					var state = new MidState();
+					state.shaderToApply = new MouthwashingFadeOutEffect();
+					FlxG.switchState(state);
 				}
 				else
 				{
@@ -93,7 +96,9 @@ class MenuState extends TransitionableState
 					#if cpp
 					FlxG.switchState(new CppVideoState(AssetPaths.intro__mp4, () ->
 					{
-						FlxG.switchState(new PlayState());
+						var state = new PlayState();
+						state.shaderToApply = new MouthwashingFadeOutEffect();
+						FlxG.switchState(state);
 					}));
 					#end
 				}
@@ -107,7 +112,9 @@ class MenuState extends TransitionableState
 			#end
 			if (waitForFadeOut < 0)
 			{
-				FlxG.switchState(new PlayState());
+				var state = new PlayState();
+				state.shaderToApply = new MouthwashingFadeOutEffect();
+				FlxG.switchState(state);
 			}
 		};
 		back.onUsed = () ->
@@ -152,7 +159,7 @@ class MenuState extends TransitionableState
 		if (FlxG.save.data.highestTokens != null)
 		{
 			add(highScore);
-			highScore.text = "HIGHEST TOKENS: " + FlxG.save.data.highestTokens;
+			highScore.text = StringTools.replace(Language.get("menu.highScore"), "%1", FlxG.save.data.highestTokens);
 			highScore.screenCenter(X);
 			if (!FlxG.save.data.shadersDisabled)
 			{
@@ -184,7 +191,9 @@ class MenuState extends TransitionableState
 		}
 		if (wasPlayingVideo)
 		{
-			FlxG.switchState(new PlayState());
+			var state = new PlayState();
+			state.shaderToApply = new MouthwashingFadeOutEffect();
+			FlxG.switchState(state);
 			return;
 		}
 		Main.detectConnections();

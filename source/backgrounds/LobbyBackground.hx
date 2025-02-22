@@ -71,26 +71,13 @@ class LobbyBackground extends FlxTypedGroup<FlxSprite>
 		{
 			elapsedTimeInState += elapsed;
 		}
-		if (LobbyBackground.state == 1 && elapsedTimeInState >= 39 && elapsedTimeInState <= 50)
-		{
-			if (!FlxG.camera.filters.contains(superglowinthedark))
-			{
-				FlxG.camera.filters.push(superglowinthedark);
-			}
-		}
-		else
-		{
-			if (FlxG.camera.filters.contains(superglowinthedark))
-			{
-				FlxG.camera.filters.remove(superglowinthedark);
-			}
-		}
-		if (state == -1)
+		if (state == -1 || state == -2)
 		{
 			if (!FlxG.camera.filters.contains(glowinthedark))
 			{
 				FlxG.camera.filters.push(glowinthedark);
 			}
+
 		}
 		else
 		{
@@ -164,8 +151,7 @@ class BigRedButton extends SpriteToInteract
 	{
 		if (LobbyBackground.state == -1)
 		{
-			FlxG.camera.shake(0.05, 0.5);
-			LobbyBackground.state = 1;
+			LobbyBackground.state = -2;
 		}
 		super.interact(p);
 	}

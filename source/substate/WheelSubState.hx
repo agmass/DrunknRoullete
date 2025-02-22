@@ -135,7 +135,7 @@ class WheelSubState extends FlxSubState {
 		}
 		if (p.handWeapon == null && p.holsteredWeapon == null)
 		{
-			amountText.text = "FREE!";
+			amountText.text = Language.get("hint.free");
 			amountText.color = FlxColor.LIME;
 		}
 		if (p.handWeapon != null && p.holsteredWeapon != null)

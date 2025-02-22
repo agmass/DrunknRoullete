@@ -36,6 +36,8 @@ class ExplosionHitbox extends Hitbox
 
 	override function onHit(victim:Entity)
 	{
+		if (hitEntities.contains(victim))
+			return;
 		if (timeLived > 0.4)
 			return;
 		victim.damage(FlxMath.lerp(damage / 2, 0, Math.abs(victim.getMidpoint().add(getMidpoint().negate().x, getMidpoint().negate().y).x) / 196)

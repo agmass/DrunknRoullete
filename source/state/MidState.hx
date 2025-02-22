@@ -426,11 +426,10 @@ class MidState extends TransitionableState
 				continueButton.animation.play("p");
 				text.text = Language.get("entity." + Main.run.nextBoss.typeTranslationKey);
 				description.text = Language.get("entity." + Main.run.nextBoss.typeTranslationKey + ".description")
-					+ "\n\n`Health: "
-					+ Main.run.nextBoss.attributes.get(Attribute.MAX_HEALTH).refreshAndGetValue()
-					+ "`\n@Level "
-					+ (Main.run.roomsTraveled + 1)
-					+ " boss@";
+					+ "\n\n"
+					+ StringTools.replace(Language.get("hint.health"), "%1", Main.run.nextBoss.attributes.get(Attribute.MAX_HEALTH).refreshAndGetValue() + "")
+					+ "\n"
+					+ StringTools.replace(Language.get("hint.level"), "%1", (Main.run.roomsTraveled + 1) + "");
 				if (antiEpilepsy < 0)
 				{
 					antiEpilepsy = 0.25;

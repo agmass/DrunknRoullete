@@ -30,6 +30,16 @@ class ButtonControllerInput implements Input {
     }
 
 
+	public function nameWithOr():String
+	{
+		var txt = "";
+		for (d in positiveKey)
+		{
+			txt += FlxGamepadInputID.toStringMap.get(d) + " or ";
+		}
+		txt = txt.substring(0, txt.length - 4);
+		return txt;
+	}
 	public function name():String
 	{
 		var txt = "";
@@ -37,6 +47,7 @@ class ButtonControllerInput implements Input {
 		{
 			txt += FlxGamepadInputID.toStringMap.get(d) + ", ";
 		}
+		txt = txt.substring(0, txt.length - 2);
 		return txt;
 	}
 }
