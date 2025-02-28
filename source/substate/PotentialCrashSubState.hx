@@ -39,7 +39,6 @@ class PotentialCrashSubState extends FlxSubState
 		uicam.zoom = 1.75;
 		bg = new FlxUITabMenu(null, []);
 		bg.scrollFactor.set();
-		FlxG.save.bind("brj2025");
 		super.create();
 		bg.resize(FlxG.width / 3, FlxG.height / 4);
 		bg.screenCenter();

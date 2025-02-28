@@ -92,7 +92,6 @@ class SlotsSubState extends FlxSubState
 		slotsMachine.updateHitbox();
 		slotsMachine.screenCenter();
 		slotsMachine.camera = foregroundgamblingCamera;
-		FlxG.save.bind("brj2025");
 		if (!FlxG.save.data.shadersDisabled)
 			slotsMachine.shader = slotShader;
 		slotsMachine.animation.add("idle", [0]);

@@ -61,6 +61,7 @@ class MultiSoundManager
 		var sound = FlxG.sound.play(multiSounds.get(soundName)[FlxG.random.int(0, multiSounds.get(soundName).length - 1)]);
 		sound.proximity(x, y, Main.audioPanner, 1920, true);
 		sound.pitch = pitch;
+		sound.autoDestroy = false;
 		if (soundName != "coin" && FlxG.state.subState == null)
 		{
 			sound.pitch *= FlxG.timeScale;
@@ -73,6 +74,7 @@ class MultiSoundManager
 		var sound = FlxG.sound.play(multiSounds.get(soundName)[FlxG.random.int(0, multiSounds.get(soundName).length - 1)]);
 		sound.proximity(entity.x, entity.y, Main.audioPanner, 1920, true);
 		sound.pitch = pitch;
+		sound.autoDestroy = false;
 		if (soundName != "coin" && FlxG.state.subState == null)
 		{
 			sound.pitch *= FlxG.timeScale;
@@ -95,6 +97,7 @@ class MultiSoundManager
 			entity.footstepCount++;
 			Main.subtitles.set(Language.get("subtitle.footsteps"), 4);
 			var sound = FlxG.sound.play(surfaceMap.get(entity.steppingOn)[entity.footstepCount]);
+			sound.autoDestroy = false;
 			sound.proximity(entity.x, entity.y, Main.audioPanner, 1920, true);
 			sound.pitch = FlxG.timeScale;
 			sound.volume = footstepVolume.exists(entity.steppingOn) ? footstepVolume.get(entity.steppingOn) : 1;

@@ -43,6 +43,7 @@ class MenuState extends TransitionableState
 	override function create()
 	{
 		Main.gameMusic.loadEmbedded(AssetPaths.gamemusic__ogg, true);
+
 		credits.onUsed = () ->
 		{
 			var tempState:CreditsSubState = new CreditsSubState();
@@ -134,7 +135,6 @@ class MenuState extends TransitionableState
 			}
 
 		};
-		FlxG.save.bind("brj2025");
 		Main.run = null;
 		if (FlxG.save.data.seenIntro)
 		{
@@ -179,11 +179,20 @@ class MenuState extends TransitionableState
 
 	var s = new AttributesSlotTextShader();
 	var selection = 0;
+	var clearedSounds = false;
 	var waitForFadeOut = 0.3;
 	override function update(elapsed:Float)
 	{
 		s.elapsed.value[0] += elapsed;
 		waitForFadeOut -= elapsed;
+		if (waitForFadeOut < 0 && !clearedSounds)
+		{
+			clearedSounds = true;
+			FlxG.sound.list.forEach((s) ->
+			{
+				s.destroy();
+			});
+		}
 		if (Main.playingVideo)
 		{
 			wasPlayingVideo = true;

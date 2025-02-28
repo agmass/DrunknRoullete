@@ -24,9 +24,9 @@ void main()
 	if (openfl_TextureCoordv.x+openfl_TextureCoordv.y <= easedLevel*2.0) {
     	gl_FragColor = vec4(0,0,0,0);
 	} else {
-		float finalRed = color.r + ((monochromed - color.r) * min(1.0, easedLevel*2.5));
-		float finalBlue = color.b + ((monochromed - color.b) * min(1.0, easedLevel*2.5));
-		float finalGreen = color.g + ((monochromed - color.g) * min(1.0, easedLevel*2.5));
+		float finalRed = color.r + ((monochromed - color.r) * min(1.0, easedLevel*1.5));
+		float finalBlue = color.b + ((monochromed - color.b) * min(1.0, easedLevel*1.5));
+		float finalGreen = color.g + ((monochromed - color.g) * min(1.0, easedLevel*1.5));
     	gl_FragColor = vec4(finalRed,finalGreen,finalBlue,color.a);
 	}
 	

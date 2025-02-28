@@ -106,7 +106,6 @@ class SettingsSubState extends FlxSubState
 			};
 			e++;
 		}
-		FlxG.save.bind("brj2025");
 		super.create();
 		bg.resize(FlxG.width / 3, FlxG.height / 3);
 		bg.screenCenter();

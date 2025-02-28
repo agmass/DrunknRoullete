@@ -58,7 +58,6 @@ class MidState extends TransitionableState
 		elevatorMusic.loadEmbedded(AssetPaths.elevatormusic__ogg, true);
 		elevatorMusic.play();
 		elevatorMusic.fadeIn(0.1);
-		FlxG.save.bind("brj2025");
 		add(elevator);
 		combo.camera = elevatorCam;
 		if (!FlxG.save.data.shadersDisabled)

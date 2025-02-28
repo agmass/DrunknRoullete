@@ -111,13 +111,9 @@ class PlayState extends TransitionableState
 	public static var unlockCamera = false;
 	public var enemyLayer:FlxSpriteGroup = new FlxSpriteGroup();
 	public var gameCam:FlxCamera = new FlxCamera();
-<<<<<<< Updated upstream
 	public var HUDCam:FlxCamera = new FlxCamera();
-=======
-	var HUDCam:FlxCamera = new FlxCamera();
 	var WavyHUDCam:FlxCamera = new FlxCamera();
 	var wavy:WavyShader = new WavyShader();
->>>>>>> Stashed changes
 	public var playersSpawned = false;
 	public var elevator:Elevator = new Elevator(0, 0);
 
@@ -189,7 +185,6 @@ class PlayState extends TransitionableState
 			Main.connectionsDirty = true;
 			Main.activeInputs.push(new KeyboardSource());
 		}
-		FlxG.save.bind("brj2025");
 		elevator.screenCenter();
 		elevator.x -= 512;
 		elevator.y = 535 * 1.5;
