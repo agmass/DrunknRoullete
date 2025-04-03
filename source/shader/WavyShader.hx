@@ -15,7 +15,7 @@ class WavyShader extends FlxShader
 
 void main()
 {
-	vec4 color = flixel_texture2D(bitmap, vec2(openfl_TextureCoordv.x, openfl_TextureCoordv.y*(1+(sin(elapsed-(openfl_TextureCoordv.x*20.0)))*0.01)));
+	vec4 color = flixel_texture2D(bitmap, vec2(openfl_TextureCoordv.x, openfl_TextureCoordv.y*(1.0+(sin(elapsed-(openfl_TextureCoordv.x*20.0)))*0.01)));
     gl_FragColor = vec4(color.r,color.g,color.b,color.a);		
 }'
 	)

@@ -29,7 +29,7 @@ void main()
 	bool fadeBright = (color.r+color.g+color.b+random(vec2(openfl_TextureCoordv.x, openfl_TextureCoordv.y)))/5.0 >= level;
 	bool fadeDark = (color.r+color.g+color.b+random(vec2(openfl_TextureCoordv.x, openfl_TextureCoordv.y)))/5.0 <= 1.0-level;
 	if (fadeDark || fadeBright) {
-    	gl_FragColor = vec4(0,0,0,0);
+    	gl_FragColor = vec4(0.0,0.0,0.0,0.0);
 	} else {
         gl_FragColor = vec4(color.r,color.g,color.b,color.a);
 	}

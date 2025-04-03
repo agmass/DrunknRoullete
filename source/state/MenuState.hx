@@ -86,7 +86,7 @@ class MenuState extends TransitionableState
 				}
 				else
 				{
-					PlayState.forcedBg = AssetPaths._lobby__png;
+					PlayState.forcedBg = AssetPaths._platformer__png;
 					PlayState.storyMode = true;
 					Main.run = new Run();
 					Main.run.progression = 0;
@@ -113,9 +113,28 @@ class MenuState extends TransitionableState
 			#end
 			if (waitForFadeOut < 0)
 			{
-				var state = new PlayState();
-				state.shaderToApply = new MouthwashingFadeOutEffect();
-				FlxG.switchState(state);
+				if (!FlxG.save.data.seenIntro)
+				{
+					#if html5
+					Main.playVideo(AssetPaths.intro__mp4);
+					#end
+					#if cpp
+					FlxG.switchState(new CppVideoState(AssetPaths.intro__mp4, () ->
+					{
+						var state = new PlayState();
+						state.shaderToApply = new MouthwashingFadeOutEffect();
+						FlxG.switchState(state);
+					}));
+					#end
+				}
+				else
+				{
+					var state = new PlayState();
+					state.shaderToApply = new MouthwashingFadeOutEffect();
+					FlxG.switchState(state);
+				}
+				FlxG.save.data.seenIntro = true;
+				FlxG.save.flush();
 			}
 		};
 		back.onUsed = () ->
@@ -127,11 +146,11 @@ class MenuState extends TransitionableState
 		{
 			if (FlxG.save.data.run == null)
 			{
-				menuSelectables = [storyMode, newGame, back];
+				menuSelectables = [newGame, back];
 			}
 			else
 			{
-				menuSelectables = [storyMode, newGame, continueButton, back];
+				menuSelectables = [newGame, continueButton, back];
 			}
 
 		};

@@ -4,6 +4,7 @@ import abilities.attributes.Attribute;
 import flixel.FlxG;
 import flixel.effects.particles.FlxEmitter;
 import flixel.util.FlxColor;
+import shader.OutlineShader.Outline;
 import sound.FootstepManager;
 
 class HumanoidEntity extends EquippedEntity
@@ -11,6 +12,7 @@ class HumanoidEntity extends EquippedEntity
 	public var poofParticles = new FlxEmitter();
 	public var wasGrounded = false;
 	public var extraGroundedTime = 3;
+	public var outliner = new Outline(FlxColor.BLACK);
 
 	override public function new(x, y)
 	{
